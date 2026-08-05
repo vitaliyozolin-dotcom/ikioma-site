@@ -1,0 +1,139 @@
+schema_version: 1
+project:
+  name: "ИКИОМА — официальный сайт"
+  area: "маркетинг, продажи и цифровая инфраструктура ИЖС"
+  owner: "Виталий Озолин"
+  status: draft
+  updated_at: "2026-08-05"
+
+problem: >-
+  Рабочий сайт существует в ChatGPT Sites, но не размещён на российском
+  хостинге и не работает на основном домене ikioma.ru.
+
+goal: >-
+  Разместить актуальный сайт ИКИОМА на Timeweb, подключить ikioma.ru и сделать
+  GitHub единственным источником кода с автоматической публикацией изменений.
+
+measurable_result:
+  - "https://ikioma.ru открывает актуальную версию сайта по HTTPS"
+  - "каждый подтверждённый коммит в main автоматически публикуется в Timeweb"
+  - "мобильная и десктопная версии проходят проверку ключевых сценариев"
+
+completion_criteria:
+  - "репозиторий vitaliyozolin-dotcom/ikioma-site содержит актуальный исходный код"
+  - "сборка npm run build:timeweb завершается успешно"
+  - "Timeweb подключён к ветке main и автодеплой включён"
+  - "домен ikioma.ru привязан к приложению, DNS валиден, SSL активен"
+  - "навигация, варианты дома, этапы, FAQ и калькулятор работают"
+  - "форма или канал получения заявки подключён и проверен тестовой заявкой"
+
+current_state:
+  as_of: "2026-08-05"
+  facts:
+    - "актуальная опубликованная версия: ИКИОМА, версия 6"
+    - "контрольный URL: https://ikioma-homes.ozolin.chatgpt.site"
+    - "GitHub-репозиторий создан и доступен для записи"
+    - "подготовлена отдельная статическая сборка для Timeweb"
+  sources:
+    - "ChatGPT Sites project ikioma-homes"
+    - "GitHub vitaliyozolin-dotcom/ikioma-site"
+
+stages:
+  - id: source
+    name: "Единый исходник"
+    status: in_progress
+    output: "актуальный код в GitHub и успешная сборка"
+    depends_on: []
+  - id: hosting
+    name: "Timeweb App Platform"
+    status: pending
+    output: "приложение связано с main, первый деплой успешен"
+    depends_on: [source]
+  - id: domain
+    name: "Домен и HTTPS"
+    status: pending
+    output: "ikioma.ru отвечает по HTTPS"
+    depends_on: [hosting]
+  - id: qa
+    name: "Приёмка"
+    status: pending
+    output: "проверены десктоп, мобильный экран и все основные клики"
+    depends_on: [domain]
+  - id: leads
+    name: "Боевой канал заявок"
+    status: pending
+    output: "тестовая заявка дошла ответственному"
+    depends_on: [qa]
+
+roles:
+  owner:
+    person: "Виталий Озолин"
+    authority: "решения по бренду, домену, хостингу и каналу заявок"
+  technical_executor:
+    person: "Codex"
+    authority: "код, сборка, проверка и подготовка автоматического деплоя"
+
+constraints:
+  - "хостинг должен находиться в российском контуре Timeweb"
+  - "обновления не должны требовать ручной загрузки файлов"
+  - "доступы, пароли и токены не хранятся в репозитории или переписке"
+  - "до подключения CRM сайт не должен имитировать отправку заявки"
+
+metrics:
+  result: "доступность ikioma.ru и получение тестовой заявки"
+  quality: "0 критических ошибок в ключевых сценариях"
+  time: "один автоматический деплой после коммита в main"
+  money: "стоимость Timeweb и домена в пределах утверждённого тарифа"
+  risk: "отсутствие ручных секретов и незащищённых форм"
+
+risks:
+  - id: timeweb_access
+    description: "подключение GitHub и домена требует действий владельца в Timeweb"
+    owner: "Виталий Озолин"
+    mitigation: "пошаговое сопровождение по одному действию"
+  - id: lead_channel
+    description: "канал получения заявок пока не выбран"
+    owner: "Виталий Озолин"
+    mitigation: "после запуска выбрать CRM, Telegram, email или WhatsApp"
+
+decision_history:
+  - date: "2026-07-29"
+    decision: "взять логику ШЕСУА как референс, но сохранить характер ИКИОМА"
+  - date: "2026-08-05"
+    decision: "перенести сайт в Timeweb и использовать ikioma.ru"
+  - date: "2026-08-05"
+    decision: "GitHub становится главным источником, автодеплой обязателен"
+
+current_step:
+  owner: "Codex"
+  action: "перенести актуальный исходник в vitaliyozolin-dotcom/ikioma-site"
+  due: "2026-08-05"
+  expected_result: "репозиторий содержит проверяемую сборку для Timeweb"
+  evidence: "коммит GitHub и успешная команда npm run build:timeweb"
+  next_transition: "подключение репозитория в Timeweb App Platform"
+
+ai_process_contract:
+  input_data:
+    - "актуальный исходный код сайта"
+    - "решения и замечания Виталия по UX/UI"
+    - "статус GitHub, Timeweb, DNS и SSL"
+  expected_result: "проверенная версия сайта автоматически опубликована на ikioma.ru"
+  allowed_actions:
+    - "изменять код сайта и конфигурацию сборки"
+    - "создавать коммиты после проверки"
+    - "проверять деплой, домен и ключевые клики"
+  forbidden_actions:
+    - "публиковать секреты и пароли"
+    - "подменять реальную отправку заявки демонстрацией"
+    - "менять DNS, тариф или платные ресурсы без подтверждения владельца"
+  responsible_human: "Виталий Озолин"
+  estimated_cost_per_run: "зависит от тарифа ChatGPT; внешние платные действия запрещены без подтверждения"
+  benefit_metric: "время от подтверждённого изменения до успешного деплоя"
+  auto_disable_condition: "две подряд неуспешные публикации или риск потери доступности домена"
+  opt_out:
+    available: true
+    method: "сообщить, что автоматическая публикация должна быть отключена"
+    retained_without_ai: "сайт, домен, репозиторий и ручной деплой"
+    data_no_longer_processed: "новые изменения кода и телеметрия проверок"
+    prior_data_deletion: "по отдельному запросу владельца"
+    impact: "обновления выполняются медленнее и требуют ручной проверки"
