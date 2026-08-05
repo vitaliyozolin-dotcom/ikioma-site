@@ -3,7 +3,7 @@ project:
   name: "ИКИОМА — официальный сайт"
   area: "маркетинг, продажи и цифровая инфраструктура ИЖС"
   owner: "Виталий Озолин"
-  status: draft
+  status: review
   updated_at: "2026-08-05"
 
 problem: >-
@@ -32,8 +32,8 @@ current_state:
   facts:
     - "актуальная опубликованная версия: ИКИОМА, версия 6"
     - "контрольный URL: https://ikioma-homes.ozolin.chatgpt.site"
-    - "GitHub-репозиторий создан и доступен для записи"
-    - "подготовлена отдельная статическая сборка для Timeweb"
+    - "GitHub-репозиторий содержит актуальный исходный код, коммит dce4828"
+    - "сборка и автоматическая проверка пакета для Timeweb пройдены"
   sources:
     - "ChatGPT Sites project ikioma-homes"
     - "GitHub vitaliyozolin-dotcom/ikioma-site"
@@ -41,7 +41,7 @@ current_state:
 stages:
   - id: source
     name: "Единый исходник"
-    status: in_progress
+    status: completed
     output: "актуальный код в GitHub и успешная сборка"
     depends_on: []
   - id: hosting
@@ -105,12 +105,12 @@ decision_history:
     decision: "GitHub становится главным источником, автодеплой обязателен"
 
 current_step:
-  owner: "Codex"
-  action: "перенести актуальный исходник в vitaliyozolin-dotcom/ikioma-site"
+  owner: "Виталий Озолин при пошаговом сопровождении Codex"
+  action: "подключить vitaliyozolin-dotcom/ikioma-site в Timeweb App Platform"
   due: "2026-08-05"
-  expected_result: "репозиторий содержит проверяемую сборку для Timeweb"
-  evidence: "коммит GitHub и успешная команда npm run build:timeweb"
-  next_transition: "подключение репозитория в Timeweb App Platform"
+  expected_result: "первый деплой завершён и выдан технический HTTPS-адрес"
+  evidence: "статус успешного деплоя и открывающийся технический адрес Timeweb"
+  next_transition: "привязка ikioma.ru и автоматический выпуск SSL"
 
 ai_process_contract:
   input_data:
