@@ -14,6 +14,456 @@
   --shadow: 0 30px 90px rgba(10, 17, 16, 0.22);
 }
 
+/* ARO 120 product card, offers and lead funnel */
+
+.hero-scroll-link,
+.hero-card > button,
+.text-link {
+  font: inherit;
+  cursor: pointer;
+}
+
+.hero-scroll-link {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.38);
+}
+
+.hero-card > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 0;
+  color: #f39b6c;
+  background: transparent;
+  border: 0;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.hero-card > button svg {
+  transition: transform 0.2s ease;
+}
+
+.hero-card > button:hover svg,
+.text-link:hover svg {
+  transform: translateX(4px);
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 0 7px;
+  color: var(--graphite);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--graphite);
+  font-size: 14px;
+  font-weight: 820;
+}
+
+.offer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 68px;
+}
+
+.offer-card {
+  min-height: 390px;
+  display: flex;
+  flex-direction: column;
+  padding: 34px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+}
+
+.offer-card.featured {
+  color: var(--graphite);
+  background: var(--mint);
+  border-color: var(--mint);
+}
+
+.offer-card > span {
+  color: #f39b6c;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.offer-card.featured > span {
+  color: var(--terracotta);
+}
+
+.offer-card > strong {
+  display: block;
+  margin-top: 44px;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.offer-card > small {
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.offer-card.featured > small,
+.offer-card.featured > p {
+  color: #66716e;
+}
+
+.offer-card > p {
+  margin: 24px 0 30px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.offer-card .button {
+  width: 100%;
+  margin-top: auto;
+}
+
+.offer-disclaimer {
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.tour-backdrop {
+  padding: 28px;
+}
+
+.tour-modal {
+  position: relative;
+  width: min(1240px, 100%);
+  max-height: calc(100svh - 56px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(360px, 0.55fr);
+  overflow: hidden;
+  color: var(--white);
+  background: var(--graphite);
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+  animation: modal-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.tour-modal figure {
+  position: relative;
+  min-height: 650px;
+  margin: 0;
+  overflow: hidden;
+}
+
+.tour-modal figure::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(9, 16, 15, 0.55), transparent 45%);
+}
+
+.tour-modal figure img {
+  width: 100%;
+  height: 100%;
+  min-height: 650px;
+  object-fit: cover;
+}
+
+.tour-modal figcaption {
+  position: absolute;
+  z-index: 1;
+  left: 28px;
+  bottom: 25px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.modal-close.light {
+  color: var(--white);
+  background: rgba(18, 27, 25, 0.66);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(12px);
+}
+
+.tour-copy {
+  display: flex;
+  flex-direction: column;
+  padding: 72px 42px 42px;
+}
+
+.tour-copy > span,
+.lead-head > span,
+.lead-success > span {
+  color: #f39b6c;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tour-copy h2 {
+  margin: 22px 0;
+  font-size: clamp(38px, 4.2vw, 60px);
+  line-height: 0.98;
+}
+
+.tour-copy > p {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.tour-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: auto 0 28px;
+}
+
+.tour-tabs button {
+  min-height: 48px;
+  padding: 0 13px;
+  color: rgba(255, 255, 255, 0.66);
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tour-tabs button.active {
+  color: var(--graphite);
+  background: var(--mint);
+  border-color: var(--mint);
+}
+
+.lead-modal {
+  position: relative;
+  width: min(760px, 100%);
+  max-height: calc(100svh - 40px);
+  overflow-y: auto;
+  padding: 48px;
+  background: var(--milk);
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+  animation: modal-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.lead-head h2,
+.lead-success h2 {
+  margin: 16px 0 14px;
+  font-size: clamp(38px, 5vw, 58px);
+  line-height: 0.98;
+}
+
+.lead-head > p,
+.lead-success > p {
+  color: #697370;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.lead-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.lead-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.lead-fields label > span {
+  color: #5f6967;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lead-fields input,
+.lead-fields select,
+.lead-fields textarea {
+  width: 100%;
+  min-height: 54px;
+  padding: 14px 16px;
+  color: var(--graphite);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  outline: none;
+  font: 500 15px/1.35 "Manrope Variable", Manrope, sans-serif;
+}
+
+.lead-fields input:focus,
+.lead-fields select:focus,
+.lead-fields textarea:focus {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 3px rgba(221, 105, 47, 0.12);
+}
+
+.lead-comment {
+  grid-column: 1 / -1;
+}
+
+.lead-honeypot {
+  position: absolute;
+  left: -9999px;
+}
+
+.lead-submit {
+  width: 100%;
+  margin-top: 22px;
+}
+
+.lead-submit:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.lead-consent {
+  display: block;
+  margin-top: 13px;
+  color: #7b8482;
+  font-size: 11px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.lead-error {
+  margin: 16px 0 0;
+  padding: 13px 15px;
+  color: #8c2f24;
+  background: #fde9e5;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.lead-success {
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lead-success .button {
+  align-self: flex-start;
+  margin-top: 18px;
+}
+
+.calculator-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.calculator-actions .button {
+  margin-top: 0;
+}
+
+.calculator-copy {
+  min-height: 44px;
+  color: var(--graphite);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@media (max-width: 900px) {
+  .offer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .offer-card {
+    min-height: 330px;
+  }
+
+  .tour-modal {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .tour-modal figure,
+  .tour-modal figure img {
+    min-height: 420px;
+    max-height: 50svh;
+  }
+
+  .tour-copy {
+    min-height: 520px;
+  }
+}
+
+@media (max-width: 540px) {
+  .tour-backdrop,
+  .modal-backdrop {
+    align-items: end;
+    padding: 0;
+  }
+
+  .tour-modal,
+  .lead-modal,
+  .calculator-modal {
+    width: 100%;
+    max-height: 94svh;
+    border-radius: 22px 22px 0 0;
+  }
+
+  .tour-modal figure,
+  .tour-modal figure img {
+    min-height: 300px;
+    max-height: 36svh;
+  }
+
+  .tour-copy {
+    min-height: 470px;
+    padding: 38px 22px 24px;
+  }
+
+  .tour-copy h2 {
+    font-size: 38px;
+  }
+
+  .tour-tabs {
+    margin-top: 28px;
+  }
+
+  .lead-modal {
+    padding: 42px 20px 24px;
+  }
+
+  .lead-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .lead-comment {
+    grid-column: auto;
+  }
+
+  .offer-card {
+    min-height: 350px;
+    padding: 28px 24px;
+  }
+
+  .offer-card > strong {
+    font-size: 36px;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -2902,5 +3352,44 @@ input[type="range"]::-webkit-slider-thumb {
 
   .calculator-result > p {
     font-size: 12px;
+  }
+}
+
+@media (max-width: 540px) {
+  .tour-backdrop,
+  .modal-backdrop {
+    align-items: end;
+    padding: 0;
+  }
+
+  .tour-modal,
+  .lead-modal,
+  .calculator-modal {
+    width: 100%;
+    max-height: 94svh;
+    border-radius: 22px 22px 0 0;
+  }
+
+  .tour-modal figure,
+  .tour-modal figure img {
+    min-height: 300px;
+    max-height: 36svh;
+  }
+
+  .tour-copy {
+    min-height: 470px;
+    padding: 38px 22px 24px;
+  }
+
+  .lead-modal {
+    padding: 42px 20px 24px;
+  }
+
+  .lead-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .lead-comment {
+    grid-column: auto;
   }
 }
