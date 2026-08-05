@@ -2,14 +2,14 @@
 
 /* eslint-disable @next/next/no-img-element -- local product imagery is optimized WebP */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 const houseOptions = [
   {
     id: "layout",
     label: "Планировка",
     title: "Один этаж — без лишних маршрутов.",
-    text: "АРО 105 — дом площадью около 105 м² с общей логикой пространства и крытой террасой. Финальная схема помещений фиксируется в выбранной версии проекта.",
+    text: "АРО 120 — 96 м² тёплой площади и 24 м² крытой террасы. Финальная схема помещений фиксируется в выбранной версии проекта.",
     image: "/images/option-layout.webp",
     alt: "Архитектор и семья обсуждают планировочное решение дома",
     caption: "Планировка / состав помещений и сценарии жизни",
@@ -51,9 +51,68 @@ const houseOptions = [
     title: "Дом может закончиться там, где удобно вам.",
     text: "Уровень готовности выбирается до договора: от согласованного контура до варианта с отделкой. Без размытых формулировок «почти под ключ».",
     image: "/images/interior.webp",
-    alt: "Готовый интерьер дома АРО 105",
+    alt: "Готовый интерьер дома АРО 120",
     caption: "Отделка / материалы и уровень готовности",
     fixed: "Пол, стены, потолок, двери, санузлы и точный уровень готовности к заселению.",
+  },
+] as const;
+
+const houseTour = [
+  {
+    id: "exterior",
+    label: "Внешний вид",
+    title: "АРО 120 с крытой террасой под общей кровлей",
+    text: "Спокойная одноэтажная архитектура, графитовый фасад и тёплое дерево в зоне входа и террасы.",
+    image: "/images/house-day.webp",
+    alt: "Внешний вид одноэтажного дома АРО 120",
+  },
+  {
+    id: "layout",
+    label: "Планировка",
+    title: "96 м² внутри — без площади ради площади",
+    text: "Показываем логику помещений и связи с террасой. Точный технический план фиксируем после согласования состава семьи и сценария жизни.",
+    image: "/images/option-layout.webp",
+    alt: "Обсуждение планировочного решения дома АРО 120",
+  },
+  {
+    id: "interior",
+    label: "Внутри",
+    title: "Общая зона раскрывается в сторону участка",
+    text: "Кухня-гостиная, естественный свет и прямой выход на крытую террасу — главный повседневный сценарий дома.",
+    image: "/images/interior.webp",
+    alt: "Интерьер кухни-гостиной дома АРО 120",
+  },
+  {
+    id: "terrace",
+    label: "Терраса",
+    title: "24 м², которые действительно работают",
+    text: "Терраса входит в общую площадь 120 м² и защищена продолжением кровли — для стола, отдыха и летней кухни.",
+    image: "/images/house-side.webp",
+    alt: "Крытая терраса дома АРО 120",
+  },
+] as const;
+
+const buildOffers = [
+  {
+    id: "shell",
+    label: "01 / Тёплый контур",
+    price: 5.2,
+    term: "до 8 недель",
+    description: "SIP-контур, кровля, окна и закрытый фасад.",
+  },
+  {
+    id: "pre-finish",
+    label: "02 / Под отделку",
+    price: 6.3,
+    term: "до 12 недель",
+    description: "Тёплый контур плюс согласованная инженерия и подготовка поверхностей.",
+  },
+  {
+    id: "ready",
+    label: "03 / Готовый дом",
+    price: 7.2,
+    term: "до 4 месяцев",
+    description: "Дом с отделкой, инженерией и готовностью к передаче ключей.",
   },
 ] as const;
 
@@ -91,7 +150,7 @@ const buildStages = [
     title: "Стройка",
     text: "Строим по зафиксированному графику. Каждый этап проверяем и сохраняем в фотоистории проекта.",
     image: "/images/sip-assembly.webp",
-    alt: "Монтаж SIP-панелей дома АРО 105",
+    alt: "Монтаж SIP-панелей дома АРО 120",
   },
   {
     number: "06",
@@ -118,10 +177,10 @@ const faqItems = [
   {
     question: "Когда появляется точная цена?",
     answer:
-      "После проверки участка и выбора комплектации. До этого калькулятор даёт только финансовый ориентир. Итоговая сумма и границы работ фиксируются в коммерческом предложении и договоре.",
+      "На сайте сразу виден ориентир каждого уровня готовности — от 5,2 до 7,2 млн ₽. Точную цену фиксируем после проверки участка и выбранного состава работ: отдельно считаются основание, наружные сети и индивидуальные изменения.",
   },
   {
-    question: "Можно ли изменить АРО 105?",
+    question: "Можно ли изменить АРО 120?",
     answer:
       "Можно выбрать и согласовать отдельные решения по планировке, окнам, фасаду, инженерии и отделке. Изменения считаются до фиксации проекта, чтобы не превращать стройку в цепочку доплат.",
   },
@@ -171,6 +230,12 @@ function formatMoney(value: number) {
 export default function IkiomaLanding() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [calculatorOpen, setCalculatorOpen] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
+  const [leadOpen, setLeadOpen] = useState(false);
+  const [activeTour, setActiveTour] = useState(0);
+  const [leadContext, setLeadContext] = useState("АРО 120 — готовый дом");
+  const [leadStatus, setLeadStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [leadForm, setLeadForm] = useState({ name: "", phone: "", email: "", land: "Есть участок", comment: "", company: "" });
   const [housePrice, setHousePrice] = useState(7.2);
   const [downPayment, setDownPayment] = useState(20);
   const [term, setTerm] = useState(30);
@@ -189,12 +254,14 @@ export default function IkiomaLanding() {
   }, [housePrice, downPayment, rate, term]);
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen || calculatorOpen ? "hidden" : "";
+    document.body.style.overflow = menuOpen || calculatorOpen || tourOpen || leadOpen ? "hidden" : "";
 
     function handleEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setMenuOpen(false);
         setCalculatorOpen(false);
+        setTourOpen(false);
+        setLeadOpen(false);
       }
     }
 
@@ -203,7 +270,46 @@ export default function IkiomaLanding() {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleEscape);
     };
-  }, [calculatorOpen, menuOpen]);
+  }, [calculatorOpen, leadOpen, menuOpen, tourOpen]);
+
+  function openLead(context: string) {
+    setLeadContext(context);
+    setLeadStatus("idle");
+    setCalculatorOpen(false);
+    setTourOpen(false);
+    setLeadOpen(true);
+  }
+
+  async function submitLead(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!leadForm.name.trim() || !leadForm.phone.trim() || leadForm.company) return;
+    setLeadStatus("sending");
+
+    const message = [
+      leadContext,
+      `Участок: ${leadForm.land}`,
+      leadForm.comment.trim() ? `Комментарий: ${leadForm.comment.trim()}` : "",
+    ].filter(Boolean).join("\n");
+
+    try {
+      const response = await fetch("https://stroios.online/api/public/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: leadForm.name.trim(),
+          phone: leadForm.phone.trim(),
+          email: leadForm.email.trim(),
+          source: "website",
+          message,
+          website: "ikioma.ru",
+        }),
+      });
+      if (!response.ok) throw new Error("lead_rejected");
+      setLeadStatus("sent");
+    } catch {
+      setLeadStatus("error");
+    }
+  }
 
   async function copyCalculation() {
     const text = [
@@ -253,8 +359,8 @@ export default function IkiomaLanding() {
             </a>
           </nav>
 
-          <button className="header-cta" onClick={() => setCalculatorOpen(true)}>
-            Получить расчёт
+          <button className="header-cta" onClick={() => openLead("Заявка из шапки сайта") }>
+            Оставить заявку
           </button>
 
           <button
@@ -273,7 +379,7 @@ export default function IkiomaLanding() {
         <img
           className="hero-image"
           src="/images/hero.webp"
-          alt="Современный одноэтажный дом АРО 105 вечером"
+          alt="Современный одноэтажный дом АРО 120 вечером"
         />
         <div className="hero-shade" />
         <div className="shell hero-content">
@@ -283,36 +389,35 @@ export default function IkiomaLanding() {
               <em>свой дом.</em>
             </h1>
             <p className="hero-lead">
-              105 м² с крытой террасой. До договора вы видите комплектацию,
-              итоговую цену, срок и весь путь строительства — без сюрпризов
-              после старта.
+              120 м²: 96 м² дома и 24 м² крытой террасы. Стоимость готового
+              дома — от 7,2 млн ₽, срок строительства — до 4 месяцев.
             </p>
             <div className="hero-actions">
-              <button className="button button-primary" onClick={() => setCalculatorOpen(true)}>
-                Получить расчёт АРО 105
+              <button className="button button-primary" onClick={() => openLead("АРО 120 — расчёт под участок") }>
+                Получить предложение АРО 120
                 <ArrowIcon />
               </button>
-              <a className="hero-scroll-link" href="#house">
+              <button className="hero-scroll-link" onClick={() => setTourOpen(true)}>
                 Посмотреть дом
                 <ArrowIcon />
-              </a>
+              </button>
             </div>
             <p className="micro-note">
-              Сначала расчёт. Никаких заявок в банк и навязчивых звонков.
+              Оставьте телефон — свяжемся по дому, а не для банковского спама.
             </p>
           </div>
 
-          <aside className="hero-card" aria-label="Кратко о доме АРО 105">
+          <aside className="hero-card" aria-label="Кратко о доме АРО 120">
             <div className="hero-card-top">
               <span>Первый дом ИКИОМА</span>
               <i>01</i>
             </div>
-            <strong>АРО 105</strong>
+            <strong>АРО 120</strong>
             <p>Простая геометрия, тёплая архитектура и крытая терраса под общей кровлей.</p>
             <dl>
               <div>
                 <dt>Площадь</dt>
-                <dd>≈ 105 м²</dd>
+                <dd>120 м²</dd>
               </div>
               <div>
                 <dt>Этажность</dt>
@@ -323,21 +428,21 @@ export default function IkiomaLanding() {
                 <dd>SIP</dd>
               </div>
             </dl>
-            <a href="#house">
-              Дом крупным планом
+            <button onClick={() => setTourOpen(true)}>
+              Открыть карточку дома
               <ArrowIcon />
-            </a>
+            </button>
           </aside>
         </div>
 
         <div className="shell hero-stats" aria-label="Главные факты об ИКИОМА">
           <div>
-            <strong>АРО 105</strong>
-            <span>конкретный дом, а не каталог</span>
+            <strong>7,2 млн ₽</strong>
+            <span>готовый дом — ориентир</span>
           </div>
           <div>
-            <strong>7 этапов</strong>
-            <span>каждый с приёмкой</span>
+            <strong>до 4 месяцев</strong>
+            <span>срок строительства</span>
           </div>
           <div>
             <strong>24/7</strong>
@@ -352,7 +457,7 @@ export default function IkiomaLanding() {
 
       <section className="house-intro shell" id="house">
         <div className="house-intro-copy">
-          <span className="section-index">01 / АРО 105</span>
+          <span className="section-index">01 / АРО 120</span>
           <h2>
             Не каталог обещаний.
             <br />
@@ -360,20 +465,20 @@ export default function IkiomaLanding() {
           </h2>
           <p>
             Вы смотрите не абстрактный рендер, а конкретный продукт: одноэтажный
-            АРО 105 с крытой террасой, понятной конструкцией и маршрутом до ключей.
+            АРО 120: 96 м² тёплой площади, 24 м² крытой террасы и понятный маршрут до ключей.
           </p>
-          <ul className="house-facts" aria-label="Характеристики АРО 105">
-            <li><strong>≈ 105 м²</strong><span>площадь дома</span></li>
+          <ul className="house-facts" aria-label="Характеристики АРО 120">
+            <li><strong>96 + 24 м²</strong><span>дом и терраса</span></li>
             <li><strong>1 этаж</strong><span>без лишних маршрутов</span></li>
             <li><strong>SIP</strong><span>тёплый контур</span></li>
           </ul>
-          <a className="text-link" href="#process">
-            Посмотреть путь строительства
+          <button className="text-link" onClick={() => setTourOpen(true)}>
+            Смотреть дом полностью
             <ArrowIcon />
-          </a>
+          </button>
         </div>
         <figure className="house-intro-image">
-          <img src="/images/house-day.webp" alt="Дом АРО 105 днём" />
+          <img src="/images/house-day.webp" alt="Дом АРО 120 днём" />
           <figcaption>Визуализация на основе построенного объекта</figcaption>
         </figure>
       </section>
@@ -389,7 +494,7 @@ export default function IkiomaLanding() {
             </h2>
           </div>
           <p>
-            Не переделываем АРО 105 до неузнаваемости. Настраиваем то, что влияет
+            Не переделываем АРО 120 до неузнаваемости. Настраиваем то, что влияет
             на жизнь, внешний вид и уровень готовности — и считаем до начала работ.
           </p>
         </div>
@@ -430,8 +535,8 @@ export default function IkiomaLanding() {
               <strong>Что фиксируем</strong>
               <p>{houseOptions[activeOption].fixed}</p>
             </div>
-            <button className="text-button" onClick={() => setCalculatorOpen(true)}>
-              Проверить финансовый сценарий
+            <button className="text-button" onClick={() => openLead(`АРО 120 — ${houseOptions[activeOption].label}`)}>
+              Получить расчёт этого решения
               <ArrowIcon />
             </button>
           </div>
@@ -498,7 +603,7 @@ export default function IkiomaLanding() {
 
       <section className="control-section shell" id="control">
         <div className="control-image">
-          <img src="/images/sip-assembly.webp" alt="Монтаж стен дома из SIP-панелей" />
+          <img src="/images/site.webp" alt="Строительная площадка ИКИОМА с готовым домом" />
           <div className="control-stamp">
             <strong>24/7</strong>
             <span>видимый процесс</span>
@@ -575,50 +680,50 @@ export default function IkiomaLanding() {
       <section className="finance-section" id="finance">
         <div className="shell finance-head">
           <div>
-            <span className="section-index light">06 / Финансы</span>
+            <span className="section-index light">06 / Цена и готовность</span>
             <h2>
-              Сначала сценарий.
+              Три уровня готовности.
               <br />
-              <em>Потом обязательства.</em>
+              <em>Цена видна сразу.</em>
             </h2>
           </div>
           <p>
-            Проверяем бюджет и ориентировочный платёж до разговора о договоре.
-            Финальный расчёт появляется после участка и выбранной комплектации.
+            Один АРО 120, но разная точка остановки. Выберите, где заканчивается
+            наша работа — на тёплом контуре, подготовке под отделку или передаче ключей.
           </p>
         </div>
 
-        <div className="shell price-route" aria-label="Как фиксируется цена">
-          <article>
-            <span>01</span>
-            <strong>Запрос</strong>
-            <p>Дом, участок, уровень готовности, бюджет.</p>
-          </article>
-          <i />
-          <article>
-            <span>02</span>
-            <strong>Расчёт</strong>
-            <p>Комплектация, работы и переменные участка.</p>
-          </article>
-          <i />
-          <article>
-            <span>03</span>
-            <strong>Фиксация</strong>
-            <p>Состав, сумма, этапы и срок в документах.</p>
-          </article>
+        <div className="shell offer-grid" aria-label="Варианты готовности дома АРО 120">
+          {buildOffers.map((offer) => (
+            <article className={offer.id === "ready" ? "offer-card featured" : "offer-card"} key={offer.id}>
+              <span>{offer.label}</span>
+              <strong>от {offer.price.toFixed(1).replace(".", ",")} млн ₽</strong>
+              <small>{offer.term}</small>
+              <p>{offer.description}</p>
+              <button className="button button-primary" onClick={() => openLead(`АРО 120 — ${offer.label}, от ${offer.price.toFixed(1).replace(".", ",")} млн ₽`)}>
+                Получить точный состав
+                <ArrowIcon />
+              </button>
+            </article>
+          ))}
         </div>
+
+        <p className="shell offer-disclaimer">
+          Цены — предварительный ориентир для базовых условий участка. Основание,
+          наружные сети и индивидуальные изменения считаются после проверки участка.
+        </p>
 
         <div className="shell finance-card">
           <div>
-            <span>Интерактивный расчёт</span>
-            <h3>Проверьте платёж за минуту.</h3>
+            <span>Единственный калькулятор на сайте</span>
+            <h3>Посчитайте ипотечный сценарий.</h3>
             <p>
-              Измените стоимость, взнос, ставку и срок. Получите ориентир, который
-              удобно сохранить и обсудить без давления.
+              Выберите стоимость дома, первоначальный взнос, ставку банка и срок.
+              После расчёта можно сразу отправить выбранный сценарий в заявку.
             </p>
           </div>
           <button className="button button-primary" onClick={() => setCalculatorOpen(true)}>
-            Открыть калькулятор
+            Рассчитать платёж
             <ArrowIcon />
           </button>
         </div>
@@ -663,7 +768,7 @@ export default function IkiomaLanding() {
         <img
           className="warranty-image"
           src="/images/interior.webp"
-          alt="Готовый интерьер дома АРО 105"
+          alt="Готовый интерьер дома АРО 120"
         />
         <div className="warranty-shade" />
         <div className="shell warranty-content">
@@ -717,23 +822,22 @@ export default function IkiomaLanding() {
         <div className="shell final-cta-content">
           <span className="section-index light">Следующий шаг</span>
           <h2>
-            Посчитаем АРО 105
+            Построим АРО 120
             <br />
             <em>под ваш участок.</em>
           </h2>
           <p>
-            Сначала проверьте бюджет и ориентировочный платёж. Затем зафиксируем
-            комплектацию и всё, что зависит от участка — без давления и звонков
-            из банков.
+            Оставьте заявку — уточним участок и уровень готовности, затем дадим
+            конкретный состав, цену и календарный график строительства.
           </p>
           <div>
-            <button className="button button-primary" onClick={() => setCalculatorOpen(true)}>
-              Получить расчёт АРО 105
+            <button className="button button-primary" onClick={() => openLead("Финальная заявка — АРО 120") }>
+              Оставить заявку на АРО 120
               <ArrowIcon />
             </button>
-            <a className="button button-ghost" href="#process">
-              Посмотреть 7 этапов
-            </a>
+            <button className="button button-ghost" onClick={() => setTourOpen(true)}>
+              Ещё раз посмотреть дом
+            </button>
           </div>
         </div>
       </section>
@@ -747,7 +851,7 @@ export default function IkiomaLanding() {
               <small>По-настоящему свой дом</small>
             </span>
           </a>
-          <p>АРО 105 · SIP-технология · видимый процесс</p>
+          <p>АРО 120 · 96 м² дом · 24 м² терраса</p>
           <a href="#top">
             Наверх
             <ArrowIcon />
@@ -755,10 +859,120 @@ export default function IkiomaLanding() {
         </div>
       </footer>
 
-      <button className="mobile-sticky-cta" onClick={() => setCalculatorOpen(true)}>
-        Рассчитать АРО 105
+      <button className="mobile-sticky-cta" onClick={() => openLead("Мобильная заявка — АРО 120") }>
+        Оставить заявку на АРО 120
         <ArrowIcon />
       </button>
+
+      {tourOpen && (
+        <div
+          className="modal-backdrop tour-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setTourOpen(false);
+          }}
+        >
+          <section className="tour-modal" role="dialog" aria-modal="true" aria-labelledby="tour-title">
+            <button className="modal-close light" onClick={() => setTourOpen(false)} aria-label="Закрыть карточку дома">
+              <CloseIcon />
+            </button>
+            <figure>
+              <img src={houseTour[activeTour].image} alt={houseTour[activeTour].alt} />
+              <figcaption>АРО 120 · {houseTour[activeTour].label}</figcaption>
+            </figure>
+            <div className="tour-copy">
+              <span>120 м² · 96 + 24</span>
+              <h2 id="tour-title">{houseTour[activeTour].title}</h2>
+              <p>{houseTour[activeTour].text}</p>
+              <div className="tour-tabs" role="tablist" aria-label="Карточка дома АРО 120">
+                {houseTour.map((item, index) => (
+                  <button
+                    key={item.id}
+                    className={activeTour === index ? "active" : ""}
+                    onClick={() => setActiveTour(index)}
+                    role="tab"
+                    aria-selected={activeTour === index}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <button className="button button-primary" onClick={() => openLead(`Карточка дома — ${houseTour[activeTour].label}`)}>
+                Получить предложение
+                <ArrowIcon />
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {leadOpen && (
+        <div
+          className="modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setLeadOpen(false);
+          }}
+        >
+          <section className="lead-modal" role="dialog" aria-modal="true" aria-labelledby="lead-title">
+            <button className="modal-close" onClick={() => setLeadOpen(false)} aria-label="Закрыть форму заявки">
+              <CloseIcon />
+            </button>
+            {leadStatus === "sent" ? (
+              <div className="lead-success">
+                <span>Заявка принята</span>
+                <h2 id="lead-title">Спасибо, {leadForm.name}.</h2>
+                <p>Заявка уже в СтройкаОС. Свяжемся, чтобы уточнить участок и уровень готовности дома.</p>
+                <button className="button button-dark" onClick={() => setLeadOpen(false)}>Вернуться на сайт</button>
+              </div>
+            ) : (
+              <form onSubmit={submitLead}>
+                <div className="lead-head">
+                  <span>АРО 120 · заявка в СтройкаОС</span>
+                  <h2 id="lead-title">Получить точное предложение.</h2>
+                  <p>{leadContext}</p>
+                </div>
+                <div className="lead-fields">
+                  <label>
+                    <span>Как к вам обращаться</span>
+                    <input required autoComplete="name" value={leadForm.name} onChange={(event) => setLeadForm({ ...leadForm, name: event.target.value })} placeholder="Имя" />
+                  </label>
+                  <label>
+                    <span>Телефон</span>
+                    <input required autoComplete="tel" inputMode="tel" value={leadForm.phone} onChange={(event) => setLeadForm({ ...leadForm, phone: event.target.value })} placeholder="+7 999 000-00-00" />
+                  </label>
+                  <label>
+                    <span>Email, если удобно</span>
+                    <input type="email" autoComplete="email" value={leadForm.email} onChange={(event) => setLeadForm({ ...leadForm, email: event.target.value })} placeholder="name@example.ru" />
+                  </label>
+                  <label>
+                    <span>Участок</span>
+                    <select value={leadForm.land} onChange={(event) => setLeadForm({ ...leadForm, land: event.target.value })}>
+                      <option>Есть участок</option>
+                      <option>Подбираю участок</option>
+                      <option>Нужна помощь с выбором</option>
+                    </select>
+                  </label>
+                  <label className="lead-comment">
+                    <span>Что важно учесть</span>
+                    <textarea rows={3} value={leadForm.comment} onChange={(event) => setLeadForm({ ...leadForm, comment: event.target.value })} placeholder="Район, состав семьи, ипотека или желаемая дата старта" />
+                  </label>
+                  <label className="lead-honeypot" aria-hidden="true">
+                    <span>Компания</span>
+                    <input tabIndex={-1} autoComplete="off" value={leadForm.company} onChange={(event) => setLeadForm({ ...leadForm, company: event.target.value })} />
+                  </label>
+                </div>
+                {leadStatus === "error" && <p className="lead-error">Заявка не дошла. Проверьте соединение и попробуйте ещё раз.</p>}
+                <button className="button button-primary lead-submit" type="submit" disabled={leadStatus === "sending"}>
+                  {leadStatus === "sending" ? "Отправляем…" : "Отправить заявку"}
+                  <ArrowIcon />
+                </button>
+                <small className="lead-consent">Отправляя форму, вы соглашаетесь на обработку контактных данных для ответа на заявку.</small>
+              </form>
+            )}
+          </section>
+        </div>
+      )}
 
       {calculatorOpen && (
         <div
@@ -849,13 +1063,17 @@ export default function IkiomaLanding() {
                     <dd>{formatMoney(calculation.loan)} ₽</dd>
                   </div>
                 </dl>
-                <button className="button button-dark" onClick={copyCalculation}>
-                  {copyStatus === "copied"
-                    ? "Расчёт скопирован"
-                    : copyStatus === "manual"
-                      ? "Расчёт готов ниже"
-                      : "Скопировать расчёт"}
-                </button>
+                <div className="calculator-actions">
+                  <button
+                    className="button button-dark"
+                    onClick={() => openLead(`Ипотечный сценарий: дом ${housePrice.toFixed(1).replace(".", ",")} млн ₽, взнос ${downPayment}%, ставка ${rate}%, срок ${term} лет, платёж ≈ ${formatMoney(calculation.payment)} ₽/мес`)}
+                  >
+                    Отправить сценарий
+                  </button>
+                  <button className="calculator-copy" onClick={copyCalculation}>
+                    {copyStatus === "copied" ? "Скопировано" : "Скопировать"}
+                  </button>
+                </div>
                 {copyStatus === "manual" && (
                   <pre className="manual-copy" tabIndex={0}>
                     {manualText}
