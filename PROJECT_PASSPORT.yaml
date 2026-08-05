@@ -7,12 +7,12 @@ project:
   updated_at: "2026-08-05"
 
 problem: >-
-  Рабочий сайт существует в ChatGPT Sites, но не размещён на российском
-  хостинге и не работает на основном домене ikioma.ru.
+  Сайт работает на ikioma.ru, но не объясняет цену и срок как главные
+  преимущества, а коммерческие кнопки не образуют единый проверенный путь заявки.
 
 goal: >-
-  Разместить актуальный сайт ИКИОМА на Timeweb, подключить ikioma.ru и сделать
-  GitHub единственным источником кода с автоматической публикацией изменений.
+  Представить АРО 120 как продукт с понятной площадью, ценой, сроком и тремя
+  комплектациями; все коммерческие сценарии завершить заявкой в СтройкаОС.
 
 measurable_result:
   - "https://ikioma.ru открывает актуальную версию сайта по HTTPS"
@@ -30,10 +30,10 @@ completion_criteria:
 current_state:
   as_of: "2026-08-05"
   facts:
-    - "актуальная опубликованная версия: ИКИОМА, версия 6"
-    - "контрольный URL: https://ikioma-homes.ozolin.chatgpt.site"
-    - "GitHub-репозиторий содержит актуальный исходный код, коммит dce4828"
-    - "сборка и автоматическая проверка пакета для Timeweb пройдены"
+    - "рабочий адрес: https://ikioma.ru"
+    - "GitHub main автоматически публикуется в Timeweb"
+    - "площадь АРО 120: 96 м² дом и 24 м² терраса"
+    - "предварительные ориентиры комплектаций: 5,2 / 6,3 / 7,2 млн ₽"
   sources:
     - "ChatGPT Sites project ikioma-homes"
     - "GitHub vitaliyozolin-dotcom/ikioma-site"
@@ -46,23 +46,23 @@ stages:
     depends_on: []
   - id: hosting
     name: "Timeweb App Platform"
-    status: pending
+    status: completed
     output: "приложение связано с main, первый деплой успешен"
     depends_on: [source]
   - id: domain
     name: "Домен и HTTPS"
-    status: pending
+    status: completed
     output: "ikioma.ru отвечает по HTTPS"
     depends_on: [hosting]
   - id: qa
-    name: "Приёмка"
-    status: pending
-    output: "проверены десктоп, мобильный экран и все основные клики"
+    name: "Приёмка обновлённого сайта"
+    status: in_progress
+    output: "проверены десктоп, мобильный экран, галерея, калькулятор и CTA"
     depends_on: [domain]
   - id: leads
-    name: "Боевой канал заявок"
-    status: pending
-    output: "тестовая заявка дошла ответственному"
+    name: "Заявки в СтройкаОС"
+    status: in_progress
+    output: "публичная форма записывает заявку в закрытый контур СтройкаОС"
     depends_on: [qa]
 
 roles:
@@ -92,9 +92,13 @@ risks:
     owner: "Виталий Озолин"
     mitigation: "пошаговое сопровождение по одному действию"
   - id: lead_channel
-    description: "канал получения заявок пока не выбран"
+    description: "публичная форма может получать спам или не пройти закрытый контур СтройкаОС"
+    owner: "Codex"
+    mitigation: "ограничить origin, добавить honeypot и проверить тестовую заявку"
+  - id: provisional_prices
+    description: "ориентиры комплектаций могут не совпасть с утверждённой экономикой"
     owner: "Виталий Озолин"
-    mitigation: "после запуска выбрать CRM, Telegram, email или WhatsApp"
+    mitigation: "показывать оговорку и заменить цены после подтверждения владельцем"
 
 decision_history:
   - date: "2026-07-29"
@@ -103,14 +107,20 @@ decision_history:
     decision: "перенести сайт в Timeweb и использовать ikioma.ru"
   - date: "2026-08-05"
     decision: "GitHub становится главным источником, автодеплой обязателен"
+  - date: "2026-08-05"
+    decision: "Продукт называется АРО 120: 96 м² дома и 24 м² террасы"
+  - date: "2026-08-05"
+    decision: "Все коммерческие CTA ведут в единую форму заявки СтройкаОС"
+  - date: "2026-08-05"
+    decision: "Цены 5,2 / 6,3 / 7,2 млн ₽ используются как предварительные ориентиры до подтверждения"
 
 current_step:
-  owner: "Виталий Озолин при пошаговом сопровождении Codex"
-  action: "подключить vitaliyozolin-dotcom/ikioma-site в Timeweb App Platform"
+  owner: "Codex"
+  action: "опубликовать обновлённый сайт и подтвердить тестовую заявку в СтройкаОС"
   due: "2026-08-05"
-  expected_result: "первый деплой завершён и выдан технический HTTPS-адрес"
-  evidence: "статус успешного деплоя и открывающийся технический адрес Timeweb"
-  next_transition: "привязка ikioma.ru и автоматический выпуск SSL"
+  expected_result: "ikioma.ru показывает АРО 120, а тестовая заявка появляется в СтройкаОС"
+  evidence: "успешная сборка, проверка продакшена и идентификатор тестовой заявки"
+  next_transition: "подтверждение владельцем окончательных цен и состава трёх комплектаций"
 
 ai_process_contract:
   input_data:
