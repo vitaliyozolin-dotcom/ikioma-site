@@ -8,12 +8,12 @@ const houseOptions = [
   {
     id: "layout",
     label: "Планировка",
-    title: "Один этаж — без лишних маршрутов.",
-    text: "АРО 120 — 96 м² тёплой площади и 24 м² крытой террасы. Финальная схема помещений фиксируется в выбранной версии проекта.",
-    image: "/images/option-layout.webp",
-    alt: "Архитектор и семья обсуждают планировочное решение дома",
-    caption: "Планировка / состав помещений и сценарии жизни",
-    fixed: "Состав и размеры помещений, маршруты, расстановка мебели и связь с террасой.",
+    title: "Три спальни. Два санузла. Всё на одном этаже.",
+    text: "Это план из актуального технического проекта: 86,2 м² полезной площади внутри и крытая терраса 23,1 м². Вход ведёт через тамбур и холл, приватные комнаты отделены от кухни-гостиной.",
+    image: "/images/kontur-plan.jpg",
+    alt: "Технический план одноэтажного дома КОНТУР",
+    caption: "Фактический проект / лист с планировкой и экспликацией",
+    fixed: "Состав и размеры помещений, проёмы, маршруты, сантехнические зоны и выход на террасу.",
   },
   {
     id: "windows",
@@ -22,7 +22,7 @@ const houseOptions = [
     text: "Размеры и расположение окон связываем с планировкой, фасадом и ориентацией дома на участке — до фиксации итогового расчёта.",
     image: "/images/option-windows.webp",
     alt: "Специалист проверяет панорамную оконную группу дома",
-    caption: "Окна / размер, профиль и тип открывания",
+    caption: "Визуализация / размер, профиль и тип открывания",
     fixed: "Размеры, расположение, профиль, стеклопакет, тип открывания и цвет рам.",
   },
   {
@@ -32,7 +32,7 @@ const houseOptions = [
     text: "Цвет, фактуру и сочетания материалов выбираем как одну систему. Состав и объём фасадных работ указываются в коммерческом предложении.",
     image: "/images/option-facade.webp",
     alt: "Сочетание графитового металла и дерева на фасаде дома",
-    caption: "Фасад / металл, дерево, цвет и фактура",
+    caption: "Визуализация / металл, дерево, цвет и фактура",
     fixed: "Материал, цвет, фактуру, долю дерева и ключевые узлы примыканий.",
   },
   {
@@ -42,7 +42,7 @@ const houseOptions = [
     text: "Инженерные решения увязываем с домом и условиями участка. Конкретный набор систем, оборудование и границы работ появляются в расчёте.",
     image: "/images/option-engineering.webp",
     alt: "Монтаж тёплого пола и инженерных систем внутри дома",
-    caption: "Инженерия / системы, трассы и оборудование",
+    caption: "Иллюстрация / системы, трассы и оборудование",
     fixed: "Перечень систем, оборудование, точки подключения, трассы и границы монтажа.",
   },
   {
@@ -50,9 +50,9 @@ const houseOptions = [
     label: "Отделка",
     title: "Дом может закончиться там, где удобно вам.",
     text: "Уровень готовности выбирается до договора: от согласованного контура до варианта с отделкой. Без размытых формулировок «почти под ключ».",
-    image: "/images/interior.webp",
-    alt: "Готовый интерьер дома АРО 120",
-    caption: "Отделка / материалы и уровень готовности",
+    image: "/images/kontur-family-interior-v1.webp",
+    alt: "Сгенерированная визуализация семейной кухни-гостиной дома КОНТУР",
+    caption: "Временная AI-визуализация / материалы и уровень готовности",
     fixed: "Пол, стены, потолок, двери, санузлы и точный уровень готовности к заселению.",
   },
 ] as const;
@@ -61,35 +61,61 @@ const houseTour = [
   {
     id: "exterior",
     label: "Внешний вид",
-    title: "АРО 120 с крытой террасой под общей кровлей",
+    title: "КОНТУР с крытой террасой под общей кровлей",
     text: "Спокойная одноэтажная архитектура, графитовый фасад и тёплое дерево в зоне входа и террасы.",
-    image: "/images/house-day.webp",
-    alt: "Внешний вид одноэтажного дома АРО 120",
+    image: "/images/kontur-family-exterior-v1.webp",
+    alt: "Сгенерированная визуализация семьи у одноэтажного дома КОНТУР",
+    caption: "Временная AI-визуализация семейного сценария",
   },
   {
     id: "layout",
     label: "Планировка",
-    title: "96 м² внутри — без площади ради площади",
-    text: "Показываем логику помещений и связи с террасой. Точный технический план фиксируем после согласования состава семьи и сценария жизни.",
-    image: "/images/option-layout.webp",
-    alt: "Обсуждение планировочного решения дома АРО 120",
+    title: "86,2 м² полезной площади — без площади ради площади",
+    text: "Три спальни, два санузла, кухня-гостиная 27,3 м², входная группа и прямой выход на крытую террасу. Это лист из актуального проекта, а не условный пример.",
+    image: "/images/kontur-plan.jpg",
+    alt: "Техническая планировка дома КОНТУР",
+    caption: "Технический проект / план этажа",
   },
   {
     id: "interior",
     label: "Внутри",
     title: "Общая зона раскрывается в сторону участка",
     text: "Кухня-гостиная, естественный свет и прямой выход на крытую террасу — главный повседневный сценарий дома.",
-    image: "/images/interior.webp",
-    alt: "Интерьер кухни-гостиной дома АРО 120",
+    image: "/images/kontur-family-interior-v1.webp",
+    alt: "Сгенерированная визуализация семьи в кухне-гостиной дома КОНТУР",
+    caption: "Временная AI-визуализация интерьера",
   },
   {
     id: "terrace",
     label: "Терраса",
-    title: "24 м², которые действительно работают",
-    text: "Терраса входит в общую площадь 120 м² и защищена продолжением кровли — для стола, отдыха и летней кухни.",
-    image: "/images/house-side.webp",
-    alt: "Крытая терраса дома АРО 120",
+    title: "23,1 м² под общей кровлей",
+    text: "По проекту терраса имеет ширину около трёх метров, примыкает к кухне-гостиной и защищена продолжением кровли. В маркетинговой характеристике площадь округлена до 24 м².",
+    image: "/images/kontur-covered-terrace-v1.webp",
+    alt: "Сгенерированная визуализация семьи на крытой террасе дома КОНТУР",
+    caption: "Временная AI-визуализация жизни на террасе",
   },
+  {
+    id: "terrace-structure",
+    label: "Конструкция",
+    title: "Терраса — часть архитектуры дома",
+    text: "Техническая модель показывает продолжение общей кровли, опоры, свайное основание и примыкание террасы к остальному контуру дома.",
+    image: "/images/kontur-terrace-technical.jpg",
+    alt: "Техническая модель конструкции крытой террасы дома КОНТУР",
+    caption: "Технический проект / конструкция террасы",
+  },
+] as const;
+
+const planRooms = [
+  ["Кухня-гостиная", "27,3 м²"],
+  ["Спальня 1", "14,4 м²"],
+  ["Спальня 2", "12,4 м²"],
+  ["Спальня 3", "11,0 м²"],
+  ["Входная зона", "7,5 м²"],
+  ["Санузел 1", "5,5 м²"],
+  ["Холл", "4,2 м²"],
+  ["Санузел 2", "3,9 м²"],
+  ["Крытая терраса", "23,1 м²"],
+  ["Крыльцо", "4,5 м²"],
 ] as const;
 
 const buildOffers = [
@@ -99,6 +125,7 @@ const buildOffers = [
     price: 5.2,
     term: "до 8 недель",
     description: "SIP-контур, кровля, окна и закрытый фасад.",
+    includes: ["SIP-пол, наружные стены и кровля", "внутренние каркасные перегородки", "оконные блоки", "кровельное покрытие и закрытый фасад"],
   },
   {
     id: "pre-finish",
@@ -106,6 +133,7 @@ const buildOffers = [
     price: 6.3,
     term: "до 12 недель",
     description: "Тёплый контур плюс согласованная инженерия и подготовка поверхностей.",
+    includes: ["весь состав тёплого контура", "согласованные инженерные системы", "подготовка поверхностей под финиш", "точки подключения и границы монтажа по проекту"],
   },
   {
     id: "ready",
@@ -113,7 +141,23 @@ const buildOffers = [
     price: 7.2,
     term: "до 4 месяцев",
     description: "Дом с отделкой, инженерией и готовностью к передаче ключей.",
+    includes: ["весь состав варианта под отделку", "согласованные чистовые материалы", "двери, санузлы и финишные покрытия", "приёмка и передача документов по дому"],
   },
+] as const;
+
+const scheduleItems = [
+  { label: "Сделка по участку и договор участия", period: "10.08", start: 0, duration: 1, milestone: true },
+  { label: "Подготовка и выравнивание участка", period: "10–25.08", start: 0, duration: 16 },
+  { label: "Основные договоры и поставки", period: "10–25.08", start: 0, duration: 16 },
+  { label: "Железобетонный свайный фундамент", period: "10–15.08", start: 0, duration: 6 },
+  { label: "Поставка пиломатериалов и крепежа", period: "10–15.08", start: 0, duration: 6 },
+  { label: "Обвязка свайного поля", period: "14–16.08", start: 4, duration: 3 },
+  { label: "Монтаж SIP-пола на отметке 0", period: "16–20.08", start: 6, duration: 5 },
+  { label: "Наружные стены и перегородки", period: "20–27.08", start: 10, duration: 8 },
+  { label: "Поставка профлиста для кровли и фасада", period: "25–27.08", start: 15, duration: 3 },
+  { label: "Монтаж перекрытия и SIP-кровли", period: "27.08–10.09", start: 17, duration: 15 },
+  { label: "Монтаж окон ПВХ", period: "27.08–10.09", start: 17, duration: 15 },
+  { label: "Утепление внутренних перегородок", period: "27.08–10.09", start: 17, duration: 15 },
 ] as const;
 
 const buildStages = [
@@ -127,7 +171,7 @@ const buildStages = [
   {
     number: "02",
     title: "Участок",
-    text: "Проверяем исходные условия участка, подъезд, посадку дома и то, что влияет на основание и сети.",
+    text: "Если участок есть — проверяем подъезд, пятно застройки, рельеф и сети. Если участка нет — помогаем сформировать требования и подобрать подходящие варианты.",
     image: "/images/stage-site.webp",
     alt: "Инженер проводит обследование и разметку участка",
   },
@@ -150,7 +194,7 @@ const buildStages = [
     title: "Стройка",
     text: "Строим по зафиксированному графику. Каждый этап проверяем и сохраняем в фотоистории проекта.",
     image: "/images/sip-assembly.webp",
-    alt: "Монтаж SIP-панелей дома АРО 120",
+    alt: "Монтаж SIP-панелей дома КОНТУР",
   },
   {
     number: "06",
@@ -170,19 +214,29 @@ const buildStages = [
 
 const faqItems = [
   {
-    question: "Почему ИКИОМА начинает с одного дома?",
+    question: "Почему дом называется «КОНТУР» и откуда 120 м²?",
     answer:
-      "Чтобы отработать один продукт полностью: архитектуру, комплектацию, контроль, документы и сервис. Вы видите конкретный дом, а не каталог обещаний.",
+      "«КОНТУР» — имя модели. 120 м² — не название, а общая площадь застройки: внешний контур дома 96 м² плюс крытая терраса около 24 м². Полезная площадь помещений по проекту — 86,2 м².",
   },
   {
-    question: "Когда появляется точная цена?",
+    question: "Это реальная планировка или пример?",
     answer:
-      "На сайте сразу виден ориентир каждого уровня готовности — от 5,2 до 7,2 млн ₽. Точную цену фиксируем после проверки участка и выбранного состава работ: отдельно считаются основание, наружные сети и индивидуальные изменения.",
+      "На сайте показан план из актуального технического альбома АРО-96 для проекта в Коробицино: три спальни, два санузла, кухня-гостиная и терраса. АРО-96 — рабочее название проектного альбома; на сайте модель называется «КОНТУР».",
   },
   {
-    question: "Можно ли изменить АРО 120?",
+    question: "Можно обратиться без участка?",
     answer:
-      "Можно выбрать и согласовать отдельные решения по планировке, окнам, фасаду, инженерии и отделке. Изменения считаются до фиксации проекта, чтобы не превращать стройку в цепочку доплат.",
+      "Да. Если участок уже есть, проверим его и посадим дом. Если участка нет, поможем определить требования и подобрать варианты. Цена земли и сделка по её покупке не входят в стоимость дома и считаются отдельно.",
+  },
+  {
+    question: "Когда появляется точная цена и срок?",
+    answer:
+      "На сайте виден ориентир комплектаций — от 5,2 до 7,2 млн ₽. Точные цена, состав и календарный график фиксируются после проверки участка, проекта и выбранного уровня готовности. Основание, наружные сети и изменения показываются отдельно.",
+  },
+  {
+    question: "Можно ли изменить дом КОНТУР?",
+    answer:
+      "Можно согласовать отдельные решения по планировке, окнам, фасаду, инженерии и отделке. Изменения считаются до фиксации проекта, чтобы стройка не превращалась в цепочку неожиданных доплат.",
   },
   {
     question: "Как контролировать стройку дистанционно?",
@@ -233,7 +287,7 @@ export default function IkiomaLanding() {
   const [tourOpen, setTourOpen] = useState(false);
   const [leadOpen, setLeadOpen] = useState(false);
   const [activeTour, setActiveTour] = useState(0);
-  const [leadContext, setLeadContext] = useState("АРО 120 — готовый дом");
+  const [leadContext, setLeadContext] = useState("Дом КОНТУР — готовый дом");
   const [leadStatus, setLeadStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [leadForm, setLeadForm] = useState({ name: "", phone: "", email: "", land: "Есть участок", comment: "", company: "" });
   const [housePrice, setHousePrice] = useState(7.2);
@@ -348,14 +402,14 @@ export default function IkiomaLanding() {
             <a href="#house" onClick={() => setMenuOpen(false)}>
               Дом
             </a>
-            <a href="#process" onClick={() => setMenuOpen(false)}>
-              Как строим
+            <a href="#plan" onClick={() => setMenuOpen(false)}>
+              Планировка
             </a>
-            <a href="#control" onClick={() => setMenuOpen(false)}>
-              Контроль
+            <a href="#process" onClick={() => setMenuOpen(false)}>
+              Стройка
             </a>
             <a href="#finance" onClick={() => setMenuOpen(false)}>
-              Финансы
+              Цена
             </a>
           </nav>
 
@@ -378,23 +432,24 @@ export default function IkiomaLanding() {
       <section className="hero" id="top">
         <img
           className="hero-image"
-          src="/images/hero.webp"
-          alt="Современный одноэтажный дом АРО 120 вечером"
+          src="/images/kontur-family-exterior-v1.webp"
+          alt="Сгенерированная визуализация семьи с детьми у одноэтажного дома КОНТУР"
         />
         <div className="hero-shade" />
+        <span className="hero-media-label">Временная AI-визуализация</span>
         <div className="shell hero-content">
           <div className="hero-copy">
             <h1>
-              <span>По-настоящему</span>
-              <em>свой дом.</em>
+              <span>Дом КОНТУР.</span>
+              <em>По-настоящему свой.</em>
             </h1>
             <p className="hero-lead">
-              120 м²: 96 м² дома и 24 м² крытой террасы. Стоимость готового
-              дома — от 7,2 млн ₽, срок строительства — до 4 месяцев.
+              Три спальни, два санузла, кухня-гостиная и крытая терраса.
+              120 м² площади застройки: 96 м² дом и 24 м² терраса.
             </p>
             <div className="hero-actions">
-              <button className="button button-primary" onClick={() => openLead("АРО 120 — расчёт под участок") }>
-                Получить предложение АРО 120
+              <button className="button button-primary" onClick={() => openLead("Дом КОНТУР — расчёт под участок") }>
+                Получить предложение
                 <ArrowIcon />
               </button>
               <button className="hero-scroll-link" onClick={() => setTourOpen(true)}>
@@ -403,29 +458,29 @@ export default function IkiomaLanding() {
               </button>
             </div>
             <p className="micro-note">
-              Оставьте телефон — свяжемся по дому, а не для банковского спама.
+              Готовый дом — от 7,2 млн ₽. Стоимость участка в цену не входит.
             </p>
           </div>
 
-          <aside className="hero-card" aria-label="Кратко о доме АРО 120">
+          <aside className="hero-card" aria-label="Кратко о доме КОНТУР">
             <div className="hero-card-top">
               <span>Первый дом ИКИОМА</span>
               <i>01</i>
             </div>
-            <strong>АРО 120</strong>
+            <strong>КОНТУР</strong>
             <p>Простая геометрия, тёплая архитектура и крытая терраса под общей кровлей.</p>
             <dl>
               <div>
-                <dt>Площадь</dt>
-                <dd>120 м²</dd>
+                <dt>Внутри</dt>
+                <dd>86,2 м²</dd>
               </div>
               <div>
-                <dt>Этажность</dt>
-                <dd>1 этаж</dd>
+                <dt>Спальни</dt>
+                <dd>3</dd>
               </div>
               <div>
-                <dt>Основа</dt>
-                <dd>SIP</dd>
+                <dt>Санузлы</dt>
+                <dd>2</dd>
               </div>
             </dl>
             <button onClick={() => setTourOpen(true)}>
@@ -437,40 +492,41 @@ export default function IkiomaLanding() {
 
         <div className="shell hero-stats" aria-label="Главные факты об ИКИОМА">
           <div>
-            <strong>7,2 млн ₽</strong>
-            <span>готовый дом — ориентир</span>
+            <strong>120 м²</strong>
+            <span>общая площадь застройки</span>
           </div>
           <div>
-            <strong>до 4 месяцев</strong>
-            <span>срок строительства</span>
+            <strong>86,2 м²</strong>
+            <span>полезная площадь внутри</span>
           </div>
           <div>
-            <strong>24/7</strong>
-            <span>видно, что на площадке</span>
+            <strong>23,1 м²</strong>
+            <span>терраса по проекту</span>
           </div>
           <div>
-            <strong>5 лет</strong>
-            <span>гарантии в договоре</span>
+            <strong>3 + 2</strong>
+            <span>спальни и санузлы</span>
           </div>
         </div>
       </section>
 
       <section className="house-intro shell" id="house">
         <div className="house-intro-copy">
-          <span className="section-index">01 / АРО 120</span>
+          <span className="section-index">01 / Дом КОНТУР</span>
           <h2>
             Не каталог обещаний.
             <br />
             <em>Один дом — до каждой детали.</em>
           </h2>
           <p>
-            Вы смотрите не абстрактный рендер, а конкретный продукт: одноэтажный
-            АРО 120: 96 м² тёплой площади, 24 м² крытой террасы и понятный маршрут до ключей.
+            КОНТУР — имя дома. Число 120 больше не маскируется под название:
+            это 96 м² внешнего контура дома плюс около 24 м² крытой террасы.
+            Полезная площадь помещений по актуальному проекту — 86,2 м².
           </p>
-          <ul className="house-facts" aria-label="Характеристики АРО 120">
-            <li><strong>96 + 24 м²</strong><span>дом и терраса</span></li>
-            <li><strong>1 этаж</strong><span>без лишних маршрутов</span></li>
-            <li><strong>SIP</strong><span>тёплый контур</span></li>
+          <ul className="house-facts" aria-label="Характеристики дома КОНТУР">
+            <li><strong>96 + 24 м²</strong><span>площадь застройки</span></li>
+            <li><strong>86,2 м²</strong><span>полезная площадь</span></li>
+            <li><strong>1 этаж</strong><span>для семьи без лестниц</span></li>
           </ul>
           <button className="text-link" onClick={() => setTourOpen(true)}>
             Смотреть дом полностью
@@ -478,15 +534,118 @@ export default function IkiomaLanding() {
           </button>
         </div>
         <figure className="house-intro-image">
-          <img src="/images/house-day.webp" alt="Дом АРО 120 днём" />
-          <figcaption>Визуализация на основе построенного объекта</figcaption>
+          <img src="/images/house-day.webp" alt="Визуализация дома КОНТУР днём" />
+          <figcaption>Архитектурная визуализация концепции дома КОНТУР</figcaption>
         </figure>
+      </section>
+
+      <section className="plan-section" id="plan">
+        <div className="shell plan-head">
+          <div>
+            <span className="section-index">02 / Актуальная планировка</span>
+            <h2>
+              Видно, где вход.
+              <br />
+              <em>И как живёт дом.</em>
+            </h2>
+          </div>
+          <p>
+            Это не типовая картинка из каталога. План взят из технического альбома
+            АРО-96 для проекта в Коробицино. АРО-96 — рабочее название альбома;
+            КОНТУР — название модели на сайте.
+          </p>
+        </div>
+
+        <div className="shell plan-grid">
+          <figure className="plan-drawing">
+            <a href="/images/kontur-plan.jpg" target="_blank" rel="noreferrer" aria-label="Открыть техническую планировку в полном размере">
+              <img src="/images/kontur-plan.jpg" alt="Техническая планировка дома КОНТУР с экспликацией помещений" />
+            </a>
+            <figcaption>
+              Технический проект АРО-96 · лист 9 · нажмите, чтобы увеличить
+            </figcaption>
+          </figure>
+
+          <div className="plan-copy">
+            <span>Маршрут по дому</span>
+            <p className="plan-route" aria-label="Маршрут от входа к террасе">
+              Крыльцо <i>→</i> входная зона <i>→</i> холл <i>→</i> кухня-гостиная <i>→</i> терраса
+            </p>
+            <h3>Состав помещений</h3>
+            <dl className="room-list">
+              {planRooms.map(([room, area]) => (
+                <div key={room}>
+                  <dt>{room}</dt>
+                  <dd>{area}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="plan-note">
+              Внутренние помещения — 86,2 м². Терраса и крыльцо учитываются отдельно.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="land-section" id="land">
+        <div className="shell land-head">
+          <div>
+            <span className="section-index light">03 / Участок</span>
+            <h2>
+              С участком.
+              <br />
+              <em>Или пока без него.</em>
+            </h2>
+          </div>
+          <p>
+            Дом строим на вашем участке, а если земли ещё нет — помогаем сформировать
+            требования и подобрать подходящие варианты. Земля не включена в цену дома.
+          </p>
+        </div>
+        <div className="shell land-grid">
+          <article>
+            <span>Участок уже есть</span>
+            <strong>Проверим до расчёта.</strong>
+            <p>Смотрим подъезд, пятно застройки, рельеф, посадку дома и точки подключения. После этого фиксируем решение по основанию и наружным сетям.</p>
+            <button className="text-button light-link" onClick={() => openLead("Дом КОНТУР — участок уже есть") }>
+              Проверить мой участок <ArrowIcon />
+            </button>
+          </article>
+          <article>
+            <span>Участка пока нет</span>
+            <strong>Поможем с подбором.</strong>
+            <p>Определим район, бюджет, коммуникации и ограничения, затем соберём подходящие варианты. Покупка земли и расходы по сделке считаются отдельно.</p>
+            <button className="text-button light-link" onClick={() => openLead("Дом КОНТУР — нужна помощь с участком") }>
+              Начать подбор <ArrowIcon />
+            </button>
+          </article>
+        </div>
+        <p className="shell land-disclaimer">Цены 5,2–7,2 млн ₽ ниже относятся к дому в выбранной комплектации. Стоимость земли в них не входит.</p>
+        <div className="shell life-strip">
+          <figure>
+            <img src="/images/kontur-covered-terrace-v1.webp" alt="Сгенерированная визуализация семьи на крытой террасе дома КОНТУР" />
+            <figcaption>Временная AI-визуализация · не фотография построенного объекта</figcaption>
+          </figure>
+          <div>
+            <span>За пределами сметы</span>
+            <h3>Здесь начинается жизнь за городом.</h3>
+            <p>
+              Не только стены и срок стройки: завтрак на крытой террасе, детские
+              комнаты рядом, один этаж без лестниц и общая кухня-гостиная, где семья собирается вечером.
+            </p>
+            <ul>
+              <li>три отдельные спальни;</li>
+              <li>два санузла для утреннего ритма семьи;</li>
+              <li>прямой выход из общей зоны на террасу.</li>
+            </ul>
+          </div>
+        </div>
       </section>
 
       <section className="configuration-section">
         <div className="shell configuration-head">
           <div>
-            <span className="section-index">02 / Варианты</span>
+            <span className="section-index">04 / Варианты</span>
             <h2>
               Дом узнаваемый.
               <br />
@@ -494,7 +653,7 @@ export default function IkiomaLanding() {
             </h2>
           </div>
           <p>
-            Не переделываем АРО 120 до неузнаваемости. Настраиваем то, что влияет
+            Не переделываем КОНТУР до неузнаваемости. Настраиваем то, что влияет
             на жизнь, внешний вид и уровень готовности — и считаем до начала работ.
           </p>
         </div>
@@ -520,7 +679,7 @@ export default function IkiomaLanding() {
           id={`option-panel-${houseOptions[activeOption].id}`}
           role="tabpanel"
         >
-          <figure>
+          <figure className={houseOptions[activeOption].id === "layout" ? "technical" : ""}>
             <img
               src={houseOptions[activeOption].image}
               alt={houseOptions[activeOption].alt}
@@ -535,7 +694,7 @@ export default function IkiomaLanding() {
               <strong>Что фиксируем</strong>
               <p>{houseOptions[activeOption].fixed}</p>
             </div>
-            <button className="text-button" onClick={() => openLead(`АРО 120 — ${houseOptions[activeOption].label}`)}>
+            <button className="text-button" onClick={() => openLead(`Дом КОНТУР — ${houseOptions[activeOption].label}`)}>
               Получить расчёт этого решения
               <ArrowIcon />
             </button>
@@ -546,7 +705,7 @@ export default function IkiomaLanding() {
       <section className="process-section" id="process">
         <div className="shell process-head">
           <div>
-            <span className="section-index light">03 / Как строим</span>
+            <span className="section-index light">05 / Как строим</span>
             <h2>
               Семь этапов.
               <br />
@@ -601,6 +760,59 @@ export default function IkiomaLanding() {
         </div>
       </section>
 
+      <section className="schedule-section" id="schedule">
+        <div className="shell schedule-head">
+          <div>
+            <span className="section-index">06 / ППР проекта</span>
+            <h2>
+              Не «примерно месяц».
+              <br />
+              <em>Работы по датам.</em>
+            </h2>
+          </div>
+          <div className="schedule-summary">
+            <strong>10 августа — 10 сентября 2026</strong>
+            <p>Пример календарного плана тёплого контура для проекта в Коробицино.</p>
+          </div>
+        </div>
+
+        <div className="shell gantt-card">
+          <div className="gantt-axis" aria-hidden="true">
+            <span>10.08</span>
+            <span>16.08</span>
+            <span>22.08</span>
+            <span>28.08</span>
+            <span>04.09</span>
+            <span>10.09</span>
+          </div>
+          <div className="gantt-chart" role="img" aria-label="Диаграмма Ганта работ с 10 августа по 10 сентября 2026 года">
+            {scheduleItems.map((item) => (
+              <div className="gantt-row" key={item.label}>
+                <div className="gantt-label">
+                  <span>{item.label}</span>
+                  <small>{item.period}</small>
+                </div>
+                <div className="gantt-track">
+                  <i
+                    className={"milestone" in item && item.milestone ? "milestone" : ""}
+                    style={{
+                      left: `${(item.start / 32) * 100}%`,
+                      width: `${Math.max((item.duration / 32) * 100, 2.8)}%`,
+                    }}
+                  >
+                    <span>{item.period}</span>
+                  </i>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <p className="shell schedule-note">
+          График перенесён из ППР проекта. Для нового дома даты фиксируются после проверки участка,
+          готовности проекта, основания и поставок; параллельные работы могут идти одновременно.
+        </p>
+      </section>
+
       <section className="control-section shell" id="control">
         <div className="control-image">
           <img src="/images/site.webp" alt="Строительная площадка ИКИОМА с готовым домом" />
@@ -610,7 +822,7 @@ export default function IkiomaLanding() {
           </div>
         </div>
         <div className="control-copy">
-          <span className="section-index">04 / Контроль</span>
+          <span className="section-index">07 / Контроль</span>
           <h2>
             Следующий этап —
             <br />
@@ -641,7 +853,7 @@ export default function IkiomaLanding() {
       <section className="digital-section">
         <div className="shell">
           <div className="digital-head">
-            <span className="section-index">05 / Цифровой контур</span>
+            <span className="section-index">08 / Цифровой контур</span>
             <h2>
               Стройка остаётся
               <br />
@@ -680,7 +892,7 @@ export default function IkiomaLanding() {
       <section className="finance-section" id="finance">
         <div className="shell finance-head">
           <div>
-            <span className="section-index light">06 / Цена и готовность</span>
+            <span className="section-index light">09 / Цена и готовность</span>
             <h2>
               Три уровня готовности.
               <br />
@@ -688,19 +900,22 @@ export default function IkiomaLanding() {
             </h2>
           </div>
           <p>
-            Один АРО 120, но разная точка остановки. Выберите, где заканчивается
+            Один дом КОНТУР, но разная точка остановки. Выберите, где заканчивается
             наша работа — на тёплом контуре, подготовке под отделку или передаче ключей.
           </p>
         </div>
 
-        <div className="shell offer-grid" aria-label="Варианты готовности дома АРО 120">
+        <div className="shell offer-grid" aria-label="Варианты готовности дома КОНТУР">
           {buildOffers.map((offer) => (
             <article className={offer.id === "ready" ? "offer-card featured" : "offer-card"} key={offer.id}>
               <span>{offer.label}</span>
               <strong>от {offer.price.toFixed(1).replace(".", ",")} млн ₽</strong>
               <small>{offer.term}</small>
               <p>{offer.description}</p>
-              <button className="button button-primary" onClick={() => openLead(`АРО 120 — ${offer.label}, от ${offer.price.toFixed(1).replace(".", ",")} млн ₽`)}>
+              <ul>
+                {offer.includes.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+              <button className="button button-primary" onClick={() => openLead(`Дом КОНТУР — ${offer.label}, от ${offer.price.toFixed(1).replace(".", ",")} млн ₽`)}>
                 Получить точный состав
                 <ArrowIcon />
               </button>
@@ -709,8 +924,8 @@ export default function IkiomaLanding() {
         </div>
 
         <p className="shell offer-disclaimer">
-          Цены — предварительный ориентир для базовых условий участка. Основание,
-          наружные сети и индивидуальные изменения считаются после проверки участка.
+          Цены — предварительный ориентир для базовых условий участка и не включают землю.
+          Основание, наружные сети и индивидуальные изменения считаются после проверки участка.
         </p>
 
         <div className="shell finance-card">
@@ -731,7 +946,7 @@ export default function IkiomaLanding() {
 
       <section className="scope-section shell">
         <div className="scope-head">
-          <span className="section-index">07 / Границы расчёта</span>
+          <span className="section-index">10 / Границы расчёта</span>
           <h2>
             Понятно, что входит.
             <br />
@@ -751,6 +966,7 @@ export default function IkiomaLanding() {
           <article>
             <span>Считаем по условиям участка</span>
             <ul>
+              <li>сам участок и расходы по сделке;</li>
               <li>подъезд и подготовку площадки;</li>
               <li>фактическое решение по основанию;</li>
               <li>наружные сети и точки подключения;</li>
@@ -767,12 +983,12 @@ export default function IkiomaLanding() {
       <section className="warranty-section">
         <img
           className="warranty-image"
-          src="/images/interior.webp"
-          alt="Готовый интерьер дома АРО 120"
+          src="/images/kontur-family-interior-v1.webp"
+          alt="Сгенерированная визуализация семейной кухни-гостиной дома КОНТУР"
         />
         <div className="warranty-shade" />
         <div className="shell warranty-content">
-          <span className="section-index light">08 / После ключей</span>
+          <span className="section-index light">11 / После ключей</span>
           <strong className="warranty-number">5</strong>
           <div>
             <h2>
@@ -791,7 +1007,7 @@ export default function IkiomaLanding() {
 
       <section className="faq-section shell">
         <div className="faq-head">
-          <span className="section-index">09 / Вопросы</span>
+          <span className="section-index">12 / Вопросы</span>
           <h2>
             До решения —
             <br />
@@ -822,17 +1038,17 @@ export default function IkiomaLanding() {
         <div className="shell final-cta-content">
           <span className="section-index light">Следующий шаг</span>
           <h2>
-            Построим АРО 120
+            Построим КОНТУР
             <br />
-            <em>под ваш участок.</em>
+            <em>на подходящем участке.</em>
           </h2>
           <p>
-            Оставьте заявку — уточним участок и уровень готовности, затем дадим
-            конкретный состав, цену и календарный график строительства.
+            Если участок есть — проверим его. Если нет — поможем с подбором.
+            Затем зафиксируем состав дома, цену и календарный график строительства.
           </p>
           <div>
-            <button className="button button-primary" onClick={() => openLead("Финальная заявка — АРО 120") }>
-              Оставить заявку на АРО 120
+            <button className="button button-primary" onClick={() => openLead("Финальная заявка — дом КОНТУР") }>
+              Оставить заявку на КОНТУР
               <ArrowIcon />
             </button>
             <button className="button button-ghost" onClick={() => setTourOpen(true)}>
@@ -851,7 +1067,7 @@ export default function IkiomaLanding() {
               <small>По-настоящему свой дом</small>
             </span>
           </a>
-          <p>АРО 120 · 96 м² дом · 24 м² терраса</p>
+          <p>КОНТУР · 86,2 м² внутри · 23,1 м² терраса</p>
           <a href="#top">
             Наверх
             <ArrowIcon />
@@ -859,8 +1075,8 @@ export default function IkiomaLanding() {
         </div>
       </footer>
 
-      <button className="mobile-sticky-cta" onClick={() => openLead("Мобильная заявка — АРО 120") }>
-        Оставить заявку на АРО 120
+      <button className="mobile-sticky-cta" onClick={() => openLead("Мобильная заявка — дом КОНТУР") }>
+        Оставить заявку на КОНТУР
         <ArrowIcon />
       </button>
 
@@ -876,15 +1092,15 @@ export default function IkiomaLanding() {
             <button className="modal-close light" onClick={() => setTourOpen(false)} aria-label="Закрыть карточку дома">
               <CloseIcon />
             </button>
-            <figure>
+            <figure className={houseTour[activeTour].id === "layout" || houseTour[activeTour].id === "terrace-structure" ? "technical" : ""}>
               <img src={houseTour[activeTour].image} alt={houseTour[activeTour].alt} />
-              <figcaption>АРО 120 · {houseTour[activeTour].label}</figcaption>
+              <figcaption>КОНТУР · {houseTour[activeTour].caption}</figcaption>
             </figure>
             <div className="tour-copy">
-              <span>120 м² · 96 + 24</span>
+              <span>120 м² застройки · 86,2 м² внутри</span>
               <h2 id="tour-title">{houseTour[activeTour].title}</h2>
               <p>{houseTour[activeTour].text}</p>
-              <div className="tour-tabs" role="tablist" aria-label="Карточка дома АРО 120">
+              <div className="tour-tabs" role="tablist" aria-label="Карточка дома КОНТУР">
                 {houseTour.map((item, index) => (
                   <button
                     key={item.id}
@@ -928,7 +1144,7 @@ export default function IkiomaLanding() {
             ) : (
               <form onSubmit={submitLead}>
                 <div className="lead-head">
-                  <span>АРО 120 · заявка в СтройкаОС</span>
+                  <span>КОНТУР · заявка в СтройкаОС</span>
                   <h2 id="lead-title">Получить точное предложение.</h2>
                   <p>{leadContext}</p>
                 </div>
@@ -949,8 +1165,8 @@ export default function IkiomaLanding() {
                     <span>Участок</span>
                     <select value={leadForm.land} onChange={(event) => setLeadForm({ ...leadForm, land: event.target.value })}>
                       <option>Есть участок</option>
-                      <option>Подбираю участок</option>
-                      <option>Нужна помощь с выбором</option>
+                      <option>Участок выбираю сам</option>
+                      <option>Участка нет — нужна помощь</option>
                     </select>
                   </label>
                   <label className="lead-comment">
