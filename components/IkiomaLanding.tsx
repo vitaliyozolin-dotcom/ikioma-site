@@ -346,7 +346,7 @@ export default function IkiomaLanding() {
     ].filter(Boolean).join("\n");
 
     try {
-      const response = await fetch("https://stroios.online/api/public/leads", {
+      const response = await fetch("https://ikioma-telegram-gateway.ozolin.chatgpt.site/api/public/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
