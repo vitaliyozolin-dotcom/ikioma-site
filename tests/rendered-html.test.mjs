@@ -17,7 +17,7 @@ test("exports a deployable Timeweb page", async () => {
   assert.match(html, /10 августа — 10 сентября 2026/);
   const assetNames = await readdir(new URL("../timeweb-dist/assets/", import.meta.url));
   const clientCode = (await Promise.all(assetNames.filter((name) => name.endsWith(".js")).map((name) => readFile(new URL(`../timeweb-dist/assets/${name}`, import.meta.url), "utf8")))).join("\n");
-  assert.match(clientCode, /https:\/\/ikioma-telegram-gateway\.ozolin\.chatgpt\.site\/api\/public\/leads/);
+  assert.match(clientCode, /https:\/\/stroios-188-225-38-55\.sslip\.io\/api\/public\/leads/);
 
   const assetPaths = [
     "/images/kontur-family-exterior-v1.webp",
