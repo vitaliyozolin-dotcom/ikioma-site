@@ -4,6 +4,8 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 
+const leadEndpoint = "https://stroios-188-225-38-55.sslip.io/api/public/leads";
+
 const houseOptions = [
   {
     id: "layout",
@@ -346,7 +348,7 @@ export default function IkiomaLanding() {
     ].filter(Boolean).join("\n");
 
     try {
-      const response = await fetch("https://ikioma-telegram-gateway.ozolin.chatgpt.site/api/public/leads", {
+      const response = await fetch(leadEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
