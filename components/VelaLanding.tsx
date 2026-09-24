@@ -306,5 +306,3 @@ export default function VelaLanding() {
     </dialog>
   </div>;
 }
-
-[executed on device: ams-1-vm-jgi3 (c3136344-c4b2-4937-9a65-0741a4988226)]
