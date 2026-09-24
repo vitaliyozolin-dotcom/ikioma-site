@@ -105,5 +105,3 @@ test("answers seven SIP-specific objections without absolute safety claims", () 
   for (const phrase of ["душно", "влагой и плесенью", "электрика", "пожаробезопасно", "звукоизоляцией", "переносить розетки", "мышами и насекомыми"]) assert.match(html, new RegExp(phrase, "i"));
   assert.doesNotMatch(html, /SIP не горит|SIP не гниёт|абсолютно безопас/i);
 });
-
-[executed on device: ams-1-vm-jgi3 (c3136344-c4b2-4937-9a65-0741a4988226)]
