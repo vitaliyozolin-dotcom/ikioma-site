@@ -2,36 +2,70 @@ import assert from "node:assert/strict";
 import { access, readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
-const htmlPath = new URL("../timeweb-dist/index.html", import.meta.url);
+const root = new URL("../timeweb-dist/", import.meta.url);
+const html = await readFile(new URL("index.html", root), "utf8");
+const assetNames = await readdir(new URL("assets/", root));
+const js = (await Promise.all(assetNames.filter(name => name.endsWith(".js")).map(name => readFile(new URL(`assets/${name}`, root), "utf8")))).join("\n");
 
-test("exports a deployable Timeweb page", async () => {
-  const html = await readFile(htmlPath, "utf8");
+test("exports Russian VELA page with canonical URL and release marker", () => {
+  assert.match(html, /<html lang="ru">/);
+  assert.match(html, /<title>ИКИОМА \| VELA — по-настоящему свой дом<\/title>/);
+  assert.match(html, /rel="canonical" href="https:\/\/ikioma\.ru"/);
+  assert.match(html, /data-release="vela-structure-20260924"/);
+  assert.equal((html.match(/<h1(?:\s|>)/g) || []).length, 1);
+});
 
-  assert.match(html, /<html lang="ru">/i);
-  assert.match(html, /<title>Дом КОНТУР от ИКИОМА — по-настоящему свой дом<\/title>/i);
-  assert.match(html, /rel="canonical" href="https:\/\/ikioma\.ru"/i);
-  assert.match(html, /По-настоящему/);
-  assert.match(html, /Дом КОНТУР/);
-  assert.match(html, /86,2 м²/);
-  assert.match(html, /Стоимость участка в цену не входит/);
-  assert.match(html, /10 августа — 10 сентября 2026/);
-  const assetNames = await readdir(new URL("../timeweb-dist/assets/", import.meta.url));
-  const clientCode = (await Promise.all(assetNames.filter((name) => name.endsWith(".js")).map((name) => readFile(new URL(`../timeweb-dist/assets/${name}`, import.meta.url), "utf8")))).join("\n");
-  assert.match(clientCode, /https:\/\/stroios-188-225-38-55\.sslip\.io\/api\/public\/leads/);
+test("renders exactly eight sections in the agreed purchase order", () => {
+  const sections = [...html.matchAll(/data-section="([^"]+)"/g)].map(match => match[1]);
+  assert.deepEqual(sections, ["hero", "product", "offers", "purchase", "technology", "process", "evidence", "contact"]);
+});
 
-  const assetPaths = [
-    "/images/kontur-family-exterior-v1.webp",
-    "/images/kontur-covered-terrace-v1.webp",
-    "/images/kontur-family-interior-v1.webp",
-    "/images/kontur-plan.jpg",
-    "/images/stage-request.webp",
-  ];
+test("all internal navigation links point to existing IDs", () => {
+  const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
+  for (const match of html.matchAll(/\bhref="#([^"]+)"/g)) assert.ok(ids.has(match[1]), `Missing anchor ${match[1]}`);
+});
 
-  for (const assetPath of assetPaths) {
-    assert.match(html, new RegExp(assetPath.replaceAll("/", "\\/")));
-    await access(new URL(`../timeweb-dist${assetPath}`, import.meta.url));
-  }
+test("does not market terraces as indoor area or invent a two-bedroom drawing", () => {
+  assert.match(html, /86,2/);
+  assert.match(html, /23,1/);
+  assert.match(html, /Схему и площади согласуем до договора/);
+  assert.match(html, /Технический план VELA: три спальни/);
+  assert.doesNotMatch(html, /120 м² жилой/);
+  assert.doesNotMatch(html, /Дом КОНТУР|«КОНТУР»|Число 120 больше|Единственный калькулятор/);
+});
 
-  await access(new URL("../timeweb-dist/images/kontur-terrace-technical.jpg", import.meta.url));
-  await access(new URL("../timeweb-dist/images/og-kontur-v1.jpg", import.meta.url));
+test("shows all three provisional prices with nearby scope limitations", () => {
+  for (const value of ["5,2", "6,3", "7,2"]) assert.ok(html.includes(value));
+  assert.match(html, /Тёплый контур/);
+  assert.match(html, /Контур \+ инженерия/);
+  assert.match(html, /С отделкой под ключ/);
+  assert.match(html, /Предварительный ориентир/);
+  assert.match(html, /Земля не входит в цену/);
+  assert.match(html, /Фундамент, подготовка участка, наружные сети/);
+});
+
+test("every emitted local image, stylesheet and script exists in export", async () => {
+  const assets = new Set([...html.matchAll(/(?:src|href)="(\/(?:assets|images)\/[^"?#]+)"/g)].map(match => match[1]));
+  assert.ok(assets.size >= 6);
+  for (const path of assets) await access(new URL(`.${path}`, root));
+  await access(new URL("images/kontur-family-interior-v1.webp", root));
+  await access(new URL("images/kontur-covered-terrace-v1.webp", root));
+});
+
+test("client retains production lead endpoint, native dialog and timeout handling", () => {
+  assert.match(js, /https:\/\/stroios-188-225-38-55\.sslip\.io\/api\/public\/leads/);
+  assert.match(js, /AbortController/);
+  assert.match(js, /showModal/);
+  assert.match(js, /Отправить заявку/);
+  assert.match(js, /Согласен на обработку/);
+});
+
+test("structured data describes VELA without provisional financial promises", () => {
+  const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(match);
+  const data = JSON.parse(match[1]);
+  const product = data["@graph"].find(item => item["@type"] === "Product");
+  assert.equal(product.name, "ИКИОМА | VELA");
+  assert.equal(product.offers, undefined);
+  assert.equal(product.aggregateRating, undefined);
 });

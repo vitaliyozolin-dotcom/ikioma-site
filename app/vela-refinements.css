@@ -1,0 +1,6 @@
+/* Corrections from desktop/mobile acceptance, kept separate from base tokens. */
+.v-offer-number { min-height: 26px; }
+.v-hero-word { white-space: nowrap; }
+@media (max-width: 540px) {
+  .v-hero h1 em { font-size: clamp(30px, 9.3vw, 40px); line-height: 1.12; }
+}
