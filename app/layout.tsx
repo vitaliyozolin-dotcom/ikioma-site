@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope";
 import "./vela.css";
+import "./vela-refinements.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ikioma.ru"),
