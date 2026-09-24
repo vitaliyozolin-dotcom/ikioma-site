@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { normalizePhone, leadMessage, parseLeadReceipt, type LeadReceipt } from "./vela-leads";
 
 const LEAD_ENDPOINT = "https://stroios-188-225-38-55.sslip.io/api/public/leads";
-const RELEASE = "vela-structure-20260924";
+const RELEASE = "vela-proof-20260924";
 const nav = [["house", "Дом"], ["plan", "Планировка"], ["finance", "Комплектации"], ["process", "Как строим"], ["contacts", "Связаться"]] as const;
 const gallery = [
   { src: "/images/kontur-family-exterior-v1.webp", label: "Архитектура", title: "Спокойная архитектура. Свой характер.", text: "Один этаж, лаконичный фасад и крытая терраса под общей кровлей.", caption: "Архитектурная визуализация · не фотография построенного объекта" },
@@ -39,6 +39,25 @@ const faq = [
   ["Что с отоплением и вентиляцией?", "Состав систем, оборудование и точки подключения определяются инженерным проектом и выбранной комплектацией. Для инженерного пакета отдельно согласуем границы внутренних и наружных работ."],
   ["Когда будет готов дом?", "Календарный график составляем под конкретный участок, объём работ и поставки. Срок и условия начала строительства фиксируем в договоре. Пример графика другого объекта не является сроком вашего дома."],
   ["Как устроены приёмка и гарантия?", "При приёмке сверяем выполненные работы с проектом и спецификацией, фиксируем замечания. Срок гарантии, её объём, исключения и порядок обращения указываются в договоре конкретного проекта."],
+] as const;
+
+const approvalSteps = [
+  ["Планировка", "Помещения, размеры, входы и выходы."],
+  ["Проёмы", "Окна, двери и их расположение."],
+  ["Инженерия", "Точки, проходки и границы систем."],
+  ["Спецификация", "Материалы и состав комплектации."],
+  ["Цена", "Итог согласованного объёма и отдельные переменные."],
+  ["Рабочая версия", "Комплект чертежей, по которому запускаются работы."],
+] as const;
+
+const sipQuestions = [
+  ["Не будет ли в SIP-доме душно?", "Герметичный контур сам по себе не заменяет воздухообмен. Вентиляцию рассматриваем как инженерную систему: до монтажа согласуем схему, точки и границы работ. Конкретное оборудование фиксируется в проекте и комплектации."],
+  ["Что с влагой и плесенью?", "Здесь важны не рекламные свойства материала, а узлы. Панели защищают от намокания, примыкания и проходки герметизируют, кровлю и окна принимают до закрытия, а внутреннюю влагу должна удалять вентиляция. Скрытые работы фиксируем до того, как они перестанут быть видны."],
+  ["Как проходит электрика?", "Точки и трассы планируются до закрытия конструкций. После согласования электрического плана изменения проверяются относительно несущих элементов, инженерии и уже выполненных работ — а не делаются вслепую на площадке."],
+  ["SIP — это пожаробезопасно?", "Мы не используем слово «негорючий» для всей стены. Поведение конструкции зависит от полного пирога, внутренних облицовок, проходок и конкретных материалов. В проекте фиксируется именно сборка стены и документы на применяемые материалы."],
+  ["Как со звукоизоляцией?", "Звукоизоляция зависит от конструкции перегородок, перекрытий и примыканий. Поэтому не обещаем абстрактные децибелы без измерения. Для нужного уровня тишины отдельно согласуем состав внутренних конструкций."],
+  ["Можно ли потом переносить розетки и переделывать дом?", "Можно, но безопаснее делать это по данным проекта: где проходят кабели, вода, крепёжные зоны и несущие элементы. Поэтому после строительства важен цифровой паспорт и фото скрытых работ."],
+  ["Что с мышами и насекомыми?", "Одна технология не отменяет защиту вводов и примыканий. Контролируем закрытие технологических отверстий, узлы цоколя, фасада и кровли. Не обещаем «мышей не бывает» — показываем, как исключаются доступные им пути."],
 ] as const;
 
 function Arrow() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" /></svg>; }
@@ -163,7 +182,7 @@ export default function VelaLanding() {
           <h1>VELA.<br /><em><span className="v-hero-word">По-настоящему</span> свой.</em></h1>
           <p className="v-hero-text">Три спальни, просторная кухня-гостиная и крытая терраса. Место для семьи — и для себя.</p>
           <a href="#finance" className="v-hero-price"><strong>Тёплый контур — от 5,2 млн ₽</strong><span>Предварительный ориентир. Земля не входит.</span></a>
-          <div className="v-actions"><a className="v-button" href="#plan">Смотреть планировку <Arrow /></a><button className="v-button v-outline" onClick={() => openLead("Первый экран — расчёт VELA")}>Получить расчёт</button></div>
+          <div className="v-actions"><a className="v-button" href="#plan">Смотреть планировку <Arrow /></a><a className="v-button v-outline" href="#price-proof">Как фиксируем цену</a></div>
         </div>
         <div className="v-shell v-hero-bottom"><dl className="v-facts"><div><dt>Внутри дома</dt><dd>86,2 <small>м²</small></dd></div><div><dt>Крытая терраса</dt><dd>23,1 <small>м²</small></dd></div><div><dt>Спальни</dt><dd>3</dd></div><div><dt>Санузлы</dt><dd>2</dd></div></dl><span className="v-media-note">Архитектурная визуализация</span></div>
       </section>
@@ -178,13 +197,29 @@ export default function VelaLanding() {
           <figure><button className="v-image-button v-technical" onClick={() => showImage(3)} aria-label="Увеличить техническую планировку"><img src={gallery[3].src} alt="Технический план VELA: три спальни, два санузла, кухня-гостиная" loading="lazy" decoding="async" width="1200" height="900" /><span className="v-enlarge">Открыть план ↗</span></button><figcaption>Технический проект · нажмите, чтобы рассмотреть</figcaption></figure>
           <div className="v-plan-copy"><p className="v-eyebrow">Планировка с тремя спальнями</p><h3>Всё на одном этаже.</h3><p>Приватные комнаты отделены от общей зоны. Два санузла помогают спокойно собраться утром.</p><div className="v-plan-metrics"><span><strong>27,3 м²</strong>кухня-гостиная</span><span><strong>86,2 м²</strong>внутри дома</span></div><details className="v-details"><summary>Площади всех помещений</summary><dl className="v-room-list">{rooms.map(([name, area]) => <div key={name}><dt>{name}</dt><dd>{area} м²</dd></div>)}</dl><p>Терраса 23,1 м² и крыльцо 4,5 м² — отдельно от внутренних помещений.</p></details><div className="v-plan-alternative"><strong>Нужны две спальни?</strong><p>Обсудим изменение планировки. Схему и площади согласуем до договора.</p><button className="v-text-link" onClick={() => openLead("Запрос варианта с двумя спальнями", undefined, undefined, "2 спальни — требуется согласование проекта")}>Обсудить вариант <Arrow /></button></div></div>
         </div>
+        <div className="v-proof-now" id="proof">
+          <div><p className="v-eyebrow">Проверяется до разговора с менеджером</p><h3>Не просим верить рендеру.</h3><p>На сайте уже есть материалы, которые можно открыть и проверить: рабочая планировка, конструкция террасы и границы комплектаций.</p></div>
+          <div className="v-proof-actions">
+            <button className="v-text-link" onClick={() => showImage(3)}>Технический план <Arrow /></button>
+            <button className="v-text-link" onClick={() => showImage(4)}>Конструкция террасы <Arrow /></button>
+            <a className="v-text-link" href="#price-proof">Что входит в цену <Arrow /></a>
+          </div>
+        </div>
       </section>
 
       <section className="v-section v-dark" id="finance" data-section="offers"><div className="v-shell">
         <div className="v-heading"><div><p className="v-eyebrow">02 / Комплектации и цена</p><h2>Один дом.<br /><em>Три уровня готовности.</em></h2></div><p>Выберите, в какой момент принять дом: продолжить работы своей командой или получить результат с отделкой.</p></div>
         <div className="v-offers">{offers.map((item, index) => <article className={`v-offer${index === 2 ? " v-featured" : ""}`} key={item.name}><span className="v-offer-number">0{index + 1}{index === 2 && <span>С отделкой</span>}</span><h3>{item.name}</h3><div className="v-offer-price">от {item.price.toFixed(1).replace(".", ",")} <small>млн ₽</small></div><p className="v-price-note">Предварительный ориентир</p><p className="v-offer-result">{item.result}</p><ul>{item.items.map(text => <li key={text}>{text}</li>)}</ul><button className="v-button" onClick={() => openLead(`Расчёт комплектации: ${item.name}`, index)}>Получить расчёт <Arrow /></button></article>)}</div>
-        <div className="v-price-boundary"><strong>Что важно учесть в бюджете</strong><p>Земля не входит в цену. Фундамент, подготовка участка, наружные сети и изменения рассчитываются по исходным условиям. Состав, оборудование, доставка, срок и полная стоимость фиксируются в предложении и договоре.</p></div>
+        <div className="v-price-boundary" id="price-proof"><strong>Что важно учесть в бюджете</strong><p>Земля не входит в цену. Фундамент, подготовка участка, наружные сети и изменения рассчитываются по исходным условиям. Состав, оборудование, доставка, срок и полная стоимость фиксируются в предложении и договоре.</p></div>
         <details className="v-details v-comparison"><summary>Сравнить подробный состав</summary><div className="v-table-scroll" tabIndex={0} role="region" aria-label="Сравнение комплектаций, таблицу можно прокручивать"><table><caption>Границы работ уточняются по спецификации</caption><thead><tr><th scope="col">Работы и материалы</th>{offers.map(o => <th scope="col" key={o.name}>{o.name}</th>)}</tr></thead><tbody>{comparison.map(row => <tr key={row[0]}><th scope="row">{row[0]}</th>{row.slice(1).map((cell, i) => <td key={i}>{cell}</td>)}</tr>)}</tbody></table></div></details>
+        <div className="v-change-rule">
+          <div><p className="v-eyebrow">Правило изменения цены</p><h3>Сначала причина и новая цифра. Потом работа.</h3></div>
+          <ol>
+            <li><span>01</span><strong>Появилось изменение</strong><p>Участок, инженерия или ваше решение меняют согласованный объём.</p></li>
+            <li><span>02</span><strong>Показываем влияние</strong><p>Что изменится в стоимости, сроке и проекте.</p></li>
+            <li><span>03</span><strong>Фиксируем решение</strong><p>Изменение становится частью проекта после согласования, а не задним числом.</p></li>
+          </ol>
+        </div>
       </div></section>
 
       <section className="v-section v-shell" id="land" data-section="purchase">
@@ -201,21 +236,43 @@ export default function VelaLanding() {
           <details className="v-details"><summary>Окна, фасад и крытая терраса</summary><p>Размеры проёмов, материалы, цвет и примыкания согласуем вместе. Терраса показана как часть архитектуры под общей кровлей.</p></details>
           <details className="v-details"><summary>Инженерия и отделка</summary><p>Системы и материалы зависят от выбранной комплектации. Оборудование, трассы и границы монтажа записываем в спецификацию.</p></details>
         </div></div>
+        <div className="v-sip-questions">
+          <div className="v-sip-intro"><p className="v-eyebrow">Без рекламных мифов</p><h3>7 неудобных вопросов про SIP.</h3><p>Не отвечаем «всё отлично». Показываем, какой проектный узел или процесс решает конкретный риск.</p></div>
+          <div>{sipQuestions.map(([q, a]) => <details className="v-details" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div>
+        </div>
       </div></section>
 
       <section className="v-section v-shell" id="process" data-section="process">
         <div className="v-heading"><div><p className="v-eyebrow">05 / Процесс и ответственность</p><h2>От первого разговора<br /><em>до своих ключей.</em></h2></div><p>Понятно, что согласовано, какой этап идёт сейчас и что предстоит принять.</p></div>
+        <div className="v-approval-gate" id="approval">
+          <div><p className="v-eyebrow">До запуска домокомплекта</p><h3>Вы знаете, по какой версии строим.</h3><p>Не оставляем рабочую документацию «на потом». Перед запуском работ согласуем комплект, который определяет дом и его стоимость.</p></div>
+          <ol>{approvalSteps.map(([title, text], index) => <li key={title}><span>0{index + 1}</span><strong>{title}</strong><p>{text}</p></li>)}</ol>
+        </div>
         <ol className="v-steps">{steps.map(([title, text], index) => <li key={title}><span>0{index + 1}</span><strong>{title}</strong><p>{text}</p></li>)}</ol>
-        <div className="v-assurance"><article><span>01 / До старта</span><h3>Смета и график.</h3><p>Состав работ и порядок изменений фиксируются до строительства.</p></article><article><span>02 / Во время стройки</span><h3>Приёмка этапов.</h3><p>Проверяем узлы и скрытые работы. Замечания привязываем к конкретному результату.</p></article><article><span>03 / После передачи</span><h3>История дома.</h3><p>Документы, принятые решения и условия гарантии остаются у заказчика.</p></article></div>
+        <div className="v-assurance v-assurance-four"><article><span>01 / Цена</span><h3>Без доплаты задним числом.</h3><p>Сначала показываем причину, новую стоимость и влияние на срок. Затем фиксируем решение.</p></article><article><span>02 / Срок</span><h3>План и факт рядом.</h3><p>Если этап отклоняется, показываем отклонение, причину и следующий прогноз, а не прячем дату.</p></article><article><span>03 / Чертежи</span><h3>Одна рабочая версия.</h3><p>Планировка, проёмы, инженерные точки и спецификация привязаны к согласованному комплекту.</p></article><article><span>04 / Скрытые работы</span><h3>Сначала фиксация.</h3><p>Узлы и проходки проверяются и фотографируются до того, как их закроет следующий слой.</p></article></div>
         <details className="v-details"><summary>Контроль строительства в ИКИОМА ОС</summary><p>Этапы, документы и фотоотчёты помогают контролировать стройку. Состав доступа заказчика согласуем для проекта. Подключение камеры зависит от питания, связи и условий площадки; непрерывная трансляция не подразумевается автоматически.</p></details>
         <details className="v-details"><summary>Пройдём все регистрации за вас</summary><p>Согласуем сопровождение технического плана, кадастрового учёта и регистрации права. До договора определим три вещи:</p><div className="v-registration"><p><strong>Что делаем мы</strong>Перечень процедур и документов в согласованном сопровождении.</p><p><strong>Где участвуете вы</strong>Исходные документы, подписи и необходимые полномочия собственника.</p><p><strong>Что оплачивается отдельно</strong>Пошлины и услуги третьих лиц — по условиям договора.</p></div><p className="v-note">Объём сопровождения зависит от участка и схемы сделки. Обещание относится к согласованному перечню, а не к любым регистрационным действиям.</p></details>
         <details className="v-details"><summary>Приёмка и гарантийные обязательства</summary><p>Сверяем результат с проектом и спецификацией, фиксируем замечания и их устранение. Срок, объём гарантии, исключения и порядок обращения указываются в вашем договоре.</p></details>
       </section>
 
       <section className="v-section v-dark" id="team" data-section="evidence"><div className="v-shell">
-        <div className="v-heading"><div><p className="v-eyebrow">06 / Проект и команда</p><h2>За каждым этапом —<br /><em>своя ответственность.</em></h2></div><p>Технические решения, сопровождение сделки и работа с заказчиком — части одного проекта.</p></div>
-        <div className="v-team-grid"><article><span>Строительство</span><h3>От материалов до приёмки.</h3><p>Закупки, снабжение, подрядчики, инженерия и выполнение работ.</p></article><article><span>Сопровождение сделки</span><h3>От расчёта до документов.</h3><p>Договорные условия, финансовый сценарий и оформление сделки.</p></article><article><span>Продукт и заказчик</span><h3>От выбора до обратной связи.</h3><p>Планировка, комплектация, коммуникация и цифровой учёт проекта.</p></article></div>
-        <div className="v-project-strip"><div><span className="v-eyebrow">Коробицино / Технический проект</span><h3>Не только внешний вид.</h3><p>Посмотрите план помещений и конструкцию террасы из проектного альбома.</p></div><div className="v-actions"><button className="v-button v-outline" onClick={() => showImage(3)}>Открыть план <Arrow /></button><button className="v-text-link" onClick={() => showImage(4)}>Конструкция террасы <Arrow /></button></div></div>
+        <div className="v-heading"><div><p className="v-eyebrow">06 / Доказательства</p><h2>Не просим<br /><em>верить на слово.</em></h2></div><p>Если утверждение можно подтвердить документом, фотографией или измерением — показываем подтверждение. Если данных ещё нет, не заменяем их красивой цифрой.</p></div>
+        <div className="v-evidence-grid">
+          <article><span>Доступно сейчас</span><h3>Техническая планировка.</h3><p>Фактический лист проекта с помещениями и площадями.</p><button className="v-text-link" onClick={() => showImage(3)}>Открыть план <Arrow /></button></article>
+          <article><span>Доступно сейчас</span><h3>Конструкция террасы.</h3><p>Техническая модель примыкания, опор и общей кровли.</p><button className="v-text-link" onClick={() => showImage(4)}>Рассмотреть узел <Arrow /></button></article>
+          <article><span>Доступно сейчас</span><h3>Границы комплектаций.</h3><p>Одинаковые позиции для сравнения: что входит, что не входит и что считается отдельно.</p><a className="v-text-link" href="#price-proof">Сравнить состав <Arrow /></a></article>
+        </div>
+        <div className="v-evidence-standard">
+          <div><p className="v-eyebrow">Стандарт публичного кейса ИКИОМА</p><h3>У каждого построенного дома должна появиться доказательная карточка.</h3><p>Не обещаем данные, которых пока нет. По мере появления фактов карточка дополняется — без подмены рендерами.</p></div>
+          <ul>
+            <li><strong>01</strong><span>Фото ключевых этапов и скрытых работ</span></li>
+            <li><strong>02</strong><span>Плановый и фактический график с причинами отклонений</span></li>
+            <li><strong>03</strong><span>История согласованных изменений цены и проекта</span></li>
+            <li><strong>04</strong><span>Исполнительная информация по инженерии и материалам</span></li>
+            <li><strong>05</strong><span>После эксплуатации — фактические данные по отоплению и тепловизионной проверке, если измерение выполнено</span></li>
+          </ul>
+        </div>
+        <div className="v-project-strip"><div><span className="v-eyebrow">Коробицино / Технический проект</span><h3>Первое доказательство — проект.</h3><p>На сайте уже опубликованы план помещений и техническая модель террасы из проектного альбома.</p></div><div className="v-actions"><button className="v-button v-outline" onClick={() => showImage(3)}>Открыть план <Arrow /></button><button className="v-text-link" onClick={() => showImage(4)}>Конструкция террасы <Arrow /></button></div></div>
       </div></section>
 
       <section className="v-section v-shell" id="questions" data-section="contact">

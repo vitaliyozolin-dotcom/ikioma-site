@@ -11,7 +11,7 @@ test("exports Russian VELA page with canonical URL and release marker", () => {
   assert.match(html, /<html lang="ru">/);
   assert.match(html, /<title>ИКИОМА \| VELA — по-настоящему свой дом<\/title>/);
   assert.match(html, /rel="canonical" href="https:\/\/ikioma\.ru"/);
-  assert.match(html, /data-release="vela-structure-20260924"/);
+  assert.match(html, /data-release="vela-proof-20260924"/);
   assert.equal((html.match(/<h1(?:\s|>)/g) || []).length, 1);
 });
 
@@ -68,4 +68,27 @@ test("structured data describes VELA without provisional financial promises", ()
   assert.equal(product.name, "ИКИОМА | VELA");
   assert.equal(product.offers, undefined);
   assert.equal(product.aggregateRating, undefined);
+});
+
+
+test("renders proof-led SIP sales layer without invented testimonials", () => {
+  for (const phrase of [
+    "Сначала причина и новая цифра. Потом работа.",
+    "Вы знаете, по какой версии строим.",
+    "7 неудобных вопросов про SIP.",
+    "Без доплаты задним числом.",
+    "План и факт рядом.",
+    "Не просим",
+    "Доступно сейчас",
+    "Стандарт публичного кейса ИКИОМА",
+  ]) assert.ok(html.includes(phrase), "Missing proof phrase: " + phrase);
+  assert.match(html, /Техническая планировка/);
+  assert.match(html, /Конструкция террасы/);
+  assert.match(html, /Границы комплектаций/);
+  assert.doesNotMatch(html, /★★★★★|4[.,][0-9]\/5|сотни построенных|тысяч[аи] домов/i);
+});
+
+test("answers seven SIP-specific objections without absolute safety claims", () => {
+  for (const phrase of ["душно", "влагой и плесенью", "электрика", "пожаробезопасно", "звукоизоляцией", "переносить розетки", "мышами и насекомыми"]) assert.match(html, new RegExp(phrase, "i"));
+  assert.doesNotMatch(html, /SIP не горит|SIP не гниёт|абсолютно безопас/i);
 });
