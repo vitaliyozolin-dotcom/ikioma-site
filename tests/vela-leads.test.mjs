@@ -6,6 +6,8 @@ test('phone normalization matches receiver minimum and rejects malformed values'
   assert.equal(normalizePhone('8 (999) 123-45-67'), '+79991234567');
   assert.equal(normalizePhone('9991234567'), '+79991234567');
   assert.equal(normalizePhone('+70000000024'), '+70000000024');
+  assert.equal(normalizePhone('+84912345678'), '+84912345678');
+  assert.equal(normalizePhone('+84000000000'), '+84000000000');
   for (const value of ['12345678', 'letters', '000000000000', '123+45678901', '++79991234567']) assert.equal(normalizePhone(value), null);
 });
 
