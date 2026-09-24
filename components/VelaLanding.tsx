@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element -- existing local, optimized product assets */
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { normalizePhone, leadMessage, parseLeadReceipt, type LeadReceipt } from "./vela-leads";
 
 const LEAD_ENDPOINT = "https://stroios-188-225-38-55.sslip.io/api/public/leads";
 const RELEASE = "vela-structure-20260924";
@@ -16,9 +17,9 @@ const gallery = [
 ] as const;
 const rooms = [["Кухня-гостиная", "27,3"], ["Спальня 1", "14,4"], ["Спальня 2", "12,4"], ["Спальня 3", "11,0"], ["Входная зона", "7,5"], ["Санузел 1", "5,5"], ["Холл", "4,2"], ["Санузел 2", "3,9"]] as const;
 const offers = [
-  { name: "Тёплый контур", price: 5.2, short: "Контур", result: "Закрытый дом для следующего этапа работ.", items: ["SIP-пол, наружные стены и кровля", "Внутренние каркасные перегородки", "Оконные блоки", "Кровельное покрытие и фасад"] },
-  { name: "Контур + инженерия", price: 6.3, short: "+ инженерия", result: "Тёплый контур с инженерным пакетом по проекту.", items: ["Весь состав тёплого контура", "Вода, канализация и электрика", "Отопление и вентиляция", "Оборудование и границы монтажа — в смете"] },
-  { name: "С отделкой под ключ", price: 7.2, short: "Под ключ", result: "Дом с инженерией и согласованной чистовой отделкой.", items: ["Контур и инженерные системы", "Отделка пола, стен и потолков", "Межкомнатные двери и санузлы", "Приёмка и документы на выполненные работы"] },
+  { name: "Тёплый контур", price: 5.2, result: "Закрытый дом для следующего этапа работ.", items: ["SIP-пол, наружные стены и кровля", "Внутренние каркасные перегородки", "Оконные блоки", "Кровельное покрытие и фасад"] },
+  { name: "Контур + инженерия", price: 6.3, result: "Тёплый контур с инженерным пакетом по проекту.", items: ["Весь состав тёплого контура", "Вода, канализация и электрика", "Отопление и вентиляция", "Оборудование и границы монтажа — в смете"] },
+  { name: "С отделкой под ключ", price: 7.2, result: "Дом с инженерией и согласованной чистовой отделкой.", items: ["Контур и инженерные системы", "Отделка пола, стен и потолков", "Межкомнатные двери и санузлы", "Приёмка и документы на выполненные работы"] },
 ] as const;
 const comparison = [
   ["SIP-контур, кровля, фасад, окна", "Входит", "Входит", "Входит"],
@@ -49,13 +50,6 @@ function payment(principal: number, rate: number, years: number) {
   const r = rate / 1200;
   return principal * r / (1 - Math.pow(1 + r, -years * 12));
 }
-function normalizePhone(value: string) {
-  if (!/^[+\d\s()\-]+$/.test(value.trim())) return null;
-  let digits = value.replace(/\D/g, "");
-  if (digits.length === 10) digits = `7${digits}`;
-  if (digits.length === 11 && digits.startsWith("8")) digits = `7${digits.slice(1)}`;
-  return /^[1-9]\d{7,14}$/.test(digits) ? `+${digits}` : null;
-}
 
 type Modal = "lead" | "gallery" | "calculator" | "menu" | null;
 
@@ -72,6 +66,7 @@ export default function VelaLanding() {
   const [context, setContext] = useState("Расчёт VELA");
   const [form, setForm] = useState({ name: "", phone: "", comment: "", company: "", consent: false });
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [receipt, setReceipt] = useState<LeadReceipt | null>(null);
   const [error, setError] = useState("");
   const [sticky, setSticky] = useState(false);
   const [price, setPrice] = useState(7.2);
@@ -120,7 +115,7 @@ export default function VelaLanding() {
     if (choice !== undefined) setOffer(choice);
     if (landChoice) setLand(landChoice);
     if (layoutChoice) setLayout(layoutChoice);
-    setStatus("idle"); setError(""); setModal("lead");
+    setStatus("idle"); setReceipt(null); setError(""); setModal("lead");
   }
   function showImage(index: number) { setExpandedImage(index); setModal("gallery"); }
 
@@ -135,17 +130,14 @@ export default function VelaLanding() {
     submitLock.current = true; setStatus("sending"); setError("");
     const controller = new AbortController(); request.current = controller;
     const timeout = window.setTimeout(() => controller.abort(), 15_000);
-    const params = new URLSearchParams(window.location.search);
-    const utm = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"].map(key => params.get(key) ? `${key}: ${params.get(key)!.slice(0, 160)}` : "").filter(Boolean);
-    const message = [context, `Модель: VELA. Планировка: ${layout}.`, `Комплектация: ${offers[offer].name}.`, `Участок: ${land}.`, form.comment.trim(), ...utm, `Согласие на обработку контактов для ответа на заявку: ${new Date().toISOString()}. Версия формы: ${RELEASE}.`].filter(Boolean).join("\n");
+    const message = leadMessage({ context, layout, offer: offers[offer].name, land, comment: form.comment, query: window.location.search, release: RELEASE, timestamp: new Date().toISOString() });
     try {
       const response = await fetch(LEAD_ENDPOINT, { method: "POST", signal: controller.signal, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: form.name.trim(), phone, email: "", source: "website", message, website: "ikioma.ru" }) });
       if (!response.ok) throw new Error(response.status === 429 ? "rate_limit" : "lead_rejected");
       const type = response.headers.get("content-type") || "";
       if (!type.includes("application/json")) throw new Error("invalid_response");
-      const result = await response.json();
-      if (!result || typeof result !== "object" || result.ok === false || result.success === false || result.error) throw new Error("lead_rejected");
-      setStatus("sent");
+      const confirmed = parseLeadReceipt(response.status, await response.json());
+      setReceipt(confirmed); setStatus("sent");
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error && err.message === "rate_limit" ? "Слишком много попыток. Подождите немного перед повторной отправкой." : "Не удалось подтвердить получение заявки. Введённые данные сохранены в открытой форме. Проверьте соединение перед повторной отправкой.");
@@ -168,7 +160,7 @@ export default function VelaLanding() {
         <img className="v-hero-image" src={gallery[0].src} alt="Архитектурная визуализация дома VELA с крытой террасой" fetchPriority="high" width="1536" height="1024" />
         <div className="v-shell v-hero-content">
           <p className="v-eyebrow">ИКИОМА / Одноэтажный дом</p>
-          <h1>VELA.<br /><em>По-настоящему свой.</em></h1>
+          <h1>VELA.<br /><em><span className="v-hero-word">По-настоящему</span> свой.</em></h1>
           <p className="v-hero-text">Три спальни, просторная кухня-гостиная и крытая терраса. Место для семьи — и для себя.</p>
           <a href="#finance" className="v-hero-price"><strong>Тёплый контур — от 5,2 млн ₽</strong><span>Предварительный ориентир. Земля не входит.</span></a>
           <div className="v-actions"><a className="v-button" href="#plan">Смотреть планировку <Arrow /></a><button className="v-button v-outline" onClick={() => openLead("Первый экран — расчёт VELA")}>Получить расчёт</button></div>
@@ -190,7 +182,7 @@ export default function VelaLanding() {
 
       <section className="v-section v-dark" id="finance" data-section="offers"><div className="v-shell">
         <div className="v-heading"><div><p className="v-eyebrow">02 / Комплектации и цена</p><h2>Один дом.<br /><em>Три уровня готовности.</em></h2></div><p>Выберите, в какой момент принять дом: продолжить работы своей командой или получить результат с отделкой.</p></div>
-        <div className="v-offers">{offers.map((item, index) => <article className={`v-offer${index === 2 ? " v-featured" : ""}`} key={item.name}><span className="v-offer-number">0{index + 1}{index === 2 && <span>С отделкой</span>}</span><h3>{item.name}</h3><div className="v-offer-price">от {item.price.toFixed(1).replace(".", ",")} <small>млн ₽</small></div><p className="v-price-note">Предварительный ориентир</p><p className="v-offer-result">{item.result}</p><ul>{item.items.map(text => <li key={text}>{text}</li>)}</ul><button className="v-button" onClick={() => openLead(`Расчёт комплектации: ${item.name}`, index)}>Рассчитать {item.short.toLowerCase()} <Arrow /></button></article>)}</div>
+        <div className="v-offers">{offers.map((item, index) => <article className={`v-offer${index === 2 ? " v-featured" : ""}`} key={item.name}><span className="v-offer-number">0{index + 1}{index === 2 && <span>С отделкой</span>}</span><h3>{item.name}</h3><div className="v-offer-price">от {item.price.toFixed(1).replace(".", ",")} <small>млн ₽</small></div><p className="v-price-note">Предварительный ориентир</p><p className="v-offer-result">{item.result}</p><ul>{item.items.map(text => <li key={text}>{text}</li>)}</ul><button className="v-button" onClick={() => openLead(`Расчёт комплектации: ${item.name}`, index)}>Получить расчёт <Arrow /></button></article>)}</div>
         <div className="v-price-boundary"><strong>Что важно учесть в бюджете</strong><p>Земля не входит в цену. Фундамент, подготовка участка, наружные сети и изменения рассчитываются по исходным условиям. Состав, оборудование, доставка, срок и полная стоимость фиксируются в предложении и договоре.</p></div>
         <details className="v-details v-comparison"><summary>Сравнить подробный состав</summary><div className="v-table-scroll" tabIndex={0} role="region" aria-label="Сравнение комплектаций, таблицу можно прокручивать"><table><caption>Границы работ уточняются по спецификации</caption><thead><tr><th scope="col">Работы и материалы</th>{offers.map(o => <th scope="col" key={o.name}>{o.name}</th>)}</tr></thead><tbody>{comparison.map(row => <tr key={row[0]}><th scope="row">{row[0]}</th>{row.slice(1).map((cell, i) => <td key={i}>{cell}</td>)}</tr>)}</tbody></table></div></details>
       </div></section>
@@ -240,7 +232,7 @@ export default function VelaLanding() {
       <button type="button" className="v-close" onClick={() => setModal(null)} aria-label="Закрыть окно"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
       {modal === "menu" && <div className="v-dialog-body"><h2 id="v-dialog-title">ИКИОМА</h2><nav aria-label="Мобильная навигация">{nav.map(([id, label]) => <a key={id} href={`#${id}`} onClick={() => setModal(null)}>{label}<Arrow /></a>)}</nav><button className="v-button" onClick={() => openLead("Мобильное меню")}>Получить расчёт <Arrow /></button></div>}
       {modal === "gallery" && <div className="v-lightbox"><h2 id="v-dialog-title">{gallery[expandedImage].title}</h2><img src={gallery[expandedImage].src} alt={gallery[expandedImage].title} /><p>{gallery[expandedImage].caption}</p><div className="v-pills" aria-label="Изображения дома">{gallery.map((item, index) => <button key={item.label} aria-pressed={index === expandedImage} onClick={() => setExpandedImage(index)}>{item.label}</button>)}</div></div>}
-      {modal === "lead" && <div className="v-dialog-body">{status === "sent" ? <div className="v-success" role="status"><span className="v-success-mark" aria-hidden="true">✓</span><p className="v-eyebrow">Заявка получена</p><h2 id="v-dialog-title">Спасибо, {form.name}.</h2><p>Свяжемся по указанному телефону, чтобы обсудить ваш дом и участок.</p><button className="v-button v-button-dark" onClick={() => setModal(null)}>Вернуться на сайт</button></div> : <form onSubmit={submit} aria-busy={status === "sending"}><p className="v-eyebrow">ИКИОМА / VELA</p><h2 id="v-dialog-title">Дом под вашу задачу.</h2><p className="v-form-intro">Оставьте контакты. Выбранную комплектацию и пожелания передадим вместе с заявкой.</p><fieldset disabled={status === "sending"} className="v-form-fields"><label>Как к вам обращаться<input name="name" required maxLength={100} autoComplete="name" placeholder="Имя" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></label><label>Телефон<input name="phone" required type="tel" inputMode="tel" autoComplete="tel" maxLength={30} placeholder="+7 999 123-45-67" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></label><label>Комплектация<select value={offer} onChange={e => setOffer(Number(e.target.value))}>{offers.map((item, index) => <option value={index} key={item.name}>{item.name}</option>)}</select></label><label>Участок<select value={land} onChange={e => setLand(e.target.value)}><option>Пока не определился</option><option>Есть участок</option><option>Выбираю самостоятельно</option><option>Нужна помощь с участком</option></select></label><details className="v-details v-form-extra"><summary>Добавить пожелания</summary><label>Планировка<select value={layout} onChange={e => setLayout(e.target.value)}><option>3 спальни</option><option>2 спальни — требуется согласование проекта</option></select></label><label>Комментарий<textarea rows={3} maxLength={2000} placeholder="Район, бюджет, желаемая дата начала" value={form.comment} onChange={e => setForm({ ...form, comment: e.target.value })} /></label><p className="v-note">{context}</p></details><label className="v-honeypot" aria-hidden="true">Компания<input autoComplete="off" tabIndex={-1} value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} /></label><label className="v-consent"><input type="checkbox" required checked={form.consent} onChange={e => setForm({ ...form, consent: e.target.checked })} /><span>Согласен на обработку имени, телефона и переданных пожеланий для ответа на эту заявку.</span></label></fieldset>{status === "error" && <p className="v-error" role="alert">{error}</p>}<button type="submit" disabled={status === "sending"} className="v-button v-submit">{status === "sending" ? "Отправляем…" : "Отправить заявку"}<Arrow /></button><p className="v-note">Контакты нужны для обсуждения дома. Согласие на рекламную рассылку здесь не запрашивается.</p></form>}</div>}
+      {modal === "lead" && <div className="v-dialog-body">{status === "sent" ? <div className="v-success" role="status" data-lead-id={receipt?.leadId || undefined}><span className="v-success-mark" aria-hidden="true">✓</span><p className="v-eyebrow">{receipt?.duplicate ? "Заявка с этим телефоном уже получена" : "Заявка получена"}</p><h2 id="v-dialog-title">Спасибо, {form.name}.</h2><p>{receipt?.duplicate ? "Вы уже отправляли заявку недавно. Новые пожелания из повторной формы не добавлены к первой заявке — обсудите их при разговоре с менеджером." : "Свяжемся по указанному телефону, чтобы обсудить ваш дом и участок."}</p><button className="v-button v-button-dark" onClick={() => setModal(null)}>Вернуться на сайт</button></div> : <form onSubmit={submit} aria-busy={status === "sending"}><p className="v-eyebrow">ИКИОМА / VELA</p><h2 id="v-dialog-title">Дом под вашу задачу.</h2><p className="v-form-intro">Оставьте контакты. Выбранную комплектацию и пожелания передадим вместе с заявкой.</p><fieldset disabled={status === "sending"} className="v-form-fields"><label>Как к вам обращаться<input name="name" required maxLength={100} autoComplete="name" placeholder="Имя" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></label><label>Телефон<input name="phone" required type="tel" inputMode="tel" autoComplete="tel" maxLength={30} placeholder="+7 999 123-45-67" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></label><label>Комплектация<select value={offer} onChange={e => setOffer(Number(e.target.value))}>{offers.map((item, index) => <option value={index} key={item.name}>{item.name}</option>)}</select></label><label>Участок<select value={land} onChange={e => setLand(e.target.value)}><option>Пока не определился</option><option>Есть участок</option><option>Выбираю самостоятельно</option><option>Нужна помощь с участком</option></select></label><details className="v-details v-form-extra"><summary>Добавить пожелания</summary><label>Планировка<select value={layout} onChange={e => setLayout(e.target.value)}><option>3 спальни</option><option>2 спальни — требуется согласование проекта</option></select></label><label>Комментарий, до 300 символов<textarea rows={3} maxLength={300} placeholder="Район, бюджет, желаемая дата начала" value={form.comment} onChange={e => setForm({ ...form, comment: e.target.value })} /></label><p className="v-note">{context}</p></details><label className="v-honeypot" aria-hidden="true">Компания<input autoComplete="off" tabIndex={-1} value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} /></label><label className="v-consent"><input type="checkbox" required checked={form.consent} onChange={e => setForm({ ...form, consent: e.target.checked })} /><span>Согласен на обработку имени, телефона и переданных пожеланий для ответа на эту заявку.</span></label></fieldset>{status === "error" && <p className="v-error" role="alert">{error}</p>}<button type="submit" disabled={status === "sending"} className="v-button v-submit">{status === "sending" ? "Отправляем…" : "Отправить заявку"}<Arrow /></button><p className="v-note">Контакты нужны для обсуждения дома. Согласие на рекламную рассылку здесь не запрашивается.</p></form>}</div>}
       {modal === "calculator" && <div className="v-dialog-body"><p className="v-eyebrow">Математический сценарий</p><h2 id="v-dialog-title">Платёж под ваш бюджет.</h2><p className="v-form-intro">Задайте параметры. Это не предложение банка и не подтверждение доступности ипотеки.</p><div className="v-calc"><div className="v-calc-controls"><label><span>Стоимость дома <strong>{price.toFixed(1).replace(".", ",")} млн ₽</strong></span><input aria-label="Стоимость дома в миллионах рублей" type="range" min="5.2" max="14" step="0.1" value={price} onChange={e => { setPrice(Number(e.target.value)); setCopy("idle"); }} /></label><label><span>Первоначальный взнос <strong>{down}%</strong></span><input aria-label="Первоначальный взнос в процентах" type="range" min="0" max="100" step="5" value={down} onChange={e => { setDown(Number(e.target.value)); setCopy("idle"); }} /></label><div className="v-calc-selects"><label>Условная ставка, %<input type="number" min="0" max="100" step="0.1" value={rate} onChange={e => { setRate(Math.max(0, Math.min(100, Number(e.target.value) || 0))); setCopy("idle"); }} /></label><label>Срок<select value={years} onChange={e => { setYears(Number(e.target.value)); setCopy("idle"); }}>{[5, 10, 15, 20, 25, 30].map(year => <option key={year} value={year}>{year} лет</option>)}</select></label></div></div><div className="v-calc-result" aria-live="polite"><span>Ориентировочный платёж</span><strong>≈ {money(monthly)} ₽<small>/мес</small></strong><dl><div><dt>Ваш взнос</dt><dd>{money(total - loan)} ₽</dd></div><div><dt>Финансирование</dt><dd>{money(loan)} ₽</dd></div></dl><button className="v-button v-button-dark" onClick={() => openLead(scenario)}>Обсудить этот сценарий <Arrow /></button><button className="v-text-link" onClick={async () => { try { await navigator.clipboard.writeText(scenario); setCopy("copied"); } catch { setCopy("manual"); } }}>{copy === "copied" ? "Расчёт скопирован" : "Скопировать расчёт"}</button></div></div>{copy === "manual" && <label className="v-copy-fallback">Выделите и скопируйте расчёт<textarea readOnly value={scenario} rows={4} onFocus={e => e.target.select()} /></label>}<p className="v-note">Аннуитетный расчёт без страховок, комиссий и стоимости участка. Ставка и взнос — параметры примера, не действующая банковская программа. Доступность и условия финансирования проверяются отдельно.</p></div>}
     </dialog>
   </div>;
