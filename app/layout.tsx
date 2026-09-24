@@ -1,28 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope";
-import "./globals.css";
-
-export const metadataBase = new URL("https://ikioma.ru");
+import "./vela.css";
 
 export const metadata: Metadata = {
-  title: "Дом КОНТУР от ИКИОМА — по-настоящему свой дом",
-  description:
-    "КОНТУР: одноэтажный SIP-дом с тремя спальнями, двумя санузлами, 86,2 м² полезной площади и крытой террасой 23,1 м².",
+  metadataBase: new URL("https://ikioma.ru"),
+  title: "ИКИОМА | VELA — по-настоящему свой дом",
+  description: "VELA: одноэтажный SIP-дом, три спальни, два санузла, 86,2 м² внутри и крытая терраса 23,1 м². Планировка, комплектации и расчёт под ваш участок.",
   openGraph: {
     type: "website",
     locale: "ru_RU",
     url: "https://ikioma.ru",
-    title: "Дом КОНТУР от ИКИОМА",
-    description:
-      "Три спальни, два санузла, 86,2 м² полезной площади и крытая терраса. 120 м² площади застройки: 96 + 24.",
-    images: [
-      {
-        url: "https://ikioma.ru/images/og-kontur-v1.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Дом КОНТУР от ИКИОМА",
-      },
-    ],
+    title: "ИКИОМА | VELA — по-настоящему свой дом",
+    description: "Рассмотрите дом и планировку. Выберите тёплый контур, инженерный пакет или отделку под ключ.",
+    images: [{ url: "https://ikioma.ru/images/kontur-family-exterior-v1.webp", alt: "Архитектурная визуализация дома VELA от ИКИОМА" }],
   },
   robots: { index: true, follow: true },
   alternates: { canonical: "https://ikioma.ru" },
@@ -31,17 +21,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#1d2323",
+  themeColor: "#202a25",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="ru">
-      <body>{children}</body>
-    </html>
-  );
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return <html lang="ru"><body>{children}</body></html>;
 }
