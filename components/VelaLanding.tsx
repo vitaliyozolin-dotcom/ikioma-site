@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { normalizePhone, leadMessage, parseLeadReceipt, type LeadReceipt } from "./vela-leads";
 
 const LEAD_ENDPOINT = "https://stroios-188-225-38-55.sslip.io/api/public/leads";
-const RELEASE = "vela-proof-20260924";
+const RELEASE = "vela-proof-visit-20260924";
 const nav = [["house", "Дом"], ["plan", "Планировка"], ["finance", "Комплектации"], ["process", "Как строим"], ["contacts", "Связаться"]] as const;
 const gallery = [
   { src: "/images/kontur-family-exterior-v1.webp", label: "Архитектура", title: "Спокойная архитектура. Свой характер.", text: "Один этаж, лаконичный фасад и крытая терраса под общей кровлей.", caption: "Архитектурная визуализация · не фотография построенного объекта" },
@@ -211,6 +211,14 @@ export default function VelaLanding() {
         <div className="v-heading"><div><p className="v-eyebrow">02 / Комплектации и цена</p><h2>Один дом.<br /><em>Три уровня готовности.</em></h2></div><p>Выберите, в какой момент принять дом: продолжить работы своей командой или получить результат с отделкой.</p></div>
         <div className="v-offers">{offers.map((item, index) => <article className={`v-offer${index === 2 ? " v-featured" : ""}`} key={item.name}><span className="v-offer-number">0{index + 1}{index === 2 && <span>С отделкой</span>}</span><h3>{item.name}</h3><div className="v-offer-price">от {item.price.toFixed(1).replace(".", ",")} <small>млн ₽</small></div><p className="v-price-note">Предварительный ориентир</p><p className="v-offer-result">{item.result}</p><ul>{item.items.map(text => <li key={text}>{text}</li>)}</ul><button className="v-button" onClick={() => openLead(`Расчёт комплектации: ${item.name}`, index)}>Получить расчёт <Arrow /></button></article>)}</div>
         <div className="v-price-boundary" id="price-proof"><strong>Что важно учесть в бюджете</strong><p>Земля не входит в цену. Фундамент, подготовка участка, наружные сети и изменения рассчитываются по исходным условиям. Состав, оборудование, доставка, срок и полная стоимость фиксируются в предложении и договоре.</p></div>
+        <div className="v-budget-model" aria-label="Из чего складывается полный расчёт">
+          <div><p className="v-eyebrow">Полная логика бюджета</p><h3>Не прячем участок внутри цены дома.</h3><p>В персональном расчёте отдельно видны три части. Так можно сравнить предложения по одинаковой готовности, а не только по красивой стартовой цифре.</p></div>
+          <dl>
+            <div><dt>01</dt><dd><strong>Дом</strong><span>Выбранная комплектация VELA и её зафиксированный состав.</span></dd></div>
+            <div><dt>02</dt><dd><strong>Условия участка</strong><span>Основание, подготовка, наружные сети, доставка и другие подтверждённые переменные.</span></dd></div>
+            <div><dt>03</dt><dd><strong>Изменения и опции</strong><span>Только согласованные решения сверх базового состава — отдельной строкой.</span></dd></div>
+          </dl>
+        </div>
         <details className="v-details v-comparison"><summary>Сравнить подробный состав</summary><div className="v-table-scroll" tabIndex={0} role="region" aria-label="Сравнение комплектаций, таблицу можно прокручивать"><table><caption>Границы работ уточняются по спецификации</caption><thead><tr><th scope="col">Работы и материалы</th>{offers.map(o => <th scope="col" key={o.name}>{o.name}</th>)}</tr></thead><tbody>{comparison.map(row => <tr key={row[0]}><th scope="row">{row[0]}</th>{row.slice(1).map((cell, i) => <td key={i}>{cell}</td>)}</tr>)}</tbody></table></div></details>
         <div className="v-change-rule">
           <div><p className="v-eyebrow">Правило изменения цены</p><h3>Сначала причина и новая цифра. Потом работа.</h3></div>
@@ -272,6 +280,10 @@ export default function VelaLanding() {
             <li><strong>05</strong><span>После эксплуатации — фактические данные по отоплению и тепловизионной проверке, если измерение выполнено</span></li>
           </ul>
         </div>
+        <div className="v-proof-visit">
+          <div><p className="v-eyebrow">Физическая проверка</p><h3>Хотите увидеть, как выглядит стройка до договора?</h3><p>Запросите просмотр доступного строящегося объекта ИКИОМА. Мы отдельно подтвердим объект, стадию работ, возможность посещения и безопасное время. Если подходящего объекта сейчас нет, так и скажем — без подмены чужим домом или рендером.</p></div>
+          <button className="v-button" onClick={() => openLead("Запрос на просмотр доступного строящегося объекта ИКИОМА")}>Запросить просмотр <Arrow /></button>
+        </div>
         <div className="v-project-strip"><div><span className="v-eyebrow">Коробицино / Технический проект</span><h3>Первое доказательство — проект.</h3><p>На сайте уже опубликованы план помещений и техническая модель террасы из проектного альбома.</p></div><div className="v-actions"><button className="v-button v-outline" onClick={() => showImage(3)}>Открыть план <Arrow /></button><button className="v-text-link" onClick={() => showImage(4)}>Конструкция террасы <Arrow /></button></div></div>
       </div></section>
 
@@ -294,3 +306,5 @@ export default function VelaLanding() {
     </dialog>
   </div>;
 }
+
+[executed on device: ams-1-vm-jgi3 (c3136344-c4b2-4937-9a65-0741a4988226)]
