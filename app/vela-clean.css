@@ -996,3 +996,31 @@
     padding: 26px 22px;
   }
 }
+/* Static content must never look editable, even when browser caret browsing is enabled. */
+.v-clean,
+.v-clean * {
+  caret-color: transparent;
+}
+
+.v-clean input,
+.v-clean textarea,
+.v-clean [contenteditable="true"] {
+  caret-color: auto;
+  user-select: text;
+}
+
+.v-clean img,
+.v-clean h1,
+.v-clean h2,
+.v-clean h3,
+.v-clean p,
+.v-clean span,
+.v-clean strong,
+.v-clean small,
+.v-clean dt,
+.v-clean dd,
+.v-clean li,
+.v-clean figure,
+.v-clean figcaption {
+  user-select: none;
+}
