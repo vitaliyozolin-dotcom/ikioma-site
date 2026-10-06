@@ -1,19 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope";
 import "./vela.css";
-import "./vela-refinements.css";
-import "./vela-proof.css";
+import "./vela-clean.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ikioma.ru"),
-  title: "ИКИОМА | VELA — по-настоящему свой дом",
-  description: "VELA: одноэтажный SIP-дом, три спальни, два санузла, 86,2 м² внутри и крытая терраса 23,1 м². Планировка, комплектации и расчёт под ваш участок.",
+  title: "SIP-дом VELA от 5,2 млн ₽ | Семейная ипотека 6% | ИКИОМА",
+  description: "Одноэтажный SIP-дом VELA: 86,2 м² внутри + крытая терраса 23,1 м², три комплектации от 5,2 млн ₽. Семейная ипотека на строительство дома — 6% для семей, соответствующих условиям программы.",
   openGraph: {
     type: "website",
     locale: "ru_RU",
     url: "https://ikioma.ru",
-    title: "ИКИОМА | VELA — по-настоящему свой дом",
-    description: "Рассмотрите дом и планировку. Выберите тёплый контур, инженерный пакет или отделку под ключ.",
+    title: "SIP-дом VELA от 5,2 млн ₽ | Семейная ипотека 6% | ИКИОМА",
+    description: "Одноэтажный SIP-дом для семьи. От 5,2 млн ₽. Семейная ипотека на строительство — 6%*.",
     images: [{ url: "https://ikioma.ru/images/kontur-family-exterior-v1.webp", alt: "Архитектурная визуализация дома VELA от ИКИОМА" }],
   },
   robots: { index: true, follow: true },
