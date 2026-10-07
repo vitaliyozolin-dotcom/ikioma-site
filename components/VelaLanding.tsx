@@ -1,4 +1,3 @@
-"use client";
 
 /* eslint-disable @next/next/no-img-element -- local product imagery is optimized WebP */
 
@@ -6,7 +5,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { normalizePhone, leadMessage, parseLeadReceipt, type LeadReceipt } from "./vela-leads";
 
 const LEAD_ENDPOINT = "https://stroios-188-225-38-55.sslip.io/api/public/leads";
-const RELEASE = "vela-clean-mortgage-20261007";
+const RELEASE = "vela-commercial-v2-20261007";
 const MORTGAGE_DATE = "07.10.2026";
 
 const nav = [
@@ -16,6 +15,60 @@ const nav = [
   ["process", "Как строим"],
   ["contacts", "Контакты"],
 ] as const;
+
+export type LandingScenario = "base" | "own-land" | "mortgage" | "land-home";
+
+const scenarioCopy: Record<LandingScenario, { eyebrow: string; first: string; second: string; text: string; cta: string }> = {
+  base: {
+    eyebrow: "Одноэтажный SIP-дом для семьи",
+    first: "VELA.",
+    second: "Семейный дом за городом.",
+    text: "86,2 м² внутри + 23,1 м² крытая терраса. Три спальни, два санузла и большая кухня-гостиная.",
+    cta: "Рассчитать VELA",
+  },
+  "own-land": {
+    eyebrow: "SIP-дом на вашем участке",
+    first: "VELA",
+    second: "на вашем участке.",
+    text: "Проверим участок, посчитаем основание и коммуникации и соберём один понятный бюджет строительства.",
+    cta: "Рассчитать на участке",
+  },
+  mortgage: {
+    eyebrow: "Строительство дома · семейная ипотека 6%*",
+    first: "VELA",
+    second: "по семейной ипотеке.",
+    text: "Одноэтажный SIP-дом для семьи. Посчитаем полный бюджет, первоначальный взнос и ориентировочный платёж.",
+    cta: "Рассчитать по ипотеке",
+  },
+  "land-home": {
+    eyebrow: "Земля + строительство дома",
+    first: "Земля + VELA",
+    second: "в одной сделке.",
+    text: "Поможем определить требования к участку, проверить землю и собрать бюджет дома вместе с подготовкой к строительству.",
+    cta: "Рассчитать землю + дом",
+  },
+};
+
+const realProjectBudget = {
+  total: 4_782_107,
+  mortgagePayment: 32_283,
+  date: "05.10.2026",
+  label: "Реальный строящийся проект ИКИОМА · обезличено",
+  scope: "96 м² дома + 24 м² террасы",
+  items: [
+    ["Дом, монтаж, окна, кровля и фасад", 3_373_107],
+    ["Фундамент", 228_500],
+    ["Септик", 87_500],
+    ["Отделка в смете проекта", 148_000],
+    ["Логистика и подготовка участка", 295_000],
+    ["Оформление, налоги и резерв", 650_000],
+  ] as const,
+};
+
+const optionPrices = {
+  foundation: 228_500,
+  sewer: 87_500,
+} as const;
 
 const gallery = [
   {
@@ -117,7 +170,7 @@ function trackGoal(name: string, params?: Record<string, unknown>) {
 
 type Modal = "lead" | "gallery" | "calculator" | "menu" | null;
 
-export default function VelaLanding() {
+export default function VelaLanding({ scenario = "base" }: { scenario?: LandingScenario }) {
   const [modal, setModal] = useState<Modal>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const request = useRef<AbortController | null>(null);
@@ -125,7 +178,7 @@ export default function VelaLanding() {
   const [activeImage, setActiveImage] = useState(0);
   const [expandedImage, setExpandedImage] = useState(0);
   const [offer, setOffer] = useState(0);
-  const [land, setLand] = useState("Пока не определился");
+  const [land, setLand] = useState(scenario === "own-land" ? "Есть участок" : scenario === "land-home" ? "Нужна помощь с участком" : "Пока не определился");
   const [context, setContext] = useState("Расчёт VELA");
   const [form, setForm] = useState({ name: "", phone: "", comment: "", company: "", consent: false });
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -135,13 +188,28 @@ export default function VelaLanding() {
   const [price, setPrice] = useState(7.2);
   const [down, setDown] = useState(20);
   const [rate, setRate] = useState(6);
-  const [years, setYears] = useState(30);
+  const [years, setYears] = useState(15);
   const [copy, setCopy] = useState<"idle" | "copied" | "manual">("idle");
+  const [budgetFoundation, setBudgetFoundation] = useState(true);
+  const [budgetWater, setBudgetWater] = useState(false);
+  const [budgetSewer, setBudgetSewer] = useState(true);
+  const [budgetPower, setBudgetPower] = useState(false);
+  const hero = scenarioCopy[scenario];
 
   const total = price * 1_000_000;
   const loan = total * (1 - down / 100);
   const monthly = payment(loan, rate, years);
-  const scenario = [
+  const budgetKnownTotal = offers[offer].price * 1_000_000
+    + (budgetFoundation ? optionPrices.foundation : 0)
+    + (budgetSewer ? optionPrices.sewer : 0);
+  const budgetPending = [
+    land === "Нужна помощь с участком" ? "земля" : "",
+    budgetWater ? "вода / скважина" : "",
+    budgetPower ? "наружное электричество" : "",
+  ].filter(Boolean);
+  const budgetMortgage = payment(budgetKnownTotal * 0.8, 6, 15);
+
+  const mortgageScenario = [
     "VELA: дом " + money(total) + " ₽",
     "взнос " + down + "% (" + money(total - loan) + " ₽)",
     "сумма " + money(loan) + " ₽",
@@ -278,15 +346,15 @@ export default function VelaLanding() {
         <img className="v-hero-image" src={gallery[0].src} alt={gallery[0].alt} fetchPriority="high" width="1536" height="1024" />
         <div className="v-shell v-hero-content">
           <div className="v-hero-main">
-            <p className="v-eyebrow">Одноэтажный SIP-дом для семьи</p>
-            <h1><span>VELA.</span><em>Семейный дом за городом.</em></h1>
-            <p className="v-hero-text">86,2 м² внутри + 23,1 м² крытая терраса. Три спальни, два санузла и большая кухня-гостиная.</p>
+            <p className="v-eyebrow">{hero.eyebrow}</p>
+            <h1><span>{hero.first}</span><em>{hero.second}</em></h1>
+            <p className="v-hero-text">{hero.text}</p>
             <div className="v-hero-commercial">
               <div className="v-hero-price-simple"><span>от</span><strong>5,2 млн ₽</strong><small>тёплый контур</small></div>
               <a className="v-mortgage-chip" href="#mortgage"><strong>6%*</strong><span>семейная ипотека<br />на строительство</span></a>
             </div>
             <div className="v-actions">
-              <button className="v-button" data-goal="lead_open_hero" onClick={() => openLead("Первый экран — расчёт VELA", undefined, undefined, "lead_open_hero")}>Рассчитать VELA <Arrow /></button>
+              <button className="v-button" data-goal="lead_open_hero" onClick={() => openLead("Первый экран — " + hero.cta, undefined, undefined, "lead_open_hero")}>{hero.cta} <Arrow /></button>
               <a className="v-button v-outline" href="#finance">Смотреть комплектации</a>
             </div>
           </div>
@@ -299,10 +367,12 @@ export default function VelaLanding() {
             <div><dt>Этаж</dt><dd>1</dd></div>
           </dl>
           <span className="v-media-note">Визуализация</span>
+          <p className="v-geo-line">Строим: Санкт-Петербург · Ленинградская область · Москва · Московская область</p>
         </div>
       </section>
 
-      <section className="v-section v-shell v-house-clean" id="house" data-section="product">
+      <div className={"v-section-stack v-scenario-" + scenario}>
+      <section className="v-section v-shell v-house-clean" id="house" data-section="product" style={{ order: 1 }}>
         <div className="v-heading">
           <div><p className="v-eyebrow">01 / Дом VELA</p><h2>Всё нужное.<br /><em>Без лишней площади.</em></h2></div>
           <p>Один этаж без лестниц. Общая зона для семьи, отдельные спальни и крытая терраса, которой действительно будут пользоваться.</p>
@@ -330,7 +400,7 @@ export default function VelaLanding() {
         </div>
       </section>
 
-      <section className="v-section v-dark v-packages-clean" id="finance" data-section="offers">
+      <section className="v-section v-dark v-packages-clean" id="finance" data-section="offers" style={{ order: scenario === "mortgage" ? 3 : scenario === "land-home" ? 3 : 2 }}>
         <div className="v-shell">
           <div className="v-heading">
             <div><p className="v-eyebrow">02 / Комплектации</p><h2>Понятная цена.<br /><em>Понятный результат.</em></h2></div>
@@ -378,25 +448,101 @@ export default function VelaLanding() {
         </div>
       </section>
 
-      <section className="v-section v-mortgage-section" id="mortgage" data-section="mortgage">
+      <section className="v-section v-real-budget" id="real-budget" data-section="real-budget" style={{ order: scenario === "mortgage" ? 4 : scenario === "land-home" ? 4 : scenario === "own-land" ? 4 : 3 }}>
+        <div className="v-shell">
+          <div className="v-heading">
+            <div><p className="v-eyebrow">Реальный расчёт</p><h2>Не «типовой участок».<br /><em>Настоящая смета.</em></h2></div>
+            <p>Обезличили один из текущих проектов ИКИОМА и сложили заполненные строки рабочего плана. Это не цена VELA и не оферта — это пример того, как выглядит реальный бюджет строительства.</p>
+          </div>
+          <div className="v-real-budget-grid">
+            <div className="v-real-budget-list">
+              <div className="v-real-budget-meta"><span>{realProjectBudget.label}</span><strong>{realProjectBudget.scope}</strong></div>
+              <dl>{realProjectBudget.items.map(([name, amount]) => <div key={name}><dt>{name}</dt><dd>{money(amount)} ₽</dd></div>)}</dl>
+              <div className="v-real-budget-missing">
+                <span>В исходной смете пока не оценено</span>
+                <p>Вода / скважина <strong>—</strong></p>
+                <p>Наружное электричество <strong>—</strong></p>
+                <p>Остальная инженерия сверх септика <strong>—</strong></p>
+              </div>
+              <div className="v-real-budget-total"><span>Итого по оцененным строкам</span><strong>{money(realProjectBudget.total)} ₽</strong></div>
+              <small>Источник: рабочая смета проекта от {realProjectBudget.date}. Это реальный промежуточный бюджет, а не финальная стоимость готового дома: неоценённые работы показаны отдельно и не превращены в ноль.</small>
+            </div>
+            <div className="v-real-budget-mortgage">
+              <span>Если применить семейную ипотеку 6%*</span>
+              <strong>≈ {money(realProjectBudget.mortgagePayment)} ₽<small>/мес</small></strong>
+              <p>Математический пример: 20% собственных средств, 15 лет. Не банковское предложение.</p>
+              <button className="v-button v-button-dark" onClick={openCalculator}>Посчитать свой платёж <Arrow /></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="v-section v-shell v-budget-builder" id="calculator-home" data-section="budget" style={{ order: scenario === "mortgage" ? 5 : scenario === "own-land" ? 3 : scenario === "land-home" ? 2 : 4 }}>
+        <div className="v-heading">
+          <div><p className="v-eyebrow">Сколько будет стоить мой VELA?</p><h2>Шесть решений.<br /><em>Один ориентир бюджета.</em></h2></div>
+          <p>Это не квиз на 25 вопросов. Выберите только то, что действительно меняет первый расчёт. Неизвестные по участку суммы не придумываем.</p>
+        </div>
+        <div className="v-budget-builder-grid">
+          <div className="v-budget-controls">
+            <fieldset>
+              <legend>Участок</legend>
+              <div className="v-choice-pair">
+                <button type="button" aria-pressed={land === "Есть участок"} onClick={() => setLand("Есть участок")}>Участок есть</button>
+                <button type="button" aria-pressed={land === "Нужна помощь с участком"} onClick={() => setLand("Нужна помощь с участком")}>Участка нет</button>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Комплектация</legend>
+              <div className="v-choice-list">{offers.map((item, index) => <button type="button" key={item.name} aria-pressed={offer === index} onClick={() => setOffer(index)}><span>{item.name}</span><strong>от {item.price.toFixed(1).replace(".", ",")} млн ₽</strong></button>)}</div>
+            </fieldset>
+            <fieldset>
+              <legend>Что добавить в первый ориентир</legend>
+              <div className="v-toggle-list">
+                <label><input type="checkbox" checked={budgetFoundation} onChange={e => setBudgetFoundation(e.target.checked)} /><span>Фундамент</span><strong>+ {money(optionPrices.foundation)} ₽</strong></label>
+                <label><input type="checkbox" checked={budgetWater} onChange={e => setBudgetWater(e.target.checked)} /><span>Вода / скважина</span><strong>по участку</strong></label>
+                <label><input type="checkbox" checked={budgetSewer} onChange={e => setBudgetSewer(e.target.checked)} /><span>Канализация / септик</span><strong>+ {money(optionPrices.sewer)} ₽</strong></label>
+                <label><input type="checkbox" checked={budgetPower} onChange={e => setBudgetPower(e.target.checked)} /><span>Наружное электричество</span><strong>по участку</strong></label>
+              </div>
+            </fieldset>
+          </div>
+          <div className="v-budget-result" aria-live="polite">
+            <p className="v-eyebrow">Первый ориентир</p>
+            <strong className="v-budget-sum">от {money(budgetKnownTotal)} ₽</strong>
+            {budgetPending.length ? <p>+ после проверки: {budgetPending.join(", ")}</p> : <p>Все выбранные позиции имеют ориентир.</p>}
+            <dl>
+              <div><dt>Комплектация</dt><dd>{offers[offer].name}</dd></div>
+              <div><dt>Ипотечный платёж*</dt><dd>≈ {money(budgetMortgage)} ₽/мес</dd></div>
+            </dl>
+            <button className="v-button" data-goal="budget_configurator_lead" onClick={() => openLead(
+              "Конфигуратор VELA: " + offers[offer].name + "; " + land + "; фундамент=" + (budgetFoundation ? "да" : "нет") + "; вода=" + (budgetWater ? "да" : "нет") + "; канализация=" + (budgetSewer ? "да" : "нет") + "; электричество=" + (budgetPower ? "да" : "нет") + "; ориентир=" + money(budgetKnownTotal) + " ₽",
+              offer,
+              land,
+              "budget_configurator_lead",
+            )}>Получить точный расчёт <Arrow /></button>
+            <small>* Фундамент и септик — ориентиры из текущего реального проекта ИКИОМА; для VELA они уточняются по участку. Расчёт платежа: 20% собственных средств, ставка 6%, срок 15 лет; без страховок и комиссий. Позиции «по участку» в платёж пока не включены.</small>
+          </div>
+        </div>
+      </section>
+
+      <section className="v-section v-mortgage-section" id="mortgage" data-section="mortgage" style={{ order: scenario === "mortgage" ? 2 : 5 }}>
         <div className="v-shell v-mortgage-grid">
           <div className="v-mortgage-number"><strong>6%</strong><span>семейная ипотека*</span></div>
           <div className="v-mortgage-copy">
             <p className="v-eyebrow">03 / Семейная ипотека</p>
             <h2>Строительство дома<br /><em>по льготной ставке.</em></h2>
-            <p>Для семей, которые соответствуют условиям программы, ставка на строительство частного дома составляет 6%*. Дом можно строить на своём участке или купить землю вместе со строительством.</p>
+            <p>С 1 октября 2026 года для строительства частного дома, его завершения и покупки земли с последующим строительством ставка семейной ипотеки сохраняется на уровне 6%* — вне зависимости от количества детей и региона проживания семьи, если семья соответствует условиям программы.</p>
             <div className="v-mortgage-points">
               <span>строительство на своём участке</span>
               <span>земля + строительство дома</span>
               <span>подрядчик и расчёты через эскроу</span>
             </div>
             <button className="v-button v-button-dark" data-goal="mortgage_calculator_open" onClick={openCalculator}>Рассчитать платёж <Arrow /></button>
-            <small>* Для семей, соответствующих условиям программы. Решение о выдаче кредита и полные условия определяет банк. Информация актуальна на {MORTGAGE_DATE}.</small>
+            <small>* Максимальный срок субсидирования по новым договорам — до 15 лет. Решение о выдаче кредита и полные условия определяет банк. Информация актуальна на {MORTGAGE_DATE}.</small>
           </div>
         </div>
       </section>
 
-      <section className="v-section v-shell v-process-clean" id="process" data-section="process">
+      <section className="v-section v-shell v-process-clean" id="process" data-section="process" style={{ order: 6 }}>
         <div className="v-heading">
           <div><p className="v-eyebrow">04 / Как строим</p><h2>От участка<br /><em>до своих ключей.</em></h2></div>
           <p>Пять понятных шагов. На каждом вы знаете, что происходит сейчас, какой результат ждём и что будет дальше.</p>
@@ -419,7 +565,7 @@ export default function VelaLanding() {
         </div>
       </section>
 
-      <section className="v-section v-soft v-faq-clean" id="questions" data-section="faq">
+      <section className="v-section v-soft v-faq-clean" id="questions" data-section="faq" style={{ order: 7 }}>
         <div className="v-shell v-faq">
           <div><p className="v-eyebrow">05 / Главное перед решением</p><h2>Коротко.<br /><em>Без строительного тумана.</em></h2></div>
           <div>{faq.map(([q, a]) => <details className="v-details" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div>
@@ -437,13 +583,14 @@ export default function VelaLanding() {
           </div>
         </div>
       </section>
+      </div>
     </main>
 
     <footer className="v-footer">
       <div className="v-shell">
         <div className="v-footer-top">
           <a className="v-brand" href="#top" aria-label="ИКИОМА — наверх"><Brand /></a>
-          <p>VELA · SIP-дом для семьи · от 5,2 млн ₽</p>
+          <p>VELA · SIP-дом для семьи · СПб / Ленобласть / Москва / Московская область</p>
           <a className="v-text-link" href="#mortgage">Семейная ипотека 6%* <Arrow /></a>
         </div>
         <div className="v-footer-bottom">
@@ -515,26 +662,26 @@ export default function VelaLanding() {
       {modal === "calculator" && <div className="v-dialog-body">
         <p className="v-eyebrow">Семейная ипотека · 6%*</p>
         <h2 id="v-dialog-title">Посчитайте платёж.</h2>
-        <p className="v-form-intro">По умолчанию стоит ставка 6% для строительства дома в рамках семейной ипотеки. Можно изменить параметры для своего сценария.</p>
+        <p className="v-form-intro">По умолчанию — 6% для строительства частного дома. С 1 октября 2026 года эта ставка сохраняется независимо от количества детей и региона, если семья соответствует условиям программы.</p>
         <div className="v-calc">
           <div className="v-calc-controls">
             <label><span>Стоимость дома <strong>{price.toFixed(1).replace(".", ",")} млн ₽</strong></span><input aria-label="Стоимость дома в миллионах рублей" type="range" min="5.2" max="14" step="0.1" value={price} onChange={e => { setPrice(Number(e.target.value)); setCopy("idle"); }} /></label>
             <label><span>Первоначальный взнос <strong>{down}%</strong></span><input aria-label="Первоначальный взнос в процентах" type="range" min="0" max="100" step="5" value={down} onChange={e => { setDown(Number(e.target.value)); setCopy("idle"); }} /></label>
             <div className="v-calc-selects">
               <label>Ставка, %<input type="number" min="0" max="100" step="0.1" value={rate} onChange={e => { setRate(Math.max(0, Math.min(100, Number(e.target.value) || 0))); setCopy("idle"); }} /></label>
-              <label>Срок<select value={years} onChange={e => { setYears(Number(e.target.value)); setCopy("idle"); }}>{[5, 10, 15, 20, 25, 30].map(year => <option key={year} value={year}>{year} лет</option>)}</select></label>
+              <label>Срок<select value={years} onChange={e => { setYears(Number(e.target.value)); setCopy("idle"); }}>{[5, 10, 15].map(year => <option key={year} value={year}>{year} лет</option>)}</select></label>
             </div>
           </div>
           <div className="v-calc-result" aria-live="polite">
             <span>Ориентировочный платёж</span>
             <strong>≈ {money(monthly)} ₽<small>/мес</small></strong>
             <dl><div><dt>Ваш взнос</dt><dd>{money(total - loan)} ₽</dd></div><div><dt>Финансирование</dt><dd>{money(loan)} ₽</dd></div></dl>
-            <button className="v-button v-button-dark" onClick={() => openLead(scenario, undefined, undefined, "lead_open_mortgage")}>Обсудить этот расчёт <Arrow /></button>
-            <button className="v-text-link" onClick={async () => { try { await navigator.clipboard.writeText(scenario); setCopy("copied"); } catch { setCopy("manual"); } }}>{copy === "copied" ? "Расчёт скопирован" : "Скопировать расчёт"}</button>
+            <button className="v-button v-button-dark" onClick={() => openLead(mortgageScenario, undefined, undefined, "lead_open_mortgage")}>Обсудить этот расчёт <Arrow /></button>
+            <button className="v-text-link" onClick={async () => { try { await navigator.clipboard.writeText(mortgageScenario); setCopy("copied"); } catch { setCopy("manual"); } }}>{copy === "copied" ? "Расчёт скопирован" : "Скопировать расчёт"}</button>
           </div>
         </div>
-        {copy === "manual" && <label className="v-copy-fallback">Выделите и скопируйте расчёт<textarea readOnly value={scenario} rows={4} onFocus={e => e.target.select()} /></label>}
-        <p className="v-note">* Математический ориентир, не предложение банка. Не учитывает страховки, комиссии и стоимость земли. Право на программу и итоговые условия определяет банк.</p>
+        {copy === "manual" && <label className="v-copy-fallback">Выделите и скопируйте расчёт<textarea readOnly value={mortgageScenario} rows={4} onFocus={e => e.target.select()} /></label>}
+        <p className="v-note">* Математический ориентир, не предложение банка. Не учитывает страховки и комиссии. Максимальный срок субсидирования по новым договорам — до 15 лет; право на программу и итоговые условия определяет банк.</p>
       </div>}
     </dialog>
   </div>;
