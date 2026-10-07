@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import VelaLanding from "@/components/VelaLanding";
 
 export const metadata: Metadata = {
