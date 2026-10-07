@@ -1,4 +1,3 @@
-import { cp, mkdir, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -15,18 +14,30 @@ const executionContext = {
   passThroughOnException() {},
 };
 
-const response = await app.fetch(
-  new Request("https://ikioma.ru/"),
-  {},
-  executionContext,
-);
+const staticRoutes = [
+  { route: "/", dir: "" },
+  { route: "/na-svoem-uchastke", dir: "na-svoem-uchastke" },
+  { route: "/semejnaya-ipoteka", dir: "semejnaya-ipoteka" },
+  { route: "/zemlya-i-dom", dir: "zemlya-i-dom" },
+];
 
-if (!response.ok) {
-  throw new Error(`Static render failed with HTTP ${response.status}`);
+for (const { route, dir } of staticRoutes) {
+  const response = await app.fetch(
+    new Request("https://ikioma.ru" + route),
+    {},
+    executionContext,
+  );
+
+  if (!response.ok) {
+    throw new Error("Static render failed for " + route + " with HTTP " + response.status);
+  }
+
+  const html = await response.text();
+  const targetDir = dir ? path.join(outputDir, dir) : outputDir;
+  await mkdir(targetDir, { recursive: true });
+  await writeFile(path.join(targetDir, "index.html"), html, "utf8");
 }
 
-const html = await response.text();
-await writeFile(path.join(outputDir, "index.html"), html, "utf8");
 await writeFile(
   path.join(outputDir, ".htaccess"),
   [
@@ -40,4 +51,4 @@ await writeFile(
   "utf8",
 );
 
-console.log(`Timeweb package created at ${outputDir}`);
+console.log("Timeweb package created at " + outputDir);
