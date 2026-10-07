@@ -25,28 +25,28 @@ const scenarioCopy: Record<LandingScenario, { eyebrow: string; first: string; se
     first: "VELA.",
     second: "Семейный дом за городом.",
     text: "86,2 м² внутри + 23,1 м² крытая терраса. Три спальни, два санузла и большая кухня-гостиная.",
-    cta: "Рассчитать VELA",
+    cta: "Рассчитать дом",
   },
   "own-land": {
     eyebrow: "SIP-дом на вашем участке",
     first: "VELA",
     second: "на вашем участке.",
     text: "Проверим участок, посчитаем основание и коммуникации и соберём один понятный бюджет строительства.",
-    cta: "Рассчитать на участке",
+    cta: "Рассчитать дом",
   },
   mortgage: {
     eyebrow: "Строительство дома · семейная ипотека 6%*",
     first: "VELA",
     second: "по семейной ипотеке.",
     text: "Одноэтажный SIP-дом для семьи. Посчитаем полный бюджет, первоначальный взнос и ориентировочный платёж.",
-    cta: "Рассчитать по ипотеке",
+    cta: "Рассчитать ипотеку",
   },
   "land-home": {
     eyebrow: "Земля + строительство дома",
     first: "Земля + VELA",
     second: "в одной сделке.",
     text: "Поможем определить требования к участку, проверить землю и собрать бюджет дома вместе с подготовкой к строительству.",
-    cta: "Рассчитать землю + дом",
+    cta: "Рассчитать сделку",
   },
 };
 
@@ -351,12 +351,18 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
             <h1><span>{hero.first}</span><em>{hero.second}</em></h1>
             <p className="v-hero-text">{hero.text}</p>
             <div className="v-hero-commercial">
-              <div className="v-hero-price-simple"><span>от</span><strong>5,2 млн ₽</strong><small>тёплый контур</small></div>
-              <a className="v-mortgage-chip" href="#mortgage"><strong>6%*</strong><span>семейная ипотека<br />на строительство</span></a>
+              <div className="v-hero-card v-hero-price-simple">
+                <div className="v-hero-card-value"><span>от</span><strong>5,2 млн ₽</strong></div>
+                <small>тёплый контур</small>
+              </div>
+              <a className="v-hero-card v-mortgage-chip" href="#mortgage">
+                <div className="v-hero-card-value"><strong>6%*</strong></div>
+                <small>семейная ипотека на строительство</small>
+              </a>
             </div>
-            <div className="v-actions">
+            <div className="v-actions v-hero-actions">
               <button className="v-button" data-goal="lead_open_hero" onClick={() => openLead("Первый экран — " + hero.cta, undefined, undefined, "lead_open_hero")}>{hero.cta} <Arrow /></button>
-              <a className="v-button v-outline" href="#finance">Смотреть комплектации</a>
+              <a className="v-button v-outline" href="#finance">Комплектации <Arrow /></a>
             </div>
           </div>
         </div>
