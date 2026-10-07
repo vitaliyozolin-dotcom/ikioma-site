@@ -1,4 +1,3 @@
-import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope";
 import "./vela.css";
 import "./vela-clean.css";
@@ -6,7 +5,7 @@ import "./vela-clean.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://ikioma.ru"),
   title: "SIP-дом VELA от 5,2 млн ₽ | Семейная ипотека 6% | ИКИОМА",
-  description: "Одноэтажный SIP-дом VELA: 86,2 м² внутри + крытая терраса 23,1 м², три комплектации от 5,2 млн ₽. Семейная ипотека на строительство дома — 6% для семей, соответствующих условиям программы.",
+  description: "Одноэтажный SIP-дом VELA: 86,2 м² внутри + крытая терраса 23,1 м², три комплектации от 5,2 млн ₽. Семейная ипотека на строительство — 6%*. Строим в Санкт-Петербурге, Ленинградской области, Москве и Московской области.",
   openGraph: {
     type: "website",
     locale: "ru_RU",
