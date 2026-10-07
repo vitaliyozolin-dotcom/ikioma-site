@@ -1,3 +1,4 @@
+import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope";
 import "./vela.css";
 import "./vela-clean.css";
