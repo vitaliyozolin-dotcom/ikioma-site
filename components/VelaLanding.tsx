@@ -1,3 +1,4 @@
+"use client";
 
 /* eslint-disable @next/next/no-img-element -- local product imagery is optimized WebP */
 
