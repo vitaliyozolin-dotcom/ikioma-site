@@ -12,7 +12,7 @@ test("exports commercial VELA page with canonical URL and current release marker
   assert.match(html, /<html lang="ru">/);
   assert.match(html, /<title>SIP-дом VELA от 5,2 млн ₽ \| Семейная ипотека 6% \| ИКИОМА<\/title>/);
   assert.match(html, /rel="canonical" href="https:\/\/ikioma\.ru"/);
-  assert.match(html, /data-release="vela-commercial-v2-20261007"/);
+  assert.match(html, /data-release="vela-review-20261031"/);
   assert.equal((html.match(/<h1(?:\s|>)/g) || []).length, 1);
 });
 
@@ -29,7 +29,7 @@ test("all internal navigation links point to existing IDs", () => {
 test("hero immediately explains product, price, mortgage and construction regions", () => {
   for (const phrase of [
     "Одноэтажный SIP-дом для семьи",
-    "Семейный дом за городом.",
+    "Семейный дом за городом",
     "86,2 м² внутри",
     "23,1 м²",
     "5,2 млн ₽",
@@ -41,23 +41,22 @@ test("hero immediately explains product, price, mortgage and construction region
   ]) assert.match(html, new RegExp(phrase, "i"));
 });
 
-test("states the post-1-October family-mortgage construction rule accurately", () => {
-  assert.match(html, /С 1 октября 2026 года/);
-  assert.match(html, /6%\*/);
-  assert.match(html, /вне зависимости от количества детей и региона проживания семьи/);
-  assert.match(html, /если семья соответствует условиям программы/);
-  assert.match(html, /Максимальный срок субсидирования по новым договорам — до 15 лет/);
+test("mortgage copy links the operator and avoids unverified October changes", () => {
+  assert.match(html, /Ставка по программе — до 6%/);
+  assert.match(html, /Семья должна соответствовать условиям программы/);
+  assert.match(html, /xn--d1aqf.xn--p1ai\/mortgage\/family-mortgage/);
+  assert.doesNotMatch(html, /С 1 октября 2026 года|Максимальный срок субсидирования/);
   assert.match(html, /подрядчик и расчёты через эскроу/i);
 });
 
 test("shows a real anonymized project budget without pretending it is VELA price", () => {
   for (const phrase of [
     "Реальный расчёт",
-    "Настоящая смета.",
+    "реального проекта",
     "Реальный строящийся проект ИКИОМА",
     "96 м² дома + 24 м² террасы",
     "4 782 107 ₽",
-    "не цена VELA и не оферта",
+    "Это другой объект, не цена VELA",
     "В исходной смете пока не оценено",
     "Вода / скважина",
     "Наружное электричество",
@@ -66,7 +65,7 @@ test("shows a real anonymized project budget without pretending it is VELA price
 
 test("keeps personal VELA configurator distinct from the real-project proof", () => {
   for (const phrase of [
-    "Сколько будет стоить мой VELA?",
+    "ваш VELA?",
     "Участок есть",
     "Участка нет",
     "Фундамент",
@@ -82,9 +81,9 @@ test("shows three packages and transparent exclusions", () => {
   for (const value of ["5,2", "6,3", "7,2"]) assert.ok(html.includes(value));
   for (const packageName of ["Тёплый контур", "Контур + инженерия", "С отделкой под ключ"]) assert.ok(html.includes(packageName));
   assert.match(html, /Что считается отдельно/);
-  assert.match(html, /Земля, основание, наружные сети, доставка/);
-  assert.match(html, /Сначала сумма/);
-  assert.match(html, /Изменения — только с вами/);
+  assert.match(html, /Земля, фундамент, наружные сети, доставка/);
+  assert.match(html, /Как фиксируем цену/);
+  assert.match(html, /Согласуем изменения/);
 });
 
 test("keeps customer page free from technical drawings and fake social proof", () => {
@@ -103,7 +102,7 @@ test("keeps customer page free from technical drawings and fake social proof", (
 
 test("has one honest construction-visit CTA", () => {
   assert.equal((html.match(/Запросить просмотр/g) || []).length, 1);
-  assert.match(html, /Проверим, какой объект сейчас можно показать/);
+  assert.match(html, /Подберём объект для посещения/);
 });
 
 test("every emitted local image, stylesheet and script exists in export", async () => {
@@ -129,9 +128,9 @@ test("retains production lead receiver, UTM handoff and marketing goal hooks", (
 
 test("exports three ad variants of the same landing", async () => {
   const variants = [
-    ["na-svoem-uchastke/index.html", "VELA", "на вашем участке."],
-    ["semejnaya-ipoteka/index.html", "VELA", "по семейной ипотеке."],
-    ["zemlya-i-dom/index.html", "Земля + VELA", "в одной сделке."],
+    ["na-svoem-uchastke/index.html", "VELA", "на вашем участке"],
+    ["semejnaya-ipoteka/index.html", "VELA", "по семейной ипотеке"],
+    ["zemlya-i-dom/index.html", "Земля + VELA", "в одной сделке"],
   ];
   for (const [path, first, second] of variants) {
     const variant = await readFile(new URL(path, root), "utf8");
@@ -149,4 +148,28 @@ test("structured data describes VELA without fake ratings or provisional offers"
   assert.equal(product.name, "ИКИОМА | VELA");
   assert.equal(product.offers, undefined);
   assert.equal(product.aggregateRating, undefined);
+});
+
+
+test("five stages remain one sequence, without a duplicate numbered promises block", () => {
+  assert.match(html, /Помогаем с регистрацией дома/);
+  assert.doesNotMatch(html, /v-why-grid|Стройка видна|Регистрацию сопровождаем|Это не квиз/);
+  assert.equal((html.match(/class="v-process-five"/g) || []).length, 1);
+});
+
+test("headings have no decorative trailing periods", () => {
+  for (const match of html.matchAll(/<h[123]\b[^>]*>([\s\S]*?)<\/h[123]>/g)) {
+    const text = match[1].replace(/<[^>]*>/g, "").trim();
+    assert.ok(!text.endsWith("."), `Heading ends in full stop: ${text}`);
+  }
+});
+
+test("exports brand icons and manifest rather than the starter favicon", async () => {
+  for (const file of ["favicon.svg", "favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "site.webmanifest"]) await access(new URL(file, root));
+  assert.match(html, /rel="icon"[^>]+favicon/);
+  assert.match(html, /apple-touch-icon/);
+  assert.match(html, /site.webmanifest/);
+  const svg = await readFile(new URL("favicon.svg", root), "utf8");
+  assert.match(svg, /E77A3D/);
+  assert.doesNotMatch(svg, /68C4FF|0C79D8/);
 });

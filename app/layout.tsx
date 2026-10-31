@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope";
 import "./vela.css";
 import "./vela-clean.css";
+import "./vela-review.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ikioma.ru"),
@@ -15,6 +16,11 @@ export const metadata: Metadata = {
     description: "Одноэтажный SIP-дом для семьи. От 5,2 млн ₽. Семейная ипотека на строительство — 6%*.",
     images: [{ url: "https://ikioma.ru/images/kontur-family-exterior-v1.webp", alt: "Архитектурная визуализация дома VELA от ИКИОМА" }],
   },
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/favicon-32.png", type: "image/png", sizes: "32x32" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  manifest: "/site.webmanifest",
   robots: { index: true, follow: true },
   alternates: { canonical: "https://ikioma.ru" },
 };

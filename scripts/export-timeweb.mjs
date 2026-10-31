@@ -1,6 +1,7 @@
 import { cp, mkdir, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { generateIcons } from "./generate-icons.mjs";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputDir = path.join(projectRoot, "timeweb-dist");
@@ -8,6 +9,8 @@ const outputDir = path.join(projectRoot, "timeweb-dist");
 await rm(outputDir, { recursive: true, force: true });
 await mkdir(outputDir, { recursive: true });
 await cp(path.join(projectRoot, "dist", "client"), outputDir, { recursive: true });
+
+await generateIcons(outputDir);
 
 const { default: app } = await import("../dist/server/index.js");
 const executionContext = {

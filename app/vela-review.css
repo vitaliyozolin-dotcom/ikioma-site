@@ -1,0 +1,42 @@
+/* Owner review: readable copy and stable anchor navigation, 31 October 2026. */
+.v-clean [id] { scroll-margin-top: 0; }
+.v-clean .v-gallery-copy { min-width: 0; }
+.v-clean .v-home-facts { width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.v-clean .v-home-facts strong { font-size: clamp(17px, 1.7vw, 23px); overflow-wrap: anywhere; }
+.v-clean .v-price-fix { grid-template-columns: 1fr; gap: 22px; }
+.v-clean .v-price-fix h3 { font-size: 28px; }
+.v-clean .v-price-fix li { min-height: 150px; }
+.v-clean .v-price-fix li strong { display: block; font-size: 18px; line-height: 1.35; }
+.v-clean .v-price-fix li p,
+.v-clean .v-process-five li p,
+.v-clean .v-price-simple-note p,
+.v-clean .v-package-card > p { font-size: 14px; line-height: 1.6; }
+.v-clean .v-package-card li { font-size: 13px; }
+.v-clean .v-process-five li { min-height: 205px; }
+.v-clean .v-process-five li strong { font-size: 17px; }
+.v-registration-note { margin: 0 0 30px; padding: 24px 0; border-top: 1px solid var(--v-line); border-bottom: 1px solid var(--v-line); }
+.v-registration-note h3 { font-size: 23px; }
+.v-registration-note p { margin: 10px 0 0; color: var(--v-muted); font-size: 14px; }
+.v-clean .v-mortgage-copy > small { font-size: 12px; }
+.v-clean .v-mortgage-copy > small a { text-decoration: underline; text-underline-offset: 3px; }
+.v-clean .v-real-budget-list > small,
+.v-clean .v-budget-result > small { font-size: 11px; }
+.v-clean .v-visual-note { font-size: 11px !important; line-height: 1.6; }
+@media (max-width: 820px) {
+  .v-clean .v-gallery-copy { display: flex; align-items: stretch; }
+  .v-clean .v-price-fix ol { grid-template-columns: 1fr; }
+  .v-clean .v-price-fix li { min-height: 0; }
+}
+@media (max-width: 540px) {
+  .v-clean .v-process-five li { min-height: 0; }
+  .v-clean .v-home-facts { gap: 12px; }
+  .v-clean .v-home-facts strong { font-size: 18px; }
+  .v-clean .v-gallery-copy p { font-size: 15px; }
+}
+
+.v-materials-strip { display: grid; grid-template-columns: 1.35fr 1fr; gap: 32px; align-items: center; margin-top: 36px; padding-top: 32px; border-top: 1px solid #48584e; }
+.v-materials-strip img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 14px; }
+.v-materials-strip h3 { font-size: clamp(24px, 2.3vw, 30px); }
+.v-materials-strip p { color: #c7d0c8; margin: 14px 0; font-size: 15px; }
+.v-materials-label { font-size: 11px; color: #c7d0c8; }
+@media (max-width: 820px) { .v-materials-strip { grid-template-columns: 1fr; gap: 22px; } }
