@@ -1,0 +1,23 @@
+/* Shared legal pages and unobtrusive, readable customer-facing links. */
+.v-legal-footer{display:grid;grid-template-columns:1fr auto;gap:20px 32px;padding-top:28px;margin-top:28px;border-top:1px solid var(--v-line);font-size:14px;line-height:1.6}
+.v-legal-footer strong{font-size:15px;font-weight:650}
+.v-legal-footer p{margin:6px 0 0;color:var(--v-muted);font-size:13px}
+.v-legal-footer nav{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px 26px}
+.v-legal-footer a:hover,.v-form-privacy a:hover{color:var(--v-accent)}
+.v-legal-contacts{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.v-footer-image-note{margin:20px 0 0;color:var(--v-muted);font-size:12px;max-width:850px}
+.v-consent a,.v-form-privacy a{color:var(--v-accent);text-decoration:underline;text-underline-offset:3px}
+.v-form-privacy{font-size:13px;color:var(--v-muted);margin:14px 0 0}
+.v-legal-header{display:flex;justify-content:space-between;align-items:center;gap:24px;padding-block:24px;border-bottom:1px solid var(--v-line)}
+.v-legal-document{width:min(840px,calc(100% - 48px));margin:64px auto 80px;font-size:16px;line-height:1.75}
+.v-legal-document h1{font-size:clamp(30px,4.2vw,48px);line-height:1.15;letter-spacing:-.04em;text-align:left;text-wrap:balance}
+.v-legal-document h2{font-size:clamp(22px,2.8vw,28px);margin:34px 0 14px;line-height:1.3;text-wrap:initial}
+.v-legal-document p{line-height:1.75;margin-bottom:18px}
+.v-legal-document a{text-decoration:underline;text-underline-offset:4px;overflow-wrap:anywhere}
+.v-legal-date{color:var(--v-muted);font-size:14px;margin:18px 0 36px!important}
+.v-requisites{margin:24px 0 32px}
+.v-requisites>div{display:grid;grid-template-columns:190px 1fr;gap:20px;padding:15px 0;border-bottom:1px solid var(--v-line)}
+.v-requisites dt{color:var(--v-muted)}
+.v-requisites dd{margin:0;overflow-wrap:anywhere}
+.v-legal-page-footer{padding-bottom:40px}
+@media(max-width:600px){.v-legal-footer{grid-template-columns:1fr;gap:18px}.v-legal-contacts{align-items:flex-start}.v-legal-footer nav{flex-direction:column;gap:12px}.v-legal-header{gap:16px}.v-legal-header .v-text-link{font-size:12px}.v-legal-document{width:calc(100% - 36px);margin-top:40px}.v-requisites>div{grid-template-columns:1fr;gap:4px}.v-requisites dt{font-size:14px}}

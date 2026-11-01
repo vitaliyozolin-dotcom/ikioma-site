@@ -12,7 +12,7 @@ test("exports commercial VELA page with canonical URL and current release marker
   assert.match(html, /<html lang="ru">/);
   assert.match(html, /<title>SIP-дом VELA от 5,2 млн ₽ \| Семейная ипотека 6% \| ИКИОМА<\/title>/);
   assert.match(html, /rel="canonical" href="https:\/\/ikioma\.ru"/);
-  assert.match(html, /data-release="vela-review-20261031"/);
+  assert.match(html, /data-release="vela-legal-clean-20261101"/);
   assert.equal((html.match(/<h1(?:\s|>)/g) || []).length, 1);
 });
 
@@ -53,11 +53,11 @@ test("shows a real anonymized project budget without pretending it is VELA price
   for (const phrase of [
     "Реальный расчёт",
     "реального проекта",
-    "Реальный строящийся проект ИКИОМА",
+    "Строящийся дом ИКИОМА",
     "96 м² дома + 24 м² террасы",
     "4 782 107 ₽",
-    "Это другой объект, не цена VELA",
-    "В исходной смете пока не оценено",
+    "Стоимость VELA рассчитывается отдельно",
+    "Рассчитывается отдельно",
     "Вода / скважина",
     "Наружное электричество",
   ]) assert.ok(plain.includes(phrase), "Missing real-budget phrase: " + phrase);
@@ -173,3 +173,4 @@ test("exports brand icons and manifest rather than the starter favicon", async (
   assert.match(svg, /E77A3D/);
   assert.doesNotMatch(svg, /68C4FF|0C79D8/);
 });
+

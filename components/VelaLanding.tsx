@@ -4,10 +4,10 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { normalizePhone, leadMessage, parseLeadReceipt, type LeadReceipt } from "./vela-leads";
+import { ConsentCopy, LegalFooter } from "./vela-legal";
 
 const LEAD_ENDPOINT = "https://stroios-188-225-38-55.sslip.io/api/public/leads";
-const RELEASE = "vela-review-20261031";
-const MORTGAGE_DATE = "31.10.2026";
+const RELEASE = "vela-legal-clean-20261101";
 
 const nav = [
   ["house", "Дом"],
@@ -54,7 +54,7 @@ const realProjectBudget = {
   total: 4_782_107,
   mortgagePayment: 32_283,
   date: "05.10.2026",
-  label: "Реальный строящийся проект ИКИОМА · обезличено",
+  label: "Строящийся дом ИКИОМА",
   scope: "96 м² дома + 24 м² террасы",
   items: [
     ["Дом, монтаж, окна, кровля и фасад", 3_373_107],
@@ -416,7 +416,6 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
             <div><dt>Спальни</dt><dd>3</dd></div>
             <div><dt>Этаж</dt><dd>1</dd></div>
           </dl>
-          <span className="v-media-note">Визуализация</span>
           <p className="v-geo-line">Строим: Санкт-Петербург · Ленинградская область · Москва · Московская область</p>
         </div>
       </section>
@@ -424,7 +423,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
       <div className={"v-section-stack v-scenario-" + scenario}>
       <section className="v-section v-shell v-house-clean" id="house" data-section="product" style={{ order: 1 }}>
         <div className="v-heading">
-          <div><p className="v-eyebrow">01 / Дом VELA</p><h2>Всё нужное<br /><em>Без лишней площади</em></h2></div>
+          <div><p className="v-eyebrow">Дом VELA</p><h2>Всё нужное<br /><em>Без лишней площади</em></h2></div>
           <p>Общая кухня-гостиная для встреч и отдельные спальни для отдыха. Всё на одном этаже.</p>
         </div>
 
@@ -432,7 +431,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
           <figure>
             <button className="v-image-button" onClick={() => showImage(activeImage)} aria-label={"Увеличить: " + gallery[activeImage].label}>
               <img src={gallery[activeImage].src} alt={gallery[activeImage].alt} loading="lazy" decoding="async" width="1536" height="1024" />
-              <span className="v-enlarge">Увеличить ↗</span>
+              <span className="v-enlarge">Увеличить</span>
             </button>
           </figure>
           <div className="v-gallery-copy">
@@ -443,7 +442,6 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
             <div className="v-home-facts" aria-live="polite">
               {gallery[activeImage].facts.map(([value, label]) => <span key={label}><strong>{value}</strong>{label}</span>)}
             </div>
-            <p className="v-visual-note">Архитектурные визуализации. Мебель и декор показаны для примера.</p>
           </div>
         </div>
       </section>
@@ -451,7 +449,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
       <section className="v-section v-dark v-packages-clean" id="finance" data-section="offers" style={{ order: scenario === "mortgage" ? 3 : scenario === "land-home" ? 3 : 2 }}>
         <div className="v-shell">
           <div className="v-heading">
-            <div><p className="v-eyebrow">02 / Комплектации</p><h2>Выберите комплектацию<br /><em>вашего дома</em></h2></div>
+            <div><p className="v-eyebrow">Комплектации</p><h2>Выберите комплектацию<br /><em>вашего дома</em></h2></div>
             <p>Тёплый контур, дом с инженерией или с отделкой — выберите нужный уровень готовности.</p>
           </div>
 
@@ -497,7 +495,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
             <a href="/images/option-facade.webp" target="_blank" rel="noopener noreferrer" aria-label="Увеличить визуализацию фасада">
               <img src="/images/option-facade.webp" alt="Визуализация сочетания дерева и графитового металла на фасаде" width="1648" height="928" loading="lazy" decoding="async" />
             </a>
-            <div><h3>Рассмотрите фасад ближе</h3><p>Материалы, оттенки и детали отделки согласуем до строительства и укажем в спецификации.</p><span className="v-materials-label">Архитектурная визуализация</span></div>
+            <div><h3>Рассмотрите фасад ближе</h3><p>Материалы, оттенки и детали отделки согласуем до строительства и укажем в спецификации.</p></div>
           </div>
         </div>
       </section>
@@ -513,13 +511,13 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
               <div className="v-real-budget-meta"><span>{realProjectBudget.label}</span><strong>{realProjectBudget.scope}</strong></div>
               <dl>{realProjectBudget.items.map(([name, amount]) => <div key={name}><dt>{name}</dt><dd>{money(amount)} ₽</dd></div>)}</dl>
               <div className="v-real-budget-missing">
-                <span>В исходной смете пока не оценено</span>
+                <span>Рассчитывается отдельно</span>
                 <p>Вода / скважина <strong>—</strong></p>
                 <p>Наружное электричество <strong>—</strong></p>
                 <p>Остальная инженерия сверх септика <strong>—</strong></p>
               </div>
-              <div className="v-real-budget-total"><span>Итого по оцененным строкам</span><strong>{money(realProjectBudget.total)} ₽</strong></div>
-              <small>Смета от {realProjectBudget.date}. Это другой объект, не цена VELA. Неоценённые работы в итог не включены.</small>
+              <div className="v-real-budget-total"><span>Стоимость указанных работ</span><strong>{money(realProjectBudget.total)} ₽</strong></div>
+              <small>Смета от {realProjectBudget.date} для отдельного объекта. Работы без указанной стоимости в итог не включены. Стоимость VELA рассчитывается отдельно.</small>
             </div>
             <div className="v-real-budget-mortgage">
               <span>Если применить семейную ипотеку 6%*</span>
@@ -582,7 +580,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
         <div className="v-shell v-mortgage-grid">
           <div className="v-mortgage-number"><strong>6%</strong><span>семейная ипотека*</span></div>
           <div className="v-mortgage-copy">
-            <p className="v-eyebrow">03 / Семейная ипотека</p>
+            <p className="v-eyebrow">Семейная ипотека</p>
             <h2>Строительство дома<br /><em>по льготной ставке</em></h2>
             <p>Семейную ипотеку можно использовать для строительства дома на своём участке или покупки земли со строительством. Семья должна соответствовать условиям программы; расчёты с подрядчиком проходят через эскроу.</p>
             <div className="v-mortgage-points">
@@ -591,14 +589,14 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
               <span>подрядчик и расчёты через эскроу</span>
             </div>
             <button className="v-button v-button-dark" data-goal="mortgage_calculator_open" onClick={openCalculator}>Рассчитать платёж <Arrow /></button>
-            <small>* Ставка по программе — до 6%. Право на льготу, сумму и срок кредита подтверждает банк. Проверено {MORTGAGE_DATE}. <a href="https://xn--d1aqf.xn--p1ai/mortgage/family-mortgage/" target="_blank" rel="noopener noreferrer">Условия ДОМ.РФ ↗</a></small>
+            <small>* Ставка по программе — до 6%. Право на льготу, сумму и срок кредита подтверждает банк. <a href="https://xn--d1aqf.xn--p1ai/mortgage/family-mortgage/" target="_blank" rel="noopener noreferrer">Условия программы</a></small>
           </div>
         </div>
       </section>
 
       <section className="v-section v-shell v-process-clean" id="process" data-section="process" style={{ order: 6 }}>
         <div className="v-heading">
-          <div><p className="v-eyebrow">04 / Как строим</p><h2>От участка<br /><em>до своих ключей</em></h2></div>
+          <div><p className="v-eyebrow">Как строим</p><h2>От участка<br /><em>до своих ключей</em></h2></div>
           <p>Проверяем участок, согласуем смету и договор, строим и передаём дом.</p>
         </div>
 
@@ -619,7 +617,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
 
       <section className="v-section v-soft v-faq-clean" id="questions" data-section="faq" style={{ order: 7 }}>
         <div className="v-shell v-faq">
-          <div><p className="v-eyebrow">05 / Главное перед решением</p><h2>Ответы<br /><em>на частые вопросы</em></h2></div>
+          <div><p className="v-eyebrow">Главное перед решением</p><h2>Ответы<br /><em>на частые вопросы</em></h2></div>
           <div>{faq.map(([q, a]) => <details className="v-details" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div>
         </div>
 
@@ -645,11 +643,13 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
           <p>VELA · SIP-дом для семьи · СПб / Ленобласть / Москва / Московская область</p>
           <a className="v-text-link" href="#mortgage">Семейная ипотека 6%* <Arrow /></a>
         </div>
+        <LegalFooter />
         <div className="v-footer-bottom">
           <span>© 2026 ИКИОМА</span>
           <p>* Семейная ипотека: ставка 6% на строительство частного дома для семей, соответствующих условиям программы; строительство с подрядчиком и расчётами через эскроу. Решение принимает банк. Цены на сайте — ориентиры до проверки участка и согласования комплектации.</p>
-          <a href="#top">Наверх ↑</a>
+          <a href="#top">Наверх</a>
         </div>
+        <p className="v-footer-image-note">Изображения — визуализации проекта. Мебель, декор и благоустройство показаны для примера и не включены в базовую комплектацию.</p>
       </div>
     </footer>
 
@@ -681,13 +681,11 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
       {modal === "gallery" && <div className="v-lightbox">
         <h2 id="v-dialog-title">{gallery[expandedImage].title}</h2>
         <img src={gallery[expandedImage].src} alt={gallery[expandedImage].alt} />
-        <p>Визуализация дома VELA</p>
         <div className="v-pills" aria-label="Изображения дома">{gallery.map((item, index) => <button key={item.label} aria-pressed={index === expandedImage} onClick={() => setExpandedImage(index)}>{item.label}</button>)}</div>
       </div>}
 
       {modal === "lead" && <div className="v-dialog-body">
         {status === "sent" ? <div className="v-success" role="status" data-lead-id={receipt?.leadId || undefined}>
-          <span className="v-success-mark" aria-hidden="true">✓</span>
           <p className="v-eyebrow">{receipt?.duplicate ? "Заявка с этим телефоном уже получена" : "Заявка получена"}</p>
           <h2 id="v-dialog-title">Спасибо, {form.name}</h2>
           <p>{receipt?.duplicate ? "Вы уже отправляли заявку недавно. Обсудим детали при разговоре." : "Свяжемся по указанному телефону, чтобы обсудить дом, участок и семейную ипотеку."}</p>
@@ -703,8 +701,9 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
             <label>Участок<select value={land} onChange={e => setLand(e.target.value)}><option>Пока не определился</option><option>Есть участок</option><option>Выбираю самостоятельно</option><option>Нужна помощь с участком</option></select></label>
             <details className="v-details v-form-extra"><summary>Добавить пожелания</summary><label>Комментарий, до 300 символов<textarea rows={3} maxLength={300} placeholder="Район, бюджет, желаемая дата начала" value={form.comment} onChange={e => setForm({ ...form, comment: e.target.value })} /></label></details>
             <label className="v-honeypot" aria-hidden="true">Компания<input autoComplete="off" tabIndex={-1} value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} /></label>
-            <label className="v-consent"><input type="checkbox" required checked={form.consent} onChange={e => setForm({ ...form, consent: e.target.checked })} /><span>Согласен на обработку имени, телефона и переданных пожеланий для ответа на эту заявку.</span></label>
+            <label className="v-consent"><input name="consent" type="checkbox" required checked={form.consent} onChange={e => setForm({ ...form, consent: e.target.checked })} /><ConsentCopy /></label>
           </fieldset>
+          <p className="v-form-privacy">Порядок работы с данными — в <a href="/privacy/" target="_blank" rel="noopener noreferrer">политике конфиденциальности</a>.</p>
           {status === "error" && <p className="v-error" role="alert">{error}</p>}
           <button type="submit" disabled={status === "sending"} className="v-button v-submit">{status === "sending" ? "Отправляем…" : "Отправить заявку"}<Arrow /></button>
           <p className="v-note">* Ипотека доступна при соответствии условиям программы и одобрении банка.</p>

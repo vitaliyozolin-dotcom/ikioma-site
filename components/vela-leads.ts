@@ -1,3 +1,5 @@
+import { CONSENT_VERSION } from "./vela-consent-version.mjs";
+
 // The public StroiOS receiver stores message up to 1,000 characters.
 // Keep selections and consent before optional attribution, never after it.
 export function normalizePhone(value: string): string | null {
@@ -16,7 +18,7 @@ export function leadMessage(input: {
   const base = [
     `Модель: VELA. Планировка: ${input.layout}.`,
     `Комплектация: ${input.offer}. Участок: ${input.land}.`,
-    `Согласие на обработку контактов для ответа на заявку: ${input.timestamp}. Версия формы: ${input.release}.`,
+    `Согласие на обработку контактов для ответа на заявку: ${input.timestamp}. Согласие: ${CONSENT_VERSION}, ikioma.ru/consent/. Форма: ${input.release}.`,
     input.context.slice(0, 200),
     input.comment.trim().slice(0, 300),
   ].filter(Boolean).join("\n");

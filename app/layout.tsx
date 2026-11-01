@@ -3,6 +3,7 @@ import "@fontsource-variable/manrope";
 import "./vela.css";
 import "./vela-clean.css";
 import "./vela-review.css";
+import "./vela-legal.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ikioma.ru"),

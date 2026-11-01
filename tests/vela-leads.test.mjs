@@ -28,3 +28,12 @@ test('maximum form payload preserves all user details and consent before attribu
   assert.match(message, /Нужна помощь с участком/);
   assert.ok(message.indexOf('Согласие') < message.indexOf('utm_source'));
 });
+
+
+test('records a stable consent version before optional attribution', () => {
+ const message = leadMessage({ context: 'Расчёт', layout: '3 спальни', offer: 'Тёплый контур', land: 'Есть участок', comment: '', query: '?utm_source=test', release: 'vela-legal-clean-20261101', timestamp: '2026-11-01T16:00:00Z' });
+ assert.match(message, /pd-20261101-v1/);
+ assert.match(message, /ikioma\.ru\/consent\//);
+ assert.ok(message.indexOf('pd-20261101-v1') < message.indexOf('utm_source'));
+ assert.ok(message.length <= 1000);
+});

@@ -23,6 +23,9 @@ const staticRoutes = [
   { route: "/na-svoem-uchastke", dir: "na-svoem-uchastke" },
   { route: "/semejnaya-ipoteka", dir: "semejnaya-ipoteka" },
   { route: "/zemlya-i-dom", dir: "zemlya-i-dom" },
+  { route: "/privacy", dir: "privacy" },
+  { route: "/consent", dir: "consent" },
+  { route: "/requisites", dir: "requisites" },
 ];
 
 for (const { route, dir } of staticRoutes) {
