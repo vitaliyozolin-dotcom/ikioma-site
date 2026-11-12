@@ -1,7 +1,3 @@
-import { CONSENT_VERSION } from "./vela-consent-version.mjs";
-
-// The public StroiOS receiver stores message up to 1,000 characters.
-// Keep selections and consent before optional attribution, never after it.
 export function normalizePhone(value: string): string | null {
   const trimmed = value.trim();
   if (!/^\+?[\d\s()\-]+$/.test(trimmed)) return null;
@@ -11,34 +7,43 @@ export function normalizePhone(value: string): string | null {
   return /^[1-9]\d{9,14}$/.test(digits) ? `+${digits}` : null;
 }
 
-export function leadMessage(input: {
-  context: string; layout: string; offer: string; land: string;
-  comment: string; query: string; release: string; timestamp: string;
-}): string {
-  const base = [
-    `Модель: VELA. Планировка: ${input.layout}.`,
-    `Комплектация: ${input.offer}. Участок: ${input.land}.`,
-    `Согласие на обработку контактов для ответа на заявку: ${input.timestamp}. Согласие: ${CONSENT_VERSION}, ikioma.ru/consent/. Форма: ${input.release}.`,
-    input.context.slice(0, 200),
-    input.comment.trim().slice(0, 300),
-  ].filter(Boolean).join("\n");
-  const params = new URLSearchParams(input.query);
-  const attribution = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"]
-    .map(key => params.get(key) ? `${key}: ${params.get(key)!.slice(0, 120)}` : "")
-    .filter(Boolean).join("\n");
-  const available = Math.max(0, 1000 - base.length - 1);
-  return attribution && available > 0 ? `${base}\n${attribution.slice(0, available)}` : base;
+export const LEAD_ENDPOINT = "https://stroios-188-225-38-55.sslip.io/api/public/leads";
+
+export type LeadKind = "estimate" | "mortgage" | "consultation" | "visit";
+export const leadKinds: Record<LeadKind, string> = {
+  estimate: "Расчёт для участка", mortgage: "Финансирование", consultation: "Консультация по ВЕЛА", visit: "Просмотр объекта ИКИОМА",
+};
+
+export function attribution(search: string, referrer: string, origin: string) {
+  const params = new URLSearchParams(search);
+  const utm = Object.fromEntries(["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "yclid"]
+    .flatMap(key => { const value = params.get(key)?.trim().slice(0, 160); return value ? [[key, value]] : []; }));
+  let referringSite = "";
+  try { const url = new URL(referrer); if (url.origin !== origin && ["http:", "https:"].includes(url.protocol)) referringSite = url.hostname; } catch { /* direct visit */ }
+  return { utm, channel: utm.utm_source || (utm.yclid ? "yandex_direct" : referringSite || "direct") };
 }
 
-export type LeadReceipt = { duplicate: boolean; leadId: string | null };
-export function parseLeadReceipt(status: number, value: unknown): LeadReceipt {
-  if (!value || typeof value !== "object") throw new Error("invalid_response");
-  const data = value as Record<string, unknown>;
-  if (data.ok !== true || data.error) throw new Error("lead_rejected");
-  if (status === 201 && typeof data.leadId === "string" && data.leadId.length > 0) {
-    return { duplicate: false, leadId: data.leadId };
+export async function deliverVelaLead(body: object, signal: AbortSignal): Promise<string> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await fetch(LEAD_ENDPOINT, {
+        method: "POST", signal: AbortSignal.any([signal, AbortSignal.timeout(7500)]),
+        headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), credentials: "omit",
+      });
+      if (response.status === 429) throw new Error("rate_limit");
+      if (response.status === 409) {
+        const data = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(data?.error === "catalog_changed" ? "catalog_changed" : "request_conflict");
+      }
+      if (response.status < 500 && !response.ok) throw new Error("lead_rejected");
+      if (!response.ok) throw new Error("temporary");
+      const data = await response.json() as { ok?: boolean; leadId?: string } | null;
+      if (data?.ok !== true || typeof data.leadId !== "string" || ![200, 201].includes(response.status)) throw new Error("unconfirmed");
+      return data.leadId;
+    } catch (error) {
+      if (signal.aborted || attempt === 1 || error instanceof Error && ["rate_limit", "catalog_changed", "request_conflict", "lead_rejected"].includes(error.message)) throw error;
+      await new Promise(resolve => window.setTimeout(resolve, 650));
+    }
   }
-  if (status === 200 && data.duplicate === true) return { duplicate: true, leadId: null };
-  // In particular, neither an empty 200 nor a honeypot 202 confirms insertion.
-  throw new Error("invalid_response");
+  throw new Error("unconfirmed");
 }

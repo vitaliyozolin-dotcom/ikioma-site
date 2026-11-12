@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import VelaLanding from "@/components/VelaLanding";
 
 export const metadata: Metadata = {
-  title: "Земля + дом VELA | ИКИОМА",
-  description: "Поможем определить требования к участку, проверить землю и собрать бюджет строительства SIP-дома VELA.",
+  title: "Участок и дом ВЕЛА | ИКИОМА",
+  description: "Уточните требования к участку и предварительный бюджет строительства ВЕЛА.",
   robots: { index: false, follow: true },
   alternates: { canonical: "https://ikioma.ru" },
 };

@@ -1,21 +1,24 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope";
+import "@fontsource-variable/cormorant-garamond";
+import "@fontsource-variable/cormorant-garamond/wght-italic.css";
 import "./vela.css";
 import "./vela-clean.css";
-import "./vela-review.css";
 import "./vela-legal.css";
+import "./vela-master.css";
+import { catalog, money } from "@/components/vela-calculations";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ikioma.ru"),
-  title: "SIP-дом VELA от 5,2 млн ₽ | Семейная ипотека 6% | ИКИОМА",
-  description: "Одноэтажный SIP-дом VELA: 86,2 м² внутри + крытая терраса 23,1 м², три комплектации от 5,2 млн ₽. Семейная ипотека на строительство — 6%*. Строим в Санкт-Петербурге, Ленинградской области, Москве и Московской области.",
+  title: `Домокомплект ВЕЛА от ${money(catalog.base.price)} | ИКИОМА`,
+  description: "ВЕЛА — одноэтажный дом из СИП-панелей в Санкт-Петербурге и Ленинградской области. Три спальни, терраса 22,2 м², планировка и калькулятор стоимости строительства.",
   openGraph: {
     type: "website",
     locale: "ru_RU",
     url: "https://ikioma.ru",
-    title: "SIP-дом VELA от 5,2 млн ₽ | Семейная ипотека 6% | ИКИОМА",
-    description: "Одноэтажный SIP-дом для семьи. От 5,2 млн ₽. Семейная ипотека на строительство — 6%*.",
-    images: [{ url: "https://ikioma.ru/images/kontur-family-exterior-v1.webp", alt: "Архитектурная визуализация дома VELA от ИКИОМА" }],
+    title: `Домокомплект ВЕЛА от ${money(catalog.base.price)} | ИКИОМА`,
+    description: "Планировка ВЕЛА, комплектация и предварительный расчёт строительства.",
+    images: [{ url: "/vela/og.jpg", width: 1200, height: 630, alt: "Планировочная схема проекта ВЕЛА" }],
   },
   icons: {
     icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/favicon-32.png", type: "image/png", sizes: "32x32" }],

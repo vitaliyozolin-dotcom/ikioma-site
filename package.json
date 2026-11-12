@@ -9,7 +9,7 @@
     "install:ci": "bash scripts/install-ci.sh",
     "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vite",
     "build": "bash scripts/build-verified.sh",
-    "build:timeweb": "npm run build && node scripts/export-timeweb.mjs",
+    "build:timeweb": "node scripts/check-vela-catalog.mjs && npm run build && node scripts/export-timeweb.mjs",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "npm run build:timeweb && node --experimental-strip-types --test tests/*.test.mjs",
     "validate:artifact": "bash scripts/validate-artifact.sh",
@@ -17,14 +17,18 @@
     "db:generate": "bash scripts/sites-env.sh -- drizzle-kit generate"
   },
   "dependencies": {
+    "@fontsource-variable/cormorant-garamond": "^5.3.0",
     "@fontsource-variable/manrope": "^5.3.0",
+    "@pdf-lib/fontkit": "^1.1.1",
     "drizzle-orm": "0.45.2",
     "next": "16.2.6",
+    "pdf-lib": "^1.17.1",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",
+    "@cloudflare/workers-types": "^4.20260702.1",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",

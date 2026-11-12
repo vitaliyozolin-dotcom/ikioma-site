@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /m/vela/
+Sitemap: https://ikioma.ru/sitemap.xml

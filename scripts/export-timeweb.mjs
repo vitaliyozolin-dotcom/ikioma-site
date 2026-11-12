@@ -26,6 +26,8 @@ const staticRoutes = [
   { route: "/privacy", dir: "privacy" },
   { route: "/consent", dir: "consent" },
   { route: "/requisites", dir: "requisites" },
+  { route: "/contacts", dir: "contacts" },
+  { route: "/calculation-terms", dir: "calculation-terms" },
 ];
 
 for (const { route, dir } of staticRoutes) {
@@ -49,10 +51,7 @@ await writeFile(
   path.join(outputDir, ".htaccess"),
   [
     "DirectoryIndex index.html",
-    "RewriteEngine On",
-    "RewriteCond %{REQUEST_FILENAME} !-f",
-    "RewriteCond %{REQUEST_FILENAME} !-d",
-    "RewriteRule ^ index.html [L]",
+    "ErrorDocument 404 /404.html",
     "",
   ].join("\n"),
   "utf8",
