@@ -67,17 +67,23 @@ export function GalleryDialog({ gallery, setGallery }: {
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const touch = useRef<{ x: number; y: number } | null>(null);
-  const open = gallery !== null;
+  const trigger = gallery?.trigger;
 
   useEffect(() => {
     const node = ref.current;
-    if (open && !node?.open) node?.showModal();
-  }, [open]);
+    if (trigger && node && !node.open) {
+      trigger.focus({ preventScroll: true });
+      node.showModal();
+    }
+  }, [trigger]);
 
   function dismiss() {
-    ref.current?.close();
-    gallery?.trigger.focus({ preventScroll: true });
+    const node = ref.current;
+    node?.close();
     setGallery(null);
+    requestAnimationFrame(() => {
+      if (!node?.open) trigger?.focus({ preventScroll: true });
+    });
   }
 
   function step(direction: number) {

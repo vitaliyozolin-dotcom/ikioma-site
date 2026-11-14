@@ -20,8 +20,12 @@ test("attribution keeps campaign labels and uses only the referring hostname", (
 test("accepted retries require the confirmed lead ID", async context => {
   const original = globalThis.fetch;
   context.after(() => { globalThis.fetch = original; });
+  const body = { requestId: "existing-id" };
+  const signal = new AbortController().signal;
   globalThis.fetch = async () => Response.json({ ok: true, duplicate: true, leadId: "existing-id" }, { status: 200 });
-  assert.equal(await deliverVelaLead({}, new AbortController().signal), "existing-id");
+  assert.equal(await deliverVelaLead(body, signal), "existing-id");
+  globalThis.fetch = async () => Response.json({ ok: true, leadId: "unrelated-id" }, { status: 201 });
+  await assert.rejects(deliverVelaLead(body, signal), { message: "unconfirmed" });
   globalThis.fetch = async () => Response.json({ ok: false, error: "catalog_changed" }, { status: 409 });
-  await assert.rejects(deliverVelaLead({}, new AbortController().signal), { message: "catalog_changed" });
+  await assert.rejects(deliverVelaLead(body, signal), { message: "catalog_changed" });
 });

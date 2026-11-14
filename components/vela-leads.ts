@@ -23,7 +23,7 @@ export function attribution(search: string, referrer: string, origin: string) {
   return { utm, channel: utm.utm_source || (utm.yclid ? "yandex_direct" : referringSite || "direct") };
 }
 
-export async function deliverVelaLead(body: object, signal: AbortSignal): Promise<string> {
+export async function deliverVelaLead(body: { requestId: string }, signal: AbortSignal): Promise<string> {
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const response = await fetch(LEAD_ENDPOINT, {
@@ -38,11 +38,11 @@ export async function deliverVelaLead(body: object, signal: AbortSignal): Promis
       if (response.status < 500 && !response.ok) throw new Error("lead_rejected");
       if (!response.ok) throw new Error("temporary");
       const data = await response.json() as { ok?: boolean; leadId?: string } | null;
-      if (data?.ok !== true || typeof data.leadId !== "string" || ![200, 201].includes(response.status)) throw new Error("unconfirmed");
+      if (data?.ok !== true || data.leadId !== body.requestId || ![200, 201].includes(response.status)) throw new Error("unconfirmed");
       return data.leadId;
     } catch (error) {
       if (signal.aborted || attempt === 1 || error instanceof Error && ["rate_limit", "catalog_changed", "request_conflict", "lead_rejected"].includes(error.message)) throw error;
-      await new Promise(resolve => window.setTimeout(resolve, 650));
+      await new Promise(resolve => setTimeout(resolve, 650));
     }
   }
   throw new Error("unconfirmed");
