@@ -1,27 +1,27 @@
 import VelaLanding from "@/components/VelaLanding";
+import { catalog } from "@/components/vela-calculations";
 
 export default function Home() {
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Organization",
-        "@id": "https://ikioma.ru/#organization",
-        name: "ИКИОМА",
-        url: "https://ikioma.ru",
-        description: "Одноэтажные дома из SIP-панелей с согласованной комплектацией и поэтапной приёмкой.",
+        "@type": "Organization", "@id": "https://ikioma.ru/#organization",
+        name: "ИКИОМА", url: "https://ikioma.ru",
+        areaServed: ["Санкт-Петербург", "Ленинградская область"],
       },
       {
-        "@type": "Product",
-        name: "ИКИОМА | VELA",
+        "@type": "Product", name: catalog.base.title,
         brand: { "@type": "Brand", name: "ИКИОМА" },
-        description: "Одноэтажный SIP-дом: три спальни, два санузла, 86,2 м² внутри и крытая терраса 23,1 м². Цены комплектаций являются предварительными ориентирами; земля и условия участка рассчитываются отдельно.",
-        image: "https://ikioma.ru/images/kontur-family-exterior-v1.webp",
+        description: "Домокомплект для одноэтажного дома из СИП-панелей с тремя спальнями. Фундамент, монтаж и дополнительные работы рассчитываются отдельно.",
+        image: "https://ikioma.ru/vela/og.jpg",
         additionalProperty: [
-          { "@type": "PropertyValue", name: "Полезная площадь помещений", value: "86,2 м²" },
-          { "@type": "PropertyValue", name: "Крытая терраса, отдельно от помещений", value: "23,1 м²" },
-          { "@type": "PropertyValue", name: "Спальни в опубликованном проекте", value: "3" },
-          { "@type": "PropertyValue", name: "Санузлы", value: "2" },
+          { "@type": "PropertyValue", name: "Стартовая цена домокомплекта, ₽", value: catalog.base.price },
+          { "@type": "PropertyValue", name: "Площадь застройки", value: "115 м²" },
+          { "@type": "PropertyValue", name: "Площадь помещений", value: "81,7 м²" },
+          { "@type": "PropertyValue", name: "Площадь террасы", value: "22,2 м²" },
+          { "@type": "PropertyValue", name: "Спальни", value: 3 },
+          { "@type": "PropertyValue", name: "Санузлы", value: 1 },
         ],
       },
     ],

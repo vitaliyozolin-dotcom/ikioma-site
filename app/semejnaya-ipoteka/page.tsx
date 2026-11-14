@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import VelaLanding from "@/components/VelaLanding";
 
 export const metadata: Metadata = {
-  title: "VELA по семейной ипотеке 6% | ИКИОМА",
-  description: "Строительство SIP-дома VELA по семейной ипотеке 6% для семей, соответствующих условиям программы.",
+  title: "ВЕЛА — ипотечный расчёт | ИКИОМА",
+  description: "Рассчитайте платёж по выбранной ставке, сроку и первоначальному взносу для строительства ВЕЛА.",
   robots: { index: false, follow: true },
   alternates: { canonical: "https://ikioma.ru" },
 };

@@ -1,739 +1,212 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element -- local product imagery is optimized WebP */
+/* eslint-disable @next/next/no-img-element -- local media are already optimized for static deployment */
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { normalizePhone, leadMessage, parseLeadReceipt, type LeadReceipt } from "./vela-leads";
-import { ConsentCopy, LegalFooter } from "./vela-legal";
-
-const LEAD_ENDPOINT = "https://stroios-188-225-38-55.sslip.io/api/public/leads";
-const RELEASE = "vela-legal-clean-20261101";
-
-const nav = [
-  ["house", "Дом"],
-  ["finance", "Комплектации"],
-  ["mortgage", "Семейная ипотека"],
-  ["process", "Как строим"],
-  ["contacts", "Контакты"],
-] as const;
+import { useEffect, useState } from "react";
+import { ArchitectureGallery, ConstructionPhotos, FrameIcon, GalleryDialog, VelaMedia, type GalleryState, type OpenGallery } from "./VelaGallery";
+import VelaPlan from "./VelaPlan";
+import VelaBuilder, { type SavedQuote } from "./VelaBuilder";
+import VelaFinance from "./VelaFinance";
+import VelaLead, { type Land } from "./VelaLead";
+import { LegalFooter } from "./vela-legal";
+import { operator } from "./vela-legal-data";
+import type { LeadKind } from "./vela-leads";
+import { catalog, estimate, money, selectionFor, type Estimate, type MortgageResult } from "./vela-calculations";
 
 export type LandingScenario = "base" | "own-land" | "mortgage" | "land-home";
-
-const scenarioCopy: Record<LandingScenario, { eyebrow: string; first: string; second: string; text: string; cta: string }> = {
-  base: {
-    eyebrow: "Одноэтажный SIP-дом для семьи",
-    first: "VELA",
-    second: "Семейный дом за городом",
-    text: "86,2 м² внутри + 23,1 м² крытая терраса. Три спальни, два санузла и большая кухня-гостиная.",
-    cta: "Рассчитать дом",
-  },
-  "own-land": {
-    eyebrow: "SIP-дом на вашем участке",
-    first: "VELA",
-    second: "на вашем участке",
-    text: "Проверим участок и рассчитаем дом, фундамент и подключение коммуникаций.",
-    cta: "Рассчитать дом",
-  },
-  mortgage: {
-    eyebrow: "Строительство дома · семейная ипотека 6%*",
-    first: "VELA",
-    second: "по семейной ипотеке",
-    text: "Одноэтажный SIP-дом для семьи. Посчитаем полный бюджет, первоначальный взнос и ориентировочный платёж.",
-    cta: "Рассчитать ипотеку",
-  },
-  "land-home": {
-    eyebrow: "Земля + строительство дома",
-    first: "Земля + VELA",
-    second: "в одной сделке",
-    text: "Поможем подобрать участок и рассчитать покупку земли вместе со строительством дома.",
-    cta: "Рассчитать сделку",
-  },
+const variants: Record<LandingScenario, { headline: string; link: string; label: string }> = {
+  base: { headline: catalog.headline, link: "#finance", label: "Рассчитать стоимость" },
+  "own-land": { headline: "Дом на вашем участке", link: "#finance", label: "Рассчитать стоимость" },
+  mortgage: { headline: "Дом с расчётом ипотеки", link: "#mortgage", label: "Рассчитать ипотеку" },
+  "land-home": { headline: "Участок и свой дом", link: "#finance", label: "Рассчитать строительство" },
 };
-
-const realProjectBudget = {
-  total: 4_782_107,
-  mortgagePayment: 32_283,
-  date: "05.10.2026",
-  label: "Строящийся дом ИКИОМА",
-  scope: "96 м² дома + 24 м² террасы",
-  items: [
-    ["Дом, монтаж, окна, кровля и фасад", 3_373_107],
-    ["Фундамент", 228_500],
-    ["Септик", 87_500],
-    ["Отделка в смете проекта", 148_000],
-    ["Логистика и подготовка участка", 295_000],
-    ["Оформление, налоги и резерв", 650_000],
-  ] as const,
-};
-
-const optionPrices = {
-  foundation: 228_500,
-  sewer: 87_500,
-} as const;
-
-const gallery = [
-  {
-    src: "/images/kontur-family-exterior-v1.webp",
-    label: "Снаружи",
-    title: "Графит и тёплое дерево",
-    text: "Графитовый фасад, деревянная отделка и большие окна.",
-    alt: "Визуализация одноэтажного дома VELA с крытой террасой",
-    facts: [["1", "этаж"], ["86,2 м²", "внутри дома"], ["3", "спальни"]],
-  },
-  {
-    src: "/images/kontur-family-interior-v1.webp",
-    label: "Внутри",
-    title: "Кухня-гостиная для всей семьи",
-    text: "Здесь можно готовить, обедать и проводить вечера вместе. Из гостиной — выход на террасу.",
-    alt: "Визуализация кухни-гостиной дома VELA",
-    facts: [["27,3 м²", "кухня-гостиная"], ["3", "спальни"], ["2", "санузла"]],
-  },
-  {
-    src: "/images/kontur-covered-terrace-v1.webp",
-    label: "Терраса",
-    title: "Место для завтраков на воздухе",
-    text: "Поставьте большой стол или пару кресел. Общая с домом крыша защищает от дождя.",
-    alt: "Визуализация крытой террасы дома VELA",
-    facts: [["23,1 м²", "площадь террасы"], ["Под крышей", "защита от осадков"], ["Из гостиной", "прямой выход"]],
-  },
+const nav = [["architecture", "Галерея"], ["plan", "Планировка"], ["finance", "Стоимость"], ["mortgage", "Ипотека"], ["process", "Как строим"]] as const;
+const facts = [["115", "Площадь застройки", "м²"], ["81,7", "Площадь помещений", "м²"], ["22,2", "Площадь террасы", "м²"], ["3", "Спальни", ""]] as const;
+const stages = [
+  ["Заявка", "Уточняем, какой результат вы хотите получить."], ["Участок", "Смотрим подъезд, рельеф и коммуникации."],
+  ["Смета", "Согласуем состав работ и стоимость."], ["Договор и оплата", "Фиксируем комплектацию, этапы и порядок платежей."],
+  ["Производство", "Готовим домокомплект к отгрузке."], ["Доставка", "Согласуем дату, подъезд и разгрузку."],
+  ["Монтаж", "Собираем домокомплект на подготовленном основании."], ["Дополнительные работы", "Выполняем работы по согласованной комплектации."],
+  ["Приёмка", "Проверяем выполненные работы и подписываем документы."],
 ] as const;
-
-const offers = [
-  {
-    name: "Тёплый контур",
-    price: 5.2,
-    result: "Дом закрыт от осадков и готов к следующему этапу.",
-    items: ["SIP-конструкции дома", "кровля и фасад", "окна и наружные двери"],
-  },
-  {
-    name: "Контур + инженерия",
-    price: 6.3,
-    result: "Дом с основными инженерными системами.",
-    items: ["всё из тёплого контура", "электрика, вода и канализация", "отопление и вентиляция"],
-  },
-  {
-    name: "С отделкой под ключ",
-    price: 7.2,
-    result: "Дом готов к меблировке и заселению.",
-    items: ["контур и инженерия", "чистовая отделка", "двери и санузлы"],
-  },
-] as const;
-
-const processSteps = [
-  ["Участок", "Проверяем подъезд, рельеф и коммуникации."],
-  ["Расчёт", "Выбираем комплектацию и считаем дом вместе с работами на участке."],
-  ["Договор", "Указываем состав работ, стоимость, даты и порядок приёмки."],
-  ["Строительство", "Показываем ход работ и фотографии в карточке вашего проекта."],
-  ["Передача дома", "Проводим осмотр, устраняем замечания и передаём ключи и документы."],
+// An anonymized estimate already published on the IKIOMA website, dated 05.10.2026.
+const exampleCosts = [
+  ["Дом, монтаж, окна, кровля и фасад", 3_373_107],
+  ["Фундамент", 228_500],
+  ["Септик", 87_500],
+  ["Отделка по смете", 148_000],
+  ["Логистика и подготовка участка", 295_000],
+  ["Оформление, налоги и резерв", 650_000],
 ] as const;
 
 const faq = [
-  ["Что входит в цену от 5,2 млн ₽?", "Это ориентир для комплектации «Тёплый контур». Земля не входит. Основание, наружные сети, доставка и особенности участка считаются после проверки исходных данных."],
-  ["Можно ли строить по семейной ипотеке?", "Да, если семья соответствует условиям программы. Для строительства частного дома льготная ставка составляет 6%*. Строительство ведётся с подрядчиком и расчётами через эскроу."],
-  ["Когда цена становится фиксированной?", "После проверки участка и согласования комплектации. Если потом меняется объём работ, сначала показываем новую сумму и влияние на срок — и только после вашего согласия вносим изменение."],
-  ["Сколько длится строительство?", "Срок зависит от участка, комплектации и готовности исходных данных. Мы не обещаем универсальную дату: конкретный календарный срок фиксируется в договоре."],
-  ["В SIP-доме не будет душно?", "В SIP-доме нужна продуманная вентиляция. Её схему и оборудование согласуем до строительства и включим в смету."],
-  ["Можно приехать и посмотреть стройку?", "Да, если в этот момент есть объект, доступный для посещения. Подтвердим объект, стадию работ и безопасное время посещения."],
+  ["Что такое домокомплект?", "Это комплект для сборки дома ВЕЛА. Точный список деталей, материалов и документации фиксируем в спецификации к договору."],
+  ["Что входит в стартовую цену?", "По стартовой цене рассчитывается домокомплект. Фундамент, монтаж, кровля, окна, фасад, доставка и другие работы можно добавить при расчёте."],
+  ["Почему фундамент считают отдельно?", "Тип и объём основания зависят от грунта, рельефа участка и проекта. Стартовый ориентир доступен в калькуляторе."],
+  ["Сколько стоит монтаж?", "Монтаж домокомплекта считается отдельно. Его стартовую цену можно добавить в калькуляторе, а точный состав сверить в смете."],
+  ["Можно ли изменить планировку?", "ВЕЛА представлен в утверждённой планировке. Возможность изменения проёмов или перегородок можно обсудить с проектировщиком до договора."],
+  ["Как рассчитывается инженерия?", "Для электрики, воды, отопления, канализации и вентиляции нужны исходные данные участка и согласованный состав оборудования."],
+  ["Почему отделку рассчитывают индивидуально?", "Сумма зависит от площади работ, выбранных материалов, состояния основания и требований к отделке."],
+  ["Можно ли строить на моём участке?", "Да, если условия участка допускают строительство. До сметы проверяем подъезд, рельеф, коммуникации и применимые ограничения."],
+  ["Какие гарантии действуют?", "Гарантийные условия и порядок обращения указываются в договоре с учётом выбранного комплекта и состава работ."],
+  ["Как устроена оплата?", "Суммы, этапы и условия платежей указываются в договоре после согласования сметы и способа финансирования."],
+  ["Можно ли использовать ипотеку?", "Возможность финансирования зависит от банка, участка, договора и условий заёмщика. Для оценки платежа укажите свою ставку в калькуляторе."],
+  ["Что нужно для точной сметы?", "Район или адрес участка, сведения о подъезде и коммуникациях, нужные работы и пожелания по материалам."],
 ] as const;
 
-function Arrow() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" /></svg>;
+function ConstructionEstimateExample() {
+  const total = exampleCosts.reduce((sum, [, amount]) => sum + amount, 0);
+  return <div className="vl-archive-band" id="real-budget">
+    <details className="vl-wrap vl-archive">
+      <summary>Пример сметы по объекту ИКИОМА</summary>
+      <div className="vl-archive-content">
+        <div><h3>Смета от 5 октября 2026 года</h3><p>Другой объект ИКИОМА с домом 96 м² и террасой 24 м². Это сумма сметы по указанным позициям. Вода, наружная электрика и часть инженерии считались отдельно.</p></div>
+        <dl className="vl-cost-lines">
+          {exampleCosts.map(([label,amount]) => <div key={label}><dt>{label}</dt><dd>{money(amount)}</dd></div>)}
+          <div><dt>Итого по смете</dt><dd>{money(total)}</dd></div>
+        </dl>
+      </div>
+    </details>
+  </div>;
 }
 
-function Brand() {
-  return <>
-    <img src="/images/logo.webp" alt="" width="40" height="46" />
-    <span><strong>ИКИОМА</strong><small>По-настоящему свой дом</small></span>
-  </>;
-}
-
-function money(value: number) {
-  return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(Math.round(value));
-}
-
-function payment(principal: number, rate: number, years: number) {
-  if (principal <= 0 || years <= 0) return 0;
-  if (rate === 0) return principal / (years * 12);
-  const r = rate / 1200;
-  return principal * r / (1 - Math.pow(1 + r, -years * 12));
+function Arrow({ diagonal = false }: { diagonal?: boolean }) {
+  return <svg viewBox="0 0 24 24" className="vl-arrow" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">{diagonal ? <path d="M5 19 19 5M9 5h10v10" /> : <path d="M3 12h16m-6-6 6 6-6 6" />}</svg>;
 }
 
 declare global {
-  interface Window {
-    ym?: (id: number, action: string, goal: string, params?: Record<string, unknown>) => void;
-    __IKIOMA_YM_ID?: number;
-  }
+  interface Window { ym?: (id: number, action: string, goal: string, params?: Record<string, unknown>) => void; __IKIOMA_YM_ID?: number }
 }
 
-function trackGoal(name: string, params?: Record<string, unknown>) {
-  if (typeof window === "undefined") return;
+function track(name: string, params?: Record<string, string | number>) {
   window.dispatchEvent(new CustomEvent("ikioma:goal", { detail: { name, params } }));
-  const id = Number(window.__IKIOMA_YM_ID);
-  if (id && typeof window.ym === "function") window.ym(id, "reachGoal", name, params);
+  if (window.__IKIOMA_YM_ID && typeof window.ym === "function") window.ym(window.__IKIOMA_YM_ID, "reachGoal", name, params);
 }
-
-type Modal = "lead" | "gallery" | "calculator" | "menu" | null;
 
 export default function VelaLanding({ scenario = "base" }: { scenario?: LandingScenario }) {
-  const [modal, setModal] = useState<Modal>(null);
-  const dialog = useRef<HTMLDialogElement>(null);
-  const request = useRef<AbortController | null>(null);
-  const submitLock = useRef(false);
-  const [activeImage, setActiveImage] = useState(0);
-  const [expandedImage, setExpandedImage] = useState(0);
-  const [offer, setOffer] = useState(0);
-  const [land, setLand] = useState(scenario === "own-land" ? "Есть участок" : scenario === "land-home" ? "Нужна помощь с участком" : "Пока не определился");
-  const [context, setContext] = useState("Расчёт VELA");
-  const [form, setForm] = useState({ name: "", phone: "", comment: "", company: "", consent: false });
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-  const [receipt, setReceipt] = useState<LeadReceipt | null>(null);
-  const [error, setError] = useState("");
-  const [sticky, setSticky] = useState(false);
-  const [price, setPrice] = useState(7.2);
-  const [down, setDown] = useState(20);
-  const [rate, setRate] = useState(6);
-  const [years, setYears] = useState(15);
-  const [copy, setCopy] = useState<"idle" | "copied" | "manual">("idle");
-  const [budgetFoundation, setBudgetFoundation] = useState(true);
-  const [budgetWater, setBudgetWater] = useState(false);
-  const [budgetSewer, setBudgetSewer] = useState(true);
-  const [budgetPower, setBudgetPower] = useState(false);
-  const hero = scenarioCopy[scenario];
-  const [navigationTarget, setNavigationTarget] = useState<{ id: string; push: boolean } | null>(null);
-
-  const total = price * 1_000_000;
-  const loan = total * (1 - down / 100);
-  const monthly = payment(loan, rate, years);
-  const budgetKnownTotal = offers[offer].price * 1_000_000
-    + (budgetFoundation ? optionPrices.foundation : 0)
-    + (budgetSewer ? optionPrices.sewer : 0);
-  const budgetPending = [
-    land === "Нужна помощь с участком" ? "земля" : "",
-    budgetWater ? "вода / скважина" : "",
-    budgetPower ? "наружное электричество" : "",
-  ].filter(Boolean);
-  const budgetMortgage = payment(budgetKnownTotal * 0.8, 6, 15);
-
-  const mortgageScenario = [
-    "VELA: дом " + money(total) + " ₽",
-    "взнос " + down + "% (" + money(total - loan) + " ₽)",
-    "сумма " + money(loan) + " ₽",
-    "ставка для расчёта " + rate + "%",
-    years + " лет",
-    "≈ " + money(monthly) + " ₽/мес",
-    "без страховок, комиссий и стоимости земли",
-  ].join("; ");
+  const variant = variants[scenario];
+  const [lead, setLead] = useState<LeadKind | null>(null);
+  const [selection, setSelection] = useState<string[]>([]);
+  const [stored, setStored] = useState<Estimate | null>(null);
+  const [land, setLand] = useState<Land>(scenario === "own-land" ? "own" : scenario === "land-home" ? "search" : "undecided");
+  const [mortgageScenario, setMortgageScenario] = useState<MortgageResult | null>(null);
+  const [catalogNotice, setCatalogNotice] = useState("");
+  const [gallery, setGallery] = useState<GalleryState>(null);
+  const [menu, setMenu] = useState(false);
+  const cover = catalog.views.find(item => item.src === catalog.heroImage) ?? {
+    src: catalog.heroImage, alt: catalog.heroAlt, caption: catalog.heroCaption, width: 940, height: 555,
+  };
+  const openGallery: OpenGallery = (items, index, trigger) => { track("gallery_open", { index }); setGallery({ items, index, trigger }); };
+  const quote = stored ?? estimate(selection);
 
   useEffect(() => {
-    const node = dialog.current;
-    if (!node) return;
-    if (modal && !node.open) node.showModal();
-    if (!modal && node.open) node.close();
-    if (!modal) return;
-    const oldOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = oldOverflow; };
-  }, [modal]);
-
-  useEffect(() => {
-    const hero = document.getElementById("top");
-    const contact = document.getElementById("contacts");
-    if (!hero || !contact) return;
-    let heroVisible = true;
-    let contactVisible = false;
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.target === hero) heroVisible = entry.isIntersecting;
-        if (entry.target === contact) contactVisible = entry.isIntersecting;
-      }
-      setSticky(!heroVisible && !contactVisible);
+    const frame = requestAnimationFrame(() => {
+      const params = new URLSearchParams(location.search);
+      const ids = params.get("vela");
+      if (ids === null) return;
+      const version = params.get("cv");
+      if (version && version !== catalog.version) setCatalogNotice("По ссылке открыты выбранные работы. Расчёт показан по текущим ценам.");
+      setSelection(selectionFor(ids.split(",")));
     });
-    observer.observe(hero);
-    observer.observe(contact);
-    return () => observer.disconnect();
+    return () => cancelAnimationFrame(frame);
   }, []);
 
-  useEffect(() => () => request.current?.abort(), []);
-
-  useEffect(() => {
-    if (modal || !navigationTarget) return;
-    let secondFrame = 0;
-    const firstFrame = window.requestAnimationFrame(() => {
-      secondFrame = window.requestAnimationFrame(() => {
-        const target = document.getElementById(navigationTarget.id);
-        if (!target) return;
-        if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
-        target.focus({ preventScroll: true });
-        target.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
-        const hash = "#" + navigationTarget.id;
-        if (navigationTarget.push && window.location.hash !== hash) window.history.pushState(null, "", hash);
-        setNavigationTarget(null);
-      });
-    });
-    return () => { window.cancelAnimationFrame(firstFrame); window.cancelAnimationFrame(secondFrame); };
-  }, [modal, navigationTarget]);
-
-  useEffect(() => {
-    const followHash = () => {
-      let id: string;
-      try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
-      if (id && document.getElementById(id)) setNavigationTarget({ id, push: false });
-    };
-    followHash();
-    window.addEventListener("hashchange", followHash);
-    return () => window.removeEventListener("hashchange", followHash);
-  }, []);
-
-
-  function openLead(source: string, choice?: number, landChoice?: string, goalName = "lead_open") {
-    if (submitLock.current) { setModal("lead"); return; }
-    trackGoal(goalName, { source, package: choice ?? offer });
-    setContext(source);
-    if (choice !== undefined) setOffer(choice);
-    if (landChoice) setLand(landChoice);
-    setStatus("idle");
-    setReceipt(null);
-    setError("");
-    setModal("lead");
+  function changeSelection(value: string[]) {
+    setSelection(value);
+    setStored(null);
   }
 
-  function openCalculator() {
-    trackGoal("mortgage_calculator_open");
-    setCopy("idle");
-    setRate(6);
-    setModal("calculator");
+  function restore(value: SavedQuote) {
+    setSelection(selectionFor(value.selection));
+    setStored(value.quote);
   }
 
-  function showImage(index: number) {
-    setExpandedImage(index);
-    setModal("gallery");
+  function openLead(kind: LeadKind) {
+    if (kind !== "mortgage" && kind !== "estimate") setMortgageScenario(null);
+    track("lead_open", { kind, scenario });
+    setLead(kind);
   }
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (submitLock.current || form.company) return;
-    const phone = normalizePhone(form.phone);
-    if (!form.name.trim() || !phone || !form.consent) {
-      setError(!phone ? "Проверьте телефон: укажите номер с кодом страны, например +7 999 123-45-67." : "Укажите имя и согласие на обработку контактов.");
-      setStatus("error");
-      return;
-    }
-
-    submitLock.current = true;
-    setStatus("sending");
-    setError("");
-    const controller = new AbortController();
-    request.current = controller;
-    const timeout = window.setTimeout(() => controller.abort(), 15_000);
-    const message = leadMessage({
-      context,
-      layout: "VELA · 3 спальни",
-      offer: offers[offer].name,
-      land,
-      comment: form.comment,
-      query: window.location.search,
-      release: RELEASE,
-      timestamp: new Date().toISOString(),
-    });
-
-    try {
-      const response = await fetch(LEAD_ENDPOINT, {
-        method: "POST",
-        signal: controller.signal,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name.trim(), phone, email: "", source: "website", message, website: "ikioma.ru" }),
-      });
-      if (!response.ok) throw new Error(response.status === 429 ? "rate_limit" : "lead_rejected");
-      const type = response.headers.get("content-type") || "";
-      if (!type.includes("application/json")) throw new Error("invalid_response");
-      const confirmed = parseLeadReceipt(response.status, await response.json());
-      setReceipt(confirmed);
-      setStatus("sent");
-      trackGoal("lead_success", { context, package: offers[offer].name });
-    } catch (err) {
-      setStatus("error");
-      setError(err instanceof Error && err.message === "rate_limit"
-        ? "Слишком много попыток. Подождите немного перед повторной отправкой."
-        : "Не удалось подтвердить получение заявки. Введённые данные сохранены. Проверьте соединение и попробуйте ещё раз.");
-    } finally {
-      window.clearTimeout(timeout);
-      request.current = null;
-      submitLock.current = false;
-    }
-  }
-
-  return <div className="vela v-clean" data-release={RELEASE} onClick={(event) => {
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const anchor = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href^="#"]') : null;
-    if (!anchor) return;
-    const id = anchor.getAttribute("href")?.slice(1);
-    if (!id || !document.getElementById(id)) return;
-    event.preventDefault();
-    setModal(null);
-    setNavigationTarget({ id, push: true });
+  return <div className="vl-page" data-release="vela-visuals-20261115" onClick={event => {
+    if (event.target instanceof Element && event.target.closest("a[href^='tel:'], a[href^='mailto:']")) track("contact_click");
   }}>
-    <a className="v-skip" href="#main">К содержанию</a>
-
-    <header className="v-header">
-      <div className="v-shell v-header-inner">
-        <a href="#top" className="v-brand" aria-label="ИКИОМА — на главную"><Brand /></a>
-        <nav className="v-nav" aria-label="Основная навигация">
-          {nav.map(([id, label]) => <a key={id} href={"#" + id}>{label}</a>)}
-        </nav>
-        <button className="v-button v-button-small v-header-cta" data-goal="lead_open_header" onClick={() => openLead("Заявка из шапки", undefined, undefined, "lead_open_header")}>Рассчитать дом <Arrow /></button>
-        <button className="v-menu-button" onClick={() => setModal("menu")} aria-expanded={modal === "menu"} aria-label="Открыть меню" aria-haspopup="dialog"><span /><span /></button>
+    <a href="#main" className="vl-skip">К содержанию</a>
+    <header className="vl-header" id="top" onKeyDown={event => { if (event.key === "Escape" && menu) { setMenu(false); event.currentTarget.querySelector<HTMLButtonElement>(".vl-menu-button")?.focus(); } }}>
+      <div className="vl-wrap vl-header-inner">
+        <a className="vl-brand" href="#top" aria-label="ИКИОМА, в начало страницы"><img src="/brand/ikioma-symbol.svg" alt="" width="29" height="31" /><span>ИКИОМА</span></a>
+        <nav className="vl-nav" aria-label="Навигация по проекту">{nav.map(([id, label]) => <a href={"#" + id} key={id}>{label}</a>)}</nav>
+        <button type="button" className="vl-header-cta" onClick={() => openLead("consultation")}>Обсудить проект <Arrow diagonal /></button>
+        <button type="button" className="vl-menu-button" aria-expanded={menu} aria-controls="vl-mobile-nav" onClick={() => setMenu(!menu)}>{menu ? "Закрыть" : "Меню"}</button>
       </div>
+      <nav className="vl-mobile-nav" id="vl-mobile-nav" aria-label="Навигация по проекту" hidden={!menu}>{[...nav, ["contacts", "Контакты"]].map(([id,label]) => <a href={"#" + id} key={id} onClick={() => setMenu(false)}>{label}<Arrow /></a>)}</nav>
     </header>
-
-    <main id="main">
-      <section className="v-hero v-clean-hero" id="top" data-section="hero">
-        <img className="v-hero-image" src={gallery[0].src} alt={gallery[0].alt} fetchPriority="high" width="1536" height="1024" />
-        <div className="v-shell v-hero-content">
-          <div className="v-hero-main">
-            <p className="v-eyebrow">{hero.eyebrow}</p>
-            <h1><span>{hero.first}</span><em>{hero.second}</em></h1>
-            <p className="v-hero-text">{hero.text}</p>
-            <div className="v-hero-commercial">
-              <div className="v-hero-card v-hero-price-simple">
-                <div className="v-hero-card-value"><span>от</span><strong>5,2 млн ₽</strong></div>
-                <small>тёплый контур</small>
-              </div>
-              <a className="v-hero-card v-mortgage-chip" href="#mortgage">
-                <div className="v-hero-card-value"><strong>6%*</strong></div>
-                <small>семейная ипотека на строительство</small>
+    <main id="main" tabIndex={-1}>
+      <section className="vl-hero" aria-labelledby="vela-title" data-section="hero">
+        <div className="vl-wrap">
+          <div className="vl-hero-grid">
+            <div className="vl-hero-copy">
+              <p className="vl-kicker">Проект ИКИОМА</p>
+              <h1 id="vela-title">ВЕЛА</h1>
+              <p className="vl-hero-headline">{variant.headline}</p>
+              <p className="vl-hero-intro">{catalog.intro}</p>
+              <div className="vl-hero-price"><span>{catalog.base.title}</span><strong>от {money(catalog.base.price)}</strong><small>Фундамент, монтаж и дополнительные работы рассчитываются отдельно.</small></div>
+              <div className="vl-actions"><a href={variant.link} className="vl-btn vl-btn-primary">{variant.label}<Arrow /></a><a href="#plan" className="vl-btn vl-btn-outline">Смотреть планировку</a></div>
+            </div>
+            <figure className="vl-cover">
+              <a href="#architecture" aria-label="Смотреть галерею ВЕЛА">
+                <VelaMedia view={cover} sizes="(max-width: 700px) 100vw, (max-width: 1440px) 62vw, 850px" priority />
+                <span className="vl-enlarge" aria-hidden="true"><FrameIcon /></span>
               </a>
-            </div>
-            <div className="v-actions v-hero-actions">
-              <button className="v-button" data-goal="lead_open_hero" onClick={() => openLead("Первый экран — " + hero.cta, undefined, undefined, "lead_open_hero")}>{hero.cta} <Arrow /></button>
-              <a className="v-button v-outline" href="#finance">Комплектации <Arrow /></a>
-            </div>
+              <figcaption>{catalog.heroCaption}</figcaption>
+            </figure>
           </div>
-        </div>
-        <div className="v-shell v-hero-bottom">
-          <dl className="v-facts">
-            <div><dt>Внутри</dt><dd>86,2 <small>м²</small></dd></div>
-            <div><dt>Терраса</dt><dd>23,1 <small>м²</small></dd></div>
-            <div><dt>Спальни</dt><dd>3</dd></div>
-            <div><dt>Этаж</dt><dd>1</dd></div>
-          </dl>
-          <p className="v-geo-line">Строим: Санкт-Петербург · Ленинградская область · Москва · Московская область</p>
+          <dl className="vl-facts">{facts.map(([value, label, unit]) => <div key={label}><dt>{label}</dt><dd>{value} {unit && <small>{unit}</small>}</dd></div>)}</dl>
         </div>
       </section>
 
-      <div className={"v-section-stack v-scenario-" + scenario}>
-      <section className="v-section v-shell v-house-clean" id="house" data-section="product" style={{ order: 1 }}>
-        <div className="v-heading">
-          <div><p className="v-eyebrow">Дом VELA</p><h2>Всё нужное<br /><em>Без лишней площади</em></h2></div>
-          <p>Общая кухня-гостиная для встреч и отдельные спальни для отдыха. Всё на одном этаже.</p>
-        </div>
-
-        <div className="v-gallery v-gallery-clean">
-          <figure>
-            <button className="v-image-button" onClick={() => showImage(activeImage)} aria-label={"Увеличить: " + gallery[activeImage].label}>
-              <img src={gallery[activeImage].src} alt={gallery[activeImage].alt} loading="lazy" decoding="async" width="1536" height="1024" />
-              <span className="v-enlarge">Увеличить</span>
-            </button>
-          </figure>
-          <div className="v-gallery-copy">
-            <div className="v-pills" aria-label="Виды дома">
-              {gallery.map((item, index) => <button key={item.label} aria-pressed={activeImage === index} onClick={() => setActiveImage(index)}>{item.label}</button>)}
-            </div>
-            <div aria-live="polite"><h3>{gallery[activeImage].title}</h3><p>{gallery[activeImage].text}</p></div>
-            <div className="v-home-facts" aria-live="polite">
-              {gallery[activeImage].facts.map(([value, label]) => <span key={label}><strong>{value}</strong>{label}</span>)}
-            </div>
-          </div>
+      <ArchitectureGallery items={catalog.views} open={openGallery} />
+      <section className="vl-wrap vl-story" id="house" aria-labelledby="vl-story-title">
+        <div><h2 id="vl-story-title">Место для семьи <em>и для себя</em></h2></div>
+        <div><p>В Г-образной кухне-гостиной можно разнести обеденную зону и мягкую группу. Три спальни выходят в отдельный холл. В доме один санузел и отдельное техническое помещение у прихожей.</p>
+          {Object.entries(catalog.engineering).some(([,value]) => value) && <dl className="vl-cost-lines">{Object.entries({ ceilingHeight: "Высота потолков", ridgeHeight: "Высота по коньку", dimensions: "Габариты", roofType: "Кровля", technology: "Конструктив" }).flatMap(([key,label]) => catalog.engineering[key] ? [<div key={key}><dt>{label}</dt><dd>{catalog.engineering[key]}</dd></div>] : [])}</dl>}
         </div>
       </section>
+      <VelaPlan />
 
-      <section className="v-section v-dark v-packages-clean" id="finance" data-section="offers" style={{ order: scenario === "mortgage" ? 3 : scenario === "land-home" ? 3 : 2 }}>
-        <div className="v-shell">
-          <div className="v-heading">
-            <div><p className="v-eyebrow">Комплектации</p><h2>Выберите комплектацию<br /><em>вашего дома</em></h2></div>
-            <p>Тёплый контур, дом с инженерией или с отделкой — выберите нужный уровень готовности.</p>
+      <section className="vl-kit-band" id="kit" aria-labelledby="vl-kit-title">
+        <div className="vl-wrap vl-kit-inner">
+          <div><p className="vl-kicker">Домокомплект</p><h2 id="vl-kit-title">Основа <em>вашего дома</em></h2><p>{catalog.base.description}</p>
+            {catalog.specification.length > 0 && <dl className="vl-kit-spec">{catalog.specification.map(item => <div key={item.title}><dt>{item.title}</dt><dd>{item.description}</dd></div>)}</dl>}
           </div>
-
-          <a className="v-section-mortgage-link" href="#mortgage"><strong>Семейная ипотека — 6%*</strong><span>Можно использовать для строительства дома при соответствии условиям программы.</span><Arrow /></a>
-
-          <div className="v-package-selector" role="radiogroup" aria-label="Выберите комплектацию">
-            {offers.map((item, index) => <button
-              type="button"
-              role="radio"
-              aria-checked={offer === index}
-              className={"v-package-card" + (offer === index ? " active" : "")}
-              onClick={() => { setOffer(index); trackGoal("package_select", { package: item.name }); }}
-              key={item.name}
-            >
-              <span className="v-package-index">0{index + 1}</span>
-              <h3>{item.name}</h3>
-              <div className="v-offer-price">от {item.price.toFixed(1).replace(".", ",")} <small>млн ₽</small></div>
-              <p>{item.result}</p>
-              <ul>{item.items.map(text => <li key={text}>{text}</li>)}</ul>
-              <span className="v-package-select">{offer === index ? "Выбрано" : "Выбрать"}</span>
-            </button>)}
-          </div>
-
-          <div className="v-package-action">
-            <div><strong>{offers[offer].name}</strong><span>от {offers[offer].price.toFixed(1).replace(".", ",")} млн ₽</span></div>
-            <button className="v-button" data-goal="lead_open_package" onClick={() => openLead("Расчёт комплектации: " + offers[offer].name, offer, undefined, "lead_open_package")}>Рассчитать эту комплектацию <Arrow /></button>
-          </div>
-
-          <div className="v-price-simple-note">
-            <strong>Что считается отдельно</strong>
-            <p>Земля, фундамент, наружные сети, доставка и изменения проекта. Их стоимость рассчитаем после проверки участка.</p>
-          </div>
-
-          <div className="v-price-fix">
-            <div><h3>Как фиксируем цену</h3></div>
-            <ol>
-              <li><span>01</span><strong>Составляем смету</strong><p>Отдельно показываем дом, работы на участке и выбранные дополнения.</p></li>
-              <li><span>02</span><strong>Фиксируем в договоре</strong><p>Указываем согласованные работы, стоимость и даты.</p></li>
-              <li><span>03</span><strong>Согласуем изменения</strong><p>До дополнительных работ согласуем с вами новую стоимость и срок.</p></li>
-            </ol>
-          </div>
-          <div className="v-materials-strip">
-            <a href="/images/option-facade.webp" target="_blank" rel="noopener noreferrer" aria-label="Увеличить визуализацию фасада">
-              <img src="/images/option-facade.webp" alt="Визуализация сочетания дерева и графитового металла на фасаде" width="1648" height="928" loading="lazy" decoding="async" />
-            </a>
-            <div><h3>Рассмотрите фасад ближе</h3><p>Материалы, оттенки и детали отделки согласуем до строительства и укажем в спецификации.</p></div>
-          </div>
+          <div className="vl-kit-price"><span>Стартовая стоимость</span><strong>от {money(catalog.base.price)}</strong><p>Фундамент, сборку, кровлю, окна, фасад и работы по участку можно добавить в расчёт.</p><a href="#finance" className="vl-text-button">Выбрать работы <Arrow /></a></div>
         </div>
       </section>
+      {catalogNotice && <p className="vl-wrap vl-notice" role="status">{catalogNotice}</p>}
+      <VelaBuilder selection={selection} setSelection={changeSelection} quote={quote} restore={restore} onLead={() => { setMortgageScenario(null); openLead("estimate"); }} track={track} />
 
-      <section className="v-section v-real-budget" id="real-budget" data-section="real-budget" style={{ order: scenario === "mortgage" ? 4 : scenario === "land-home" ? 4 : scenario === "own-land" ? 4 : 3 }}>
-        <div className="v-shell">
-          <div className="v-heading">
-            <div><p className="v-eyebrow">Реальный расчёт</p><h2>Смета<br /><em>реального проекта</em></h2></div>
-            <p>Промежуточный расчёт одного из строящихся домов ИКИОМА. Работы, стоимость которых ещё не определена, показаны отдельно.</p>
-          </div>
-          <div className="v-real-budget-grid">
-            <div className="v-real-budget-list">
-              <div className="v-real-budget-meta"><span>{realProjectBudget.label}</span><strong>{realProjectBudget.scope}</strong></div>
-              <dl>{realProjectBudget.items.map(([name, amount]) => <div key={name}><dt>{name}</dt><dd>{money(amount)} ₽</dd></div>)}</dl>
-              <div className="v-real-budget-missing">
-                <span>Рассчитывается отдельно</span>
-                <p>Вода / скважина <strong>—</strong></p>
-                <p>Наружное электричество <strong>—</strong></p>
-                <p>Остальная инженерия сверх септика <strong>—</strong></p>
-              </div>
-              <div className="v-real-budget-total"><span>Стоимость указанных работ</span><strong>{money(realProjectBudget.total)} ₽</strong></div>
-              <small>Смета от {realProjectBudget.date} для отдельного объекта. Работы без указанной стоимости в итог не включены. Стоимость VELA рассчитывается отдельно.</small>
-            </div>
-            <div className="v-real-budget-mortgage">
-              <span>Если применить семейную ипотеку 6%*</span>
-              <strong>≈ {money(realProjectBudget.mortgagePayment)} ₽<small>/мес</small></strong>
-              <p>Математический пример: 20% собственных средств, 15 лет. Не банковское предложение.</p>
-              <button className="v-button v-button-dark" onClick={openCalculator}>Посчитать свой платёж <Arrow /></button>
-            </div>
-          </div>
+      <ConstructionEstimateExample />
+      <VelaFinance quote={quote} onLead={openLead} onMortgage={setMortgageScenario} track={track} />
+      <ConstructionPhotos items={catalog.photos} open={openGallery} action={<button type="button" className="vl-text-button" onClick={() => openLead("visit")}>Запросить просмотр объекта <Arrow diagonal /></button>} />
+      <section className="vl-wrap vl-section" id="process" aria-labelledby="vl-process-title">
+        <div className="vl-section-heading"><div><p className="vl-kicker">От заявки до приёмки</p><h2 id="vl-process-title">Как проходит <em>строительство</em></h2></div><p>Состав работ, сроки и порядок оплаты согласуем для вашего участка и фиксируем в договоре.</p></div>
+        <ol className="vl-timeline">{stages.map(([title,copy]) => <li key={title}><h3>{title}</h3><p>{copy}</p></li>)}</ol>
+        <div className="vl-trust"><div><h3>Гарантии и документы</h3><p>{catalog.warranty ?? "Условия гарантии, список работ и порядок приёмки указываются в договоре. Запросите их вместе с расчётом."}</p>{catalog.promotion && <p>{catalog.promotion}</p>}</div><div><h3>Регистрация дома</h3><p>До начала работ согласуем, какие документы подготовим и в чём сможем помочь с оформлением.</p></div></div>
+      </section>
+      <section className="vl-faq-band" id="faq" aria-labelledby="vl-faq-title">
+        <div className="vl-wrap vl-section vl-faq" id="questions">
+          <div><p className="vl-kicker">Перед решением</p><h2 id="vl-faq-title">Ответы <em>на вопросы</em></h2></div>
+          <div>{faq.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div>
         </div>
       </section>
-
-      <section className="v-section v-shell v-budget-builder" id="calculator-home" data-section="budget" style={{ order: scenario === "mortgage" ? 5 : scenario === "own-land" ? 3 : scenario === "land-home" ? 2 : 4 }}>
-        <div className="v-heading">
-          <div><p className="v-eyebrow">Расчёт стоимости</p><h2>Сколько будет стоить<br /><em>ваш VELA?</em></h2></div>
-          <p>Выберите комплектацию и нужные работы. Стоимость земли и коммуникаций уточним по участку.</p>
-        </div>
-        <div className="v-budget-builder-grid">
-          <div className="v-budget-controls">
-            <fieldset>
-              <legend>Участок</legend>
-              <div className="v-choice-pair">
-                <button type="button" aria-pressed={land === "Есть участок"} onClick={() => setLand("Есть участок")}>Участок есть</button>
-                <button type="button" aria-pressed={land === "Нужна помощь с участком"} onClick={() => setLand("Нужна помощь с участком")}>Участка нет</button>
-              </div>
-            </fieldset>
-            <fieldset>
-              <legend>Комплектация</legend>
-              <div className="v-choice-list">{offers.map((item, index) => <button type="button" key={item.name} aria-pressed={offer === index} onClick={() => setOffer(index)}><span>{item.name}</span><strong>от {item.price.toFixed(1).replace(".", ",")} млн ₽</strong></button>)}</div>
-            </fieldset>
-            <fieldset>
-              <legend>Дополнительные работы</legend>
-              <div className="v-toggle-list">
-                <label><input type="checkbox" checked={budgetFoundation} onChange={e => setBudgetFoundation(e.target.checked)} /><span>Фундамент</span><strong>+ {money(optionPrices.foundation)} ₽</strong></label>
-                <label><input type="checkbox" checked={budgetWater} onChange={e => setBudgetWater(e.target.checked)} /><span>Вода / скважина</span><strong>по участку</strong></label>
-                <label><input type="checkbox" checked={budgetSewer} onChange={e => setBudgetSewer(e.target.checked)} /><span>Канализация / септик</span><strong>+ {money(optionPrices.sewer)} ₽</strong></label>
-                <label><input type="checkbox" checked={budgetPower} onChange={e => setBudgetPower(e.target.checked)} /><span>Наружное электричество</span><strong>по участку</strong></label>
-              </div>
-            </fieldset>
-          </div>
-          <div className="v-budget-result" aria-live="polite">
-            <p className="v-eyebrow">Предварительная стоимость</p>
-            <strong className="v-budget-sum">от {money(budgetKnownTotal)} ₽</strong>
-            {budgetPending.length ? <p>+ после проверки: {budgetPending.join(", ")}</p> : <p>Расчёт по выбранным позициям. Доставка и особенности участка — отдельно.</p>}
-            <dl>
-              <div><dt>Комплектация</dt><dd>{offers[offer].name}</dd></div>
-              <div><dt>Ипотечный платёж*</dt><dd>≈ {money(budgetMortgage)} ₽/мес</dd></div>
-            </dl>
-            <button className="v-button" data-goal="budget_configurator_lead" onClick={() => openLead(
-              "Конфигуратор VELA: " + offers[offer].name + "; " + land + "; фундамент=" + (budgetFoundation ? "да" : "нет") + "; вода=" + (budgetWater ? "да" : "нет") + "; канализация=" + (budgetSewer ? "да" : "нет") + "; электричество=" + (budgetPower ? "да" : "нет") + "; ориентир=" + money(budgetKnownTotal) + " ₽",
-              offer,
-              land,
-              "budget_configurator_lead",
-            )}>Получить точный расчёт <Arrow /></button>
-            <small>* Фундамент и септик — ориентиры из текущего реального проекта ИКИОМА; для VELA они уточняются по участку. Расчёт платежа: 20% собственных средств, ставка 6%, срок 15 лет; без страховок и комиссий. Позиции «по участку» в платёж пока не включены.</small>
-          </div>
+      <section className="vl-contact-band" id="contacts" aria-labelledby="vl-contact-title">
+        <div className="vl-wrap vl-contact-inner">
+          <div><p className="vl-kicker">Обсудить ВЕЛА</p><h2 id="vl-contact-title">Рассчитаем дом <em>для вашего участка</em></h2><p>Расскажите, где планируете строить и какие работы нужны. Подготовим смету по выбранной комплектации.</p></div>
+          <div><button type="button" className="vl-btn vl-btn-primary" onClick={() => { setMortgageScenario(null); openLead("estimate"); }}>Получить расчёт для моего участка <Arrow diagonal /></button><a className="vl-contact-phone" href={"tel:" + operator.phoneHref}>{operator.phone}</a></div>
         </div>
       </section>
-
-      <section className="v-section v-mortgage-section" id="mortgage" data-section="mortgage" style={{ order: scenario === "mortgage" ? 2 : 5 }}>
-        <div className="v-shell v-mortgage-grid">
-          <div className="v-mortgage-number"><strong>6%</strong><span>семейная ипотека*</span></div>
-          <div className="v-mortgage-copy">
-            <p className="v-eyebrow">Семейная ипотека</p>
-            <h2>Строительство дома<br /><em>по льготной ставке</em></h2>
-            <p>Семейную ипотеку можно использовать для строительства дома на своём участке или покупки земли со строительством. Семья должна соответствовать условиям программы; расчёты с подрядчиком проходят через эскроу.</p>
-            <div className="v-mortgage-points">
-              <span>строительство на своём участке</span>
-              <span>земля + строительство дома</span>
-              <span>подрядчик и расчёты через эскроу</span>
-            </div>
-            <button className="v-button v-button-dark" data-goal="mortgage_calculator_open" onClick={openCalculator}>Рассчитать платёж <Arrow /></button>
-            <small>* Ставка по программе — до 6%. Право на льготу, сумму и срок кредита подтверждает банк. <a href="https://xn--d1aqf.xn--p1ai/mortgage/family-mortgage/" target="_blank" rel="noopener noreferrer">Условия программы</a></small>
-          </div>
-        </div>
-      </section>
-
-      <section className="v-section v-shell v-process-clean" id="process" data-section="process" style={{ order: 6 }}>
-        <div className="v-heading">
-          <div><p className="v-eyebrow">Как строим</p><h2>От участка<br /><em>до своих ключей</em></h2></div>
-          <p>Проверяем участок, согласуем смету и договор, строим и передаём дом.</p>
-        </div>
-
-        <ol className="v-process-five">
-          {processSteps.map(([title, text], index) => <li key={title}><span>0{index + 1}</span><strong>{title}</strong><p>{text}</p></li>)}
-        </ol>
-
-        <div className="v-registration-note">
-          <h3>Помогаем с регистрацией дома</h3>
-          <p>Объём сопровождения и необходимые документы согласуем до начала работ.</p>
-        </div>
-
-        <div className="v-live-visit">
-          <div><p className="v-eyebrow">Посмотреть до договора</p><h3>Посмотрите, как мы строим</h3><p>Подберём объект для посещения и согласуем удобное и безопасное время.</p></div>
-          <button className="v-button" data-goal="visit_request" onClick={() => openLead("Запрос на просмотр доступного строящегося объекта ИКИОМА", undefined, undefined, "visit_request")}>Запросить просмотр <Arrow /></button>
-        </div>
-      </section>
-
-      <section className="v-section v-soft v-faq-clean" id="questions" data-section="faq" style={{ order: 7 }}>
-        <div className="v-shell v-faq">
-          <div><p className="v-eyebrow">Главное перед решением</p><h2>Ответы<br /><em>на частые вопросы</em></h2></div>
-          <div>{faq.map(([q, a]) => <details className="v-details" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div>
-        </div>
-
-        <div className="v-shell v-contact v-contact-clean" id="contacts">
-          <div>
-            <p className="v-eyebrow">VELA · семейная ипотека 6%*</p>
-            <h2>Посчитаем ваш дом<br /><em>целиком</em></h2>
-            <p>Комплектация, участок, семейная ипотека и полный бюджет — в одном расчёте.</p>
-          </div>
-          <div>
-            <button className="v-button" data-goal="lead_open_final" onClick={() => openLead("Финальная заявка — полный расчёт VELA", undefined, undefined, "lead_open_final")}>Получить полный расчёт <Arrow /></button>
-            <span className="v-note">Уточним участок и комплектацию при разговоре.</span>
-          </div>
-        </div>
-      </section>
-      </div>
     </main>
-
-    <footer className="v-footer">
-      <div className="v-shell">
-        <div className="v-footer-top">
-          <a className="v-brand" href="#top" aria-label="ИКИОМА — наверх"><Brand /></a>
-          <p>VELA · SIP-дом для семьи · СПб / Ленобласть / Москва / Московская область</p>
-          <a className="v-text-link" href="#mortgage">Семейная ипотека 6%* <Arrow /></a>
-        </div>
-        <LegalFooter />
-        <div className="v-footer-bottom">
-          <span>© 2026 ИКИОМА</span>
-          <p>* Семейная ипотека: ставка 6% на строительство частного дома для семей, соответствующих условиям программы; строительство с подрядчиком и расчётами через эскроу. Решение принимает банк. Цены на сайте — ориентиры до проверки участка и согласования комплектации.</p>
-          <a href="#top">Наверх</a>
-        </div>
-        <p className="v-footer-image-note">Изображения — визуализации проекта. Мебель, декор и благоустройство показаны для примера и не включены в базовую комплектацию.</p>
-      </div>
-    </footer>
-
-    {sticky && !modal && <div className="v-sticky">
-      <span><small>Семейная ипотека</small><strong>6%*</strong></span>
-      <button className="v-button v-button-small" data-goal="lead_open_sticky" onClick={() => openLead("Мобильная панель — расчёт VELA", undefined, undefined, "lead_open_sticky")}>Рассчитать дом <Arrow /></button>
-    </div>}
-
-    <dialog
-      ref={dialog}
-      className={"v-dialog" + (modal === "gallery" ? " v-dialog-gallery" : "") + (modal === "menu" ? " v-dialog-menu" : "")}
-      aria-labelledby="v-dialog-title"
-      onCancel={(event) => { event.preventDefault(); setModal(null); }}
-      onClose={() => setModal(null)}
-      onClick={(event) => {
-        if (event.target !== event.currentTarget) return;
-        const r = event.currentTarget.getBoundingClientRect();
-        if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) setModal(null);
-      }}
-    >
-      <button type="button" className="v-close" onClick={() => setModal(null)} aria-label="Закрыть окно"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
-
-      {modal === "menu" && <div className="v-dialog-body">
-        <h2 id="v-dialog-title">ИКИОМА</h2>
-        <nav aria-label="Мобильная навигация">{nav.map(([id, label]) => <a key={id} href={"#" + id}>{label}<Arrow /></a>)}</nav>
-        <button className="v-button" onClick={() => openLead("Мобильное меню", undefined, undefined, "lead_open_menu")}>Рассчитать дом <Arrow /></button>
-      </div>}
-
-      {modal === "gallery" && <div className="v-lightbox">
-        <h2 id="v-dialog-title">{gallery[expandedImage].title}</h2>
-        <img src={gallery[expandedImage].src} alt={gallery[expandedImage].alt} />
-        <div className="v-pills" aria-label="Изображения дома">{gallery.map((item, index) => <button key={item.label} aria-pressed={index === expandedImage} onClick={() => setExpandedImage(index)}>{item.label}</button>)}</div>
-      </div>}
-
-      {modal === "lead" && <div className="v-dialog-body">
-        {status === "sent" ? <div className="v-success" role="status" data-lead-id={receipt?.leadId || undefined}>
-          <p className="v-eyebrow">{receipt?.duplicate ? "Заявка с этим телефоном уже получена" : "Заявка получена"}</p>
-          <h2 id="v-dialog-title">Спасибо, {form.name}</h2>
-          <p>{receipt?.duplicate ? "Вы уже отправляли заявку недавно. Обсудим детали при разговоре." : "Свяжемся по указанному телефону, чтобы обсудить дом, участок и семейную ипотеку."}</p>
-          <button className="v-button v-button-dark" onClick={() => setModal(null)}>Вернуться на сайт</button>
-        </div> : <form onSubmit={submit} aria-busy={status === "sending"}>
-          <p className="v-eyebrow">VELA · семейная ипотека 6%*</p>
-          <h2 id="v-dialog-title">Рассчитать дом</h2>
-          <p className="v-form-intro">Оставьте имя и телефон. Мы свяжемся, уточним детали и подготовим расчёт.</p>
-          <fieldset disabled={status === "sending"} className="v-form-fields">
-            <label>Как к вам обращаться<input name="name" required maxLength={100} autoComplete="name" placeholder="Имя" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></label>
-            <label>Телефон<input name="phone" required type="tel" inputMode="tel" autoComplete="tel" maxLength={30} placeholder="+7 999 123-45-67" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></label>
-            <label>Комплектация<select value={offer} onChange={e => setOffer(Number(e.target.value))}>{offers.map((item, index) => <option value={index} key={item.name}>{item.name}</option>)}</select></label>
-            <label>Участок<select value={land} onChange={e => setLand(e.target.value)}><option>Пока не определился</option><option>Есть участок</option><option>Выбираю самостоятельно</option><option>Нужна помощь с участком</option></select></label>
-            <details className="v-details v-form-extra"><summary>Добавить пожелания</summary><label>Комментарий, до 300 символов<textarea rows={3} maxLength={300} placeholder="Район, бюджет, желаемая дата начала" value={form.comment} onChange={e => setForm({ ...form, comment: e.target.value })} /></label></details>
-            <label className="v-honeypot" aria-hidden="true">Компания<input autoComplete="off" tabIndex={-1} value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} /></label>
-            <label className="v-consent"><input name="consent" type="checkbox" required checked={form.consent} onChange={e => setForm({ ...form, consent: e.target.checked })} /><ConsentCopy /></label>
-          </fieldset>
-          <p className="v-form-privacy">Порядок работы с данными — в <a href="/privacy/" target="_blank" rel="noopener noreferrer">политике конфиденциальности</a>.</p>
-          {status === "error" && <p className="v-error" role="alert">{error}</p>}
-          <button type="submit" disabled={status === "sending"} className="v-button v-submit">{status === "sending" ? "Отправляем…" : "Отправить заявку"}<Arrow /></button>
-          <p className="v-note">* Ипотека доступна при соответствии условиям программы и одобрении банка.</p>
-        </form>}
-      </div>}
-
-      {modal === "calculator" && <div className="v-dialog-body">
-        <p className="v-eyebrow">Семейная ипотека · 6%*</p>
-        <h2 id="v-dialog-title">Посчитайте платёж</h2>
-        <p className="v-form-intro">Выберите стоимость дома, взнос и срок. Расчёт при ставке 6% — пример; право на льготную программу подтверждает банк.</p>
-        <div className="v-calc">
-          <div className="v-calc-controls">
-            <label><span>Стоимость дома <strong>{price.toFixed(1).replace(".", ",")} млн ₽</strong></span><input aria-label="Стоимость дома в миллионах рублей" type="range" min="5.2" max="14" step="0.1" value={price} onChange={e => { setPrice(Number(e.target.value)); setCopy("idle"); }} /></label>
-            <label><span>Первоначальный взнос <strong>{down}%</strong></span><input aria-label="Первоначальный взнос в процентах" type="range" min="0" max="100" step="5" value={down} onChange={e => { setDown(Number(e.target.value)); setCopy("idle"); }} /></label>
-            <div className="v-calc-selects">
-              <label>Ставка, %<input type="number" min="0" max="100" step="0.1" value={rate} onChange={e => { setRate(Math.max(0, Math.min(100, Number(e.target.value) || 0))); setCopy("idle"); }} /></label>
-              <label>Срок<select value={years} onChange={e => { setYears(Number(e.target.value)); setCopy("idle"); }}>{[5, 10, 15, 20, 25, 30].map(year => <option key={year} value={year}>{year} лет</option>)}</select></label>
-            </div>
-          </div>
-          <div className="v-calc-result" aria-live="polite">
-            <span>Ориентировочный платёж</span>
-            <strong>≈ {money(monthly)} ₽<small>/мес</small></strong>
-            <dl><div><dt>Ваш взнос</dt><dd>{money(total - loan)} ₽</dd></div><div><dt>Финансирование</dt><dd>{money(loan)} ₽</dd></div></dl>
-            <button className="v-button v-button-dark" onClick={() => openLead(mortgageScenario, undefined, undefined, "lead_open_mortgage")}>Обсудить этот расчёт <Arrow /></button>
-            <button className="v-text-link" onClick={async () => { try { await navigator.clipboard.writeText(mortgageScenario); setCopy("copied"); } catch { setCopy("manual"); } }}>{copy === "copied" ? "Расчёт скопирован" : "Скопировать расчёт"}</button>
-          </div>
-        </div>
-        {copy === "manual" && <label className="v-copy-fallback">Выделите и скопируйте расчёт<textarea readOnly value={mortgageScenario} rows={4} onFocus={e => e.target.select()} /></label>}
-        <p className="v-note">* Математический ориентир, не предложение банка. Не учитывает страховки и комиссии. Право на льготную программу и итоговые условия определяет банк.</p>
-      </div>}
-    </dialog>
+    <footer className="vl-footer"><div className="vl-wrap"><LegalFooter /><div className="vl-footer-tail"><a href="#top" className="vl-brand"><img src="/brand/ikioma-symbol.svg" alt="" width="23" height="24" /><span>ИКИОМА</span></a><span>Санкт-Петербург и Ленинградская область</span><a href="/contacts/">Контакты</a><a href="/calculation-terms/">Условия расчёта</a></div></div></footer>
+    <GalleryDialog gallery={gallery} setGallery={setGallery} />
+    <VelaLead kind={lead} close={() => setLead(null)} selection={selection} quote={quote} land={land} setLand={setLand} mortgage={mortgageScenario} track={track} />
   </div>;
 }

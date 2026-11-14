@@ -1,39 +1,31 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
-import { normalizePhone, leadMessage, parseLeadReceipt } from '../components/vela-leads.ts';
+import assert from "node:assert/strict";
+import test from "node:test";
+import { attribution, deliverVelaLead, normalizePhone } from "../components/vela-leads.ts";
 
-test('phone normalization matches receiver minimum and rejects malformed values', () => {
-  assert.equal(normalizePhone('8 (999) 123-45-67'), '+79991234567');
-  assert.equal(normalizePhone('9991234567'), '+79991234567');
-  assert.equal(normalizePhone('+70000000024'), '+70000000024');
-  assert.equal(normalizePhone('+84912345678'), '+84912345678');
-  assert.equal(normalizePhone('+84000000000'), '+84000000000');
-  for (const value of ['12345678', 'letters', '000000000000', '123+45678901', '++79991234567']) assert.equal(normalizePhone(value), null);
+test("phone normalization accepts international and Russian local formats", () => {
+  assert.equal(normalizePhone("8 (999) 123-45-67"), "+79991234567");
+  assert.equal(normalizePhone("9991234567"), "+79991234567");
+  assert.equal(normalizePhone("+84912345678"), "+84912345678");
+  for (const value of ["12345678", "letters", "000000000000", "123+45678901", "++79991234567"]) assert.equal(normalizePhone(value), null);
 });
 
-test('only a real insertion receipt or explicit duplicate is accepted', () => {
-  assert.deepEqual(parseLeadReceipt(201, { ok: true, leadId: 'test-id' }), { duplicate: false, leadId: 'test-id' });
-  assert.deepEqual(parseLeadReceipt(200, { ok: true, duplicate: true }), { duplicate: true, leadId: null });
-  for (const [status, body] of [[200, {}], [200, { ok: true }], [202, { ok: true }], [201, { ok: true }], [201, { ok: false, leadId: 'x' }], [201, null]]) assert.throws(() => parseLeadReceipt(status, body));
+test("attribution keeps campaign labels and uses only the referring hostname", () => {
+  assert.deepEqual(attribution("?utm_source=direct_ads&utm_campaign=vela&private=ignored", "https://example.com/private?email=x", "https://ikioma.ru"), {
+    utm: { utm_source: "direct_ads", utm_campaign: "vela" }, channel: "direct_ads",
+  });
+  assert.equal(attribution("", "https://example.com/private?email=x", "https://ikioma.ru").channel, "example.com");
+  assert.equal(attribution("", "https://ikioma.ru/private", "https://ikioma.ru").channel, "direct");
 });
 
-test('maximum form payload preserves all user details and consent before attribution', () => {
-  const query = new URLSearchParams(Object.fromEntries(['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].map(key => [key, 'x'.repeat(300)]))).toString();
-  const message = leadMessage({ context: 'C'.repeat(200), layout: '2 спальни — требуется согласование проекта', offer: 'С отделкой под ключ', land: 'Нужна помощь с участком', comment: 'Т'.repeat(300), query, release: 'vela-structure-20260924', timestamp: '2026-09-24T12:00:00.000Z' });
-  assert.ok(message.length <= 1000, `message length ${message.length}`);
-  assert.ok(message.includes('Т'.repeat(300)));
-  assert.ok(message.includes('C'.repeat(200)));
-  assert.match(message, /Согласие на обработку контактов/);
-  assert.match(message, /2 спальни — требуется согласование проекта/);
-  assert.match(message, /Нужна помощь с участком/);
-  assert.ok(message.indexOf('Согласие') < message.indexOf('utm_source'));
-});
-
-
-test('records a stable consent version before optional attribution', () => {
- const message = leadMessage({ context: 'Расчёт', layout: '3 спальни', offer: 'Тёплый контур', land: 'Есть участок', comment: '', query: '?utm_source=test', release: 'vela-legal-clean-20261101', timestamp: '2026-11-01T16:00:00Z' });
- assert.match(message, /pd-20261101-v1/);
- assert.match(message, /ikioma\.ru\/consent\//);
- assert.ok(message.indexOf('pd-20261101-v1') < message.indexOf('utm_source'));
- assert.ok(message.length <= 1000);
+test("accepted retries require the confirmed lead ID", async context => {
+  const original = globalThis.fetch;
+  context.after(() => { globalThis.fetch = original; });
+  const body = { requestId: "existing-id" };
+  const signal = new AbortController().signal;
+  globalThis.fetch = async () => Response.json({ ok: true, duplicate: true, leadId: "existing-id" }, { status: 200 });
+  assert.equal(await deliverVelaLead(body, signal), "existing-id");
+  globalThis.fetch = async () => Response.json({ ok: true, leadId: "unrelated-id" }, { status: 201 });
+  await assert.rejects(deliverVelaLead(body, signal), { message: "unconfirmed" });
+  globalThis.fetch = async () => Response.json({ ok: false, error: "catalog_changed" }, { status: 409 });
+  await assert.rejects(deliverVelaLead(body, signal), { message: "catalog_changed" });
 });
