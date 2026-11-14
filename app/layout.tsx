@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     url: "https://ikioma.ru",
     title: `Домокомплект ВЕЛА от ${money(catalog.base.price)} | ИКИОМА`,
     description: "Планировка ВЕЛА, комплектация и предварительный расчёт строительства.",
-    images: [{ url: "/vela/og.jpg", width: 1200, height: 630, alt: "3D-эскиз фасада проекта ВЕЛА" }],
+    images: [{ url: "/vela/og.jpg", width: 1200, height: 630, alt: "Визуализация графитового фасада ВЕЛА с деревянной террасой" }],
   },
   icons: {
     icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/favicon-32.png", type: "image/png", sizes: "32x32" }],

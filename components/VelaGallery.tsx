@@ -37,7 +37,7 @@ export function ArchitectureGallery({ items, open }: { items: VelaView[]; open: 
     <div className="vl-section vl-wrap">
       <div className="vl-section-heading">
         <h2 id="vl-architecture-title">Фасад, терраса <em>и интерьер</em></h2>
-        <p>3D-эскизы по плану ВЕЛА. Варианты отделки, мебели и благоустройства показаны для примера.</p>
+        <p>Визуализации вариантов отделки ВЕЛА. Материалы, мебель и благоустройство можно подобрать под себя.</p>
       </div>
       <div className="vl-viewer">
         <figure className="vl-viewer-main">
