@@ -81,6 +81,19 @@ function render() {
     removeRow(item,data.photos,index);
   });
   addRow(form,'Добавить фотографию',data.photos,()=>({src:'/vela/',alt:'',caption:''}));
+  data.views.forEach((view,index) => {
+    const item = group('Ракурс галереи ' + (index+1));
+    field(item,'Путь от корня сайта',view,'src',{required:true});
+    field(item,'Файл шириной 760 px',view,'small');
+    field(item,'Заголовок',view,'label',{required:true});
+    field(item,'Описание изображения',view,'alt',{required:true});
+    field(item,'Подпись',view,'caption',{required:true});
+    field(item,'Комментарий',view,'note',{type:'textarea',required:true});
+    field(item,'Ширина оригинала, px',view,'width',{type:'number',required:true});
+    field(item,'Высота оригинала, px',view,'height',{type:'number',required:true});
+    removeRow(item,data.views,index);
+  });
+  addRow(form,'Добавить ракурс',data.views,()=>({src:'/vela/',small:'',label:'',alt:'',caption:'',note:'',width:0,height:0}));
 
   heading('Цены и услуги');
   const base = group('Домокомплект');

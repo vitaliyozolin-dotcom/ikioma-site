@@ -1,7 +1,8 @@
 import catalogData from "../public/vela/catalog.json";
 
 export type Service = { id: string; title: string; price: number | null; description: string };
-export type Catalog = Omit<typeof catalogData, "engineering" | "specification" | "warranty" | "promotion" | "mortgage"> & {
+export type Catalog = Omit<typeof catalogData, "engineering" | "specification" | "warranty" | "promotion" | "mortgage" | "views"> & {
+  views: Array<{ src: string; small?: string; label: string; caption: string; note: string; alt: string; width: number; height: number }>;
   engineering: Record<string, string | null>;
   specification: Array<{ title: string; description: string }>;
   warranty: string | null;

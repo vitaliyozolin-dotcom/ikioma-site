@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ConsentCopy } from "./vela-legal";
+import { operator } from "./vela-legal-data";
 import { catalog, money, type Estimate, type MortgageResult } from "./vela-calculations";
 import { CONSENT_VERSION } from "./vela-consent-version.mjs";
 import { attribution, deliverVelaLead, leadKinds, normalizePhone, type LeadKind } from "./vela-leads";
@@ -26,6 +27,7 @@ export default function VelaLead({ kind, close, selection, quote, land, setLand,
   const [form, setForm] = useState(emptyForm);
   const [status, setStatus] = useState<"idle" | "sending" | "error" | "sent">("idle");
   const [message, setMessage] = useState("");
+  const [showPhone, setShowPhone] = useState(false);
   const [receipt, setReceipt] = useState("");
 
   useEffect(() => {
@@ -37,6 +39,7 @@ export default function VelaLead({ kind, close, selection, quote, land, setLand,
   function dismiss() {
     if (pending.current) return;
     close();
+    setShowPhone(false);
     if (status === "sent") { setStatus("idle"); setForm(emptyForm); setReceipt(""); }
     else { setStatus("idle"); setMessage(""); }
   }
@@ -70,6 +73,7 @@ export default function VelaLead({ kind, close, selection, quote, land, setLand,
     pending.current = controller;
     setStatus("sending");
     setMessage("");
+    setShowPhone(false);
     try {
       setReceipt(await deliverVelaLead({ ...body, requestId }, controller.signal));
       setStatus("sent");
@@ -81,7 +85,10 @@ export default function VelaLead({ kind, close, selection, quote, land, setLand,
       const reason = error instanceof Error ? error.message : "";
       if (reason === "catalog_changed") setMessage("Цены обновились. Сохраните расчёт и перезагрузите страницу, чтобы получить актуальные цены.");
       else if (reason === "rate_limit") setMessage("Слишком много попыток. Подождите минуту и отправьте заявку снова.");
-      else setMessage("Не удалось подтвердить получение заявки. Данные остались в форме. Попробуйте отправить её ещё раз.");
+      else {
+        setMessage("Получение заявки не подтверждено. Попробуйте ещё раз или свяжитесь с нами по телефону.");
+        setShowPhone(true);
+      }
     } finally { pending.current = null; }
   }
 
@@ -107,6 +114,7 @@ export default function VelaLead({ kind, close, selection, quote, land, setLand,
         <label className="vl-check"><input type="checkbox" required name="consent" checked={form.consent} onChange={e => setForm({ ...form, consent: e.target.checked })} /><ConsentCopy /></label>
       </fieldset>
       {message && <p className="vl-form-error" role="alert">{message}</p>}
+      {showPhone && <a className="vl-contact-alt" href={"tel:" + operator.phoneHref}>{operator.phone}</a>}
       <button type="submit" className="vl-btn vl-btn-primary vl-full" disabled={status === "sending"}>{status === "sending" ? "Отправляем" : "Отправить заявку"}</button>
     </form>)}
   </dialog>;

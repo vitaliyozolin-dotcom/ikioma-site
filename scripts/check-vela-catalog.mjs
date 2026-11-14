@@ -7,7 +7,8 @@ const day = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Moscow" }).form
 const date = value => /^\d{4}-\d{2}-\d{2}$/.test(value) && new Date(value).toISOString().slice(0, 10) === value;
 const price = value => Number.isSafeInteger(value) && value > 0 && value <= 100_000_000;
 const filled = value => typeof value === "string" && value.trim().length > 0;
-const photoPaths = [data.heroImage, ...data.photos.map(photo => photo.src)];
+const images = [...data.photos, ...data.views];
+const photoPaths = [data.heroImage, ...images.flatMap(image => [image.src, image.small].filter(Boolean))];
 
 assert.equal(data.project, "ВЕЛА");
 assert.match(data.version, /^\d{4}-\d{2}-\d{2}\.\d{1,5}$/);
@@ -18,7 +19,8 @@ for (const path of photoPaths) {
   assert.match(path, /^\/vela\/[a-zA-Z0-9_-]+\.(svg|webp|png|jpe?g|avif)$/);
   await access(new URL(path.slice(1), root));
 }
-assert.ok(data.photos.every(photo => filled(photo.alt) && filled(photo.caption)), "Photographs need description and caption");
+assert.ok(images.every(image => filled(image.alt) && filled(image.caption)), "Images need description and caption");
+assert.ok(data.views.every(view => filled(view.label) && filled(view.note) && view.width > 0 && view.height > 0), "Project views need labels and sizes");
 const services = data.groups.flatMap(group => group.services);
 assert.ok(services.length > 0 && services.length <= 50);
 const ids = new Set([data.base.id]);

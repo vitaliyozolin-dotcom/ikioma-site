@@ -1,9 +1,9 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element -- local media are already optimized for static deployment */
-/* eslint-disable @next/next/no-html-link-for-pages -- native navigation preserves advertising parameters */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { ArchitectureGallery, ConstructionPhotos, FrameIcon, GalleryDialog, VelaMedia, type GalleryState, type OpenGallery } from "./VelaGallery";
 import VelaPlan from "./VelaPlan";
 import VelaBuilder, { type SavedQuote } from "./VelaBuilder";
 import VelaFinance from "./VelaFinance";
@@ -20,7 +20,7 @@ const variants: Record<LandingScenario, { headline: string; link: string; label:
   mortgage: { headline: "Дом с расчётом ипотеки", link: "#mortgage", label: "Рассчитать ипотеку" },
   "land-home": { headline: "Участок и свой дом", link: "#finance", label: "Рассчитать строительство" },
 };
-const nav = [["plan", "Планировка"], ["finance", "Стоимость"], ["mortgage", "Ипотека"], ["process", "Как строим"]] as const;
+const nav = [["architecture", "Галерея"], ["plan", "Планировка"], ["finance", "Стоимость"], ["mortgage", "Ипотека"], ["process", "Как строим"]] as const;
 const facts = [["115", "Площадь застройки", "м²"], ["81,7", "Площадь помещений", "м²"], ["22,2", "Площадь террасы", "м²"], ["3", "Спальни", ""]] as const;
 const stages = [
   ["Заявка", "Уточняем, какой результат вы хотите получить."], ["Участок", "Смотрим подъезд, рельеф и коммуникации."],
@@ -29,6 +29,16 @@ const stages = [
   ["Монтаж", "Собираем домокомплект на подготовленном основании."], ["Дополнительные работы", "Выполняем работы по согласованной комплектации."],
   ["Приёмка", "Проверяем выполненные работы и подписываем документы."],
 ] as const;
+// An anonymized estimate already published on the IKIOMA website, dated 05.10.2026.
+const exampleCosts = [
+  ["Дом, монтаж, окна, кровля и фасад", 3_373_107],
+  ["Фундамент", 228_500],
+  ["Септик", 87_500],
+  ["Отделка по смете", 148_000],
+  ["Логистика и подготовка участка", 295_000],
+  ["Оформление, налоги и резерв", 650_000],
+] as const;
+
 const faq = [
   ["Что такое домокомплект?", "Это комплект для сборки дома ВЕЛА. Точный список деталей, материалов и документации фиксируем в спецификации к договору."],
   ["Что входит в стартовую цену?", "По стартовой цене рассчитывается домокомплект. Фундамент, монтаж, кровля, окна, фасад, доставка и другие работы можно добавить при расчёте."],
@@ -43,6 +53,22 @@ const faq = [
   ["Можно ли использовать ипотеку?", "Возможность финансирования зависит от банка, участка, договора и условий заёмщика. Для оценки платежа укажите свою ставку в калькуляторе."],
   ["Что нужно для точной сметы?", "Район или адрес участка, сведения о подъезде и коммуникациях, нужные работы и пожелания по материалам."],
 ] as const;
+
+function ConstructionEstimateExample() {
+  const total = exampleCosts.reduce((sum, [, amount]) => sum + amount, 0);
+  return <div className="vl-archive-band" id="real-budget">
+    <details className="vl-wrap vl-archive">
+      <summary>Пример сметы по объекту ИКИОМА</summary>
+      <div className="vl-archive-content">
+        <div><h3>Смета от 5 октября 2026 года</h3><p>Другой объект ИКИОМА с домом 96 м² и террасой 24 м². Это сумма сметы по указанным позициям. Вода, наружная электрика и часть инженерии считались отдельно.</p></div>
+        <dl className="vl-cost-lines">
+          {exampleCosts.map(([label,amount]) => <div key={label}><dt>{label}</dt><dd>{money(amount)}</dd></div>)}
+          <div><dt>Итого по смете</dt><dd>{money(total)}</dd></div>
+        </dl>
+      </div>
+    </details>
+  </div>;
+}
 
 function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return <svg viewBox="0 0 24 24" className="vl-arrow" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">{diagonal ? <path d="M5 19 19 5M9 5h10v10" /> : <path d="M3 12h16m-6-6 6 6-6 6" />}</svg>;
@@ -65,9 +91,12 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
   const [land, setLand] = useState<Land>(scenario === "own-land" ? "own" : scenario === "land-home" ? "search" : "undecided");
   const [mortgageScenario, setMortgageScenario] = useState<MortgageResult | null>(null);
   const [catalogNotice, setCatalogNotice] = useState("");
-  const [photo, setPhoto] = useState<number | null>(null);
+  const [gallery, setGallery] = useState<GalleryState>(null);
   const [menu, setMenu] = useState(false);
-  const photoDialog = useRef<HTMLDialogElement>(null);
+  const cover = catalog.views.find(item => item.src === catalog.heroImage) ?? {
+    src: catalog.heroImage, alt: catalog.heroAlt, caption: catalog.heroCaption, width: 940, height: 555,
+  };
+  const openGallery: OpenGallery = (items, index, trigger) => { track("gallery_open", { index }); setGallery({ items, index, trigger }); };
   const quote = stored ?? estimate(selection);
 
   useEffect(() => {
@@ -81,12 +110,6 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
     });
     return () => cancelAnimationFrame(frame);
   }, []);
-
-  useEffect(() => {
-    const node = photoDialog.current;
-    if (photo !== null && !node?.open) node?.showModal();
-    if (photo === null && node?.open) node.close();
-  }, [photo]);
 
   function changeSelection(value: string[]) {
     setSelection(value);
@@ -104,25 +127,25 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
     setLead(kind);
   }
 
-  return <div className="vl-page" data-release="vela-master-20261113" onClick={event => {
+  return <div className="vl-page" data-release="vela-visuals-20261114" onClick={event => {
     if (event.target instanceof Element && event.target.closest("a[href^='tel:'], a[href^='mailto:']")) track("contact_click");
   }}>
     <a href="#main" className="vl-skip">К содержанию</a>
-    <header className="vl-header" id="top">
+    <header className="vl-header" id="top" onKeyDown={event => { if (event.key === "Escape" && menu) { setMenu(false); event.currentTarget.querySelector<HTMLButtonElement>(".vl-menu-button")?.focus(); } }}>
       <div className="vl-wrap vl-header-inner">
-        <a className="vl-brand" href="/" aria-label="ИКИОМА, главная"><img src="/brand/ikioma-symbol.svg" alt="" width="29" height="31" /><span>ИКИОМА</span></a>
+        <a className="vl-brand" href="#top" aria-label="ИКИОМА, в начало страницы"><img src="/brand/ikioma-symbol.svg" alt="" width="29" height="31" /><span>ИКИОМА</span></a>
         <nav className="vl-nav" aria-label="Навигация по проекту">{nav.map(([id, label]) => <a href={"#" + id} key={id}>{label}</a>)}</nav>
         <button type="button" className="vl-header-cta" onClick={() => openLead("consultation")}>Обсудить проект <Arrow diagonal /></button>
         <button type="button" className="vl-menu-button" aria-expanded={menu} aria-controls="vl-mobile-nav" onClick={() => setMenu(!menu)}>{menu ? "Закрыть" : "Меню"}</button>
       </div>
       <nav className="vl-mobile-nav" id="vl-mobile-nav" aria-label="Навигация по проекту" hidden={!menu}>{[...nav, ["contacts", "Контакты"]].map(([id,label]) => <a href={"#" + id} key={id} onClick={() => setMenu(false)}>{label}<Arrow /></a>)}</nav>
     </header>
-    <main id="main">
+    <main id="main" tabIndex={-1}>
       <section className="vl-hero" aria-labelledby="vela-title" data-section="hero">
         <div className="vl-wrap">
           <div className="vl-hero-grid">
             <div className="vl-hero-copy">
-              <p className="vl-kicker">Санкт-Петербург и Ленинградская область</p>
+              <p className="vl-kicker">Проект ИКИОМА</p>
               <h1 id="vela-title">ВЕЛА</h1>
               <p className="vl-hero-headline">{variant.headline}</p>
               <p className="vl-hero-intro">{catalog.intro}</p>
@@ -130,7 +153,10 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
               <div className="vl-actions"><a href={variant.link} className="vl-btn vl-btn-primary">{variant.label}<Arrow /></a><a href="#plan" className="vl-btn vl-btn-outline">Смотреть планировку</a></div>
             </div>
             <figure className="vl-cover">
-              <img src={catalog.heroImage} alt={catalog.heroAlt} width="940" height="555" fetchPriority="high" />
+              <a href="#architecture" aria-label="Смотреть галерею ВЕЛА">
+                <VelaMedia view={cover} sizes="(max-width: 700px) 100vw, (max-width: 1440px) 62vw, 850px" priority />
+                <span className="vl-enlarge" aria-hidden="true"><FrameIcon /></span>
+              </a>
               <figcaption>{catalog.heroCaption}</figcaption>
             </figure>
           </div>
@@ -138,9 +164,10 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
         </div>
       </section>
 
+      <ArchitectureGallery items={catalog.views} open={openGallery} />
       <section className="vl-wrap vl-story" id="house" aria-labelledby="vl-story-title">
-        <div><p className="vl-kicker">Архитектура ВЕЛА</p><h2 id="vl-story-title">Место для семьи <em>и для себя</em></h2></div>
-        <div><p>Общая часть дома — кухня-гостиная 22,2 м². Три отдельные спальни сгруппированы вокруг холла. У входа предусмотрены просторная прихожая и отдельное техническое помещение.</p><p>В доме один этаж и один санузел. Терраса 22,2 м² проходит вдоль торца дома.</p>
+        <div><h2 id="vl-story-title">Место для семьи <em>и для себя</em></h2></div>
+        <div><p>В Г-образной кухне-гостиной можно разнести обеденную зону и мягкую группу. Три спальни выходят в отдельный холл. В доме один санузел и отдельное техническое помещение у прихожей.</p>
           {Object.entries(catalog.engineering).some(([,value]) => value) && <dl className="vl-cost-lines">{Object.entries({ ceilingHeight: "Высота потолков", ridgeHeight: "Высота по коньку", dimensions: "Габариты", roofType: "Кровля", technology: "Конструктив" }).flatMap(([key,label]) => catalog.engineering[key] ? [<div key={key}><dt>{label}</dt><dd>{catalog.engineering[key]}</dd></div>] : [])}</dl>}
         </div>
       </section>
@@ -157,22 +184,16 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
       {catalogNotice && <p className="vl-wrap vl-notice" role="status">{catalogNotice}</p>}
       <VelaBuilder selection={selection} setSelection={changeSelection} quote={quote} restore={restore} onLead={() => { setMortgageScenario(null); openLead("estimate"); }} track={track} />
 
-      <section className="vl-wrap vl-section" id="architecture" aria-labelledby="vl-architecture-title">
-        <div className="vl-section-heading"><div><p className="vl-kicker">Строительство ИКИОМА</p><h2 id="vl-architecture-title">Дом <em>в Келози</em></h2></div><p>Фотографии со стройки. Можно рассмотреть внешнюю обшивку и устройство террасы на этапе монтажа.</p></div>
-        <div className="vl-photos">{catalog.photos.map((item, index) => <figure key={item.src}><button type="button" aria-label={"Увеличить фото: " + item.caption} onClick={() => setPhoto(index)}><img src={item.src} alt={item.alt} width="900" height="950" loading="lazy" /><span aria-hidden="true"><Arrow diagonal /></span></button><figcaption>{item.caption}</figcaption></figure>)}</div>
-        <dialog className="vl-dialog vl-gallery-dialog" ref={photoDialog} aria-labelledby="vl-gallery-title" onClose={() => setPhoto(null)}>
-          {photo !== null && <><div className="vl-dialog-heading"><h2 id="vl-gallery-title">{catalog.photos[photo].caption}</h2><button type="button" className="vl-icon-button" aria-label="Закрыть фото" onClick={() => setPhoto(null)}>×</button></div><img src={catalog.photos[photo].src} alt={catalog.photos[photo].alt} /><div className="vl-gallery-controls"><button type="button" className="vl-text-button" onClick={() => setPhoto((photo + catalog.photos.length - 1) % catalog.photos.length)}>Предыдущее фото</button><button type="button" className="vl-text-button" onClick={() => setPhoto((photo + 1) % catalog.photos.length)}>Следующее фото</button></div></>}
-        </dialog>
-      </section>
-
+      <ConstructionEstimateExample />
       <VelaFinance quote={quote} onLead={openLead} onMortgage={setMortgageScenario} track={track} />
+      <ConstructionPhotos items={catalog.photos} open={openGallery} action={<button type="button" className="vl-text-button" onClick={() => openLead("visit")}>Запросить просмотр объекта <Arrow diagonal /></button>} />
       <section className="vl-wrap vl-section" id="process" aria-labelledby="vl-process-title">
         <div className="vl-section-heading"><div><p className="vl-kicker">От заявки до приёмки</p><h2 id="vl-process-title">Как проходит <em>строительство</em></h2></div><p>Состав работ, сроки и порядок оплаты согласуем для вашего участка и фиксируем в договоре.</p></div>
         <ol className="vl-timeline">{stages.map(([title,copy]) => <li key={title}><h3>{title}</h3><p>{copy}</p></li>)}</ol>
-        <div className="vl-trust"><div><h3>Гарантии и документы</h3><p>{catalog.warranty ?? "Условия гарантии, список работ и порядок приёмки указываются в договоре. Запросите их вместе с расчётом."}</p>{catalog.promotion && <p>{catalog.promotion}</p>}</div><button type="button" className="vl-btn vl-btn-outline" onClick={() => openLead("visit")}>Узнать о просмотре объекта <Arrow diagonal /></button></div>
+        <div className="vl-trust"><div><h3>Гарантии и документы</h3><p>{catalog.warranty ?? "Условия гарантии, список работ и порядок приёмки указываются в договоре. Запросите их вместе с расчётом."}</p>{catalog.promotion && <p>{catalog.promotion}</p>}</div><div><h3>Регистрация дома</h3><p>До начала работ согласуем, какие документы подготовим и в чём сможем помочь с оформлением.</p></div></div>
       </section>
       <section className="vl-faq-band" id="faq" aria-labelledby="vl-faq-title">
-        <div className="vl-wrap vl-section vl-faq">
+        <div className="vl-wrap vl-section vl-faq" id="questions">
           <div><p className="vl-kicker">Перед решением</p><h2 id="vl-faq-title">Ответы <em>на вопросы</em></h2></div>
           <div>{faq.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div>
         </div>
@@ -185,6 +206,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
       </section>
     </main>
     <footer className="vl-footer"><div className="vl-wrap"><LegalFooter /><div className="vl-footer-tail"><a href="#top" className="vl-brand"><img src="/brand/ikioma-symbol.svg" alt="" width="23" height="24" /><span>ИКИОМА</span></a><span>Санкт-Петербург и Ленинградская область</span><a href="/contacts/">Контакты</a><a href="/calculation-terms/">Условия расчёта</a></div></div></footer>
+    <GalleryDialog gallery={gallery} setGallery={setGallery} />
     <VelaLead kind={lead} close={() => setLead(null)} selection={selection} quote={quote} land={land} setLand={setLand} mortgage={mortgageScenario} track={track} />
   </div>;
 }

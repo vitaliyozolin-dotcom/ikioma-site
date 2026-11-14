@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope";
 import "@fontsource-variable/cormorant-garamond";
 import "@fontsource-variable/cormorant-garamond/wght-italic.css";
-import "./vela.css";
-import "./vela-clean.css";
+import "./vela-base.css";
 import "./vela-legal.css";
 import "./vela-master.css";
 import { catalog, money } from "@/components/vela-calculations";
@@ -18,7 +17,7 @@ export const metadata: Metadata = {
     url: "https://ikioma.ru",
     title: `Домокомплект ВЕЛА от ${money(catalog.base.price)} | ИКИОМА`,
     description: "Планировка ВЕЛА, комплектация и предварительный расчёт строительства.",
-    images: [{ url: "/vela/og.jpg", width: 1200, height: 630, alt: "Планировочная схема проекта ВЕЛА" }],
+    images: [{ url: "/vela/og.jpg", width: 1200, height: 630, alt: "3D-эскиз фасада проекта ВЕЛА" }],
   },
   icons: {
     icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/favicon-32.png", type: "image/png", sizes: "32x32" }],
@@ -32,7 +31,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#202a25",
+  themeColor: "#171d1c",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

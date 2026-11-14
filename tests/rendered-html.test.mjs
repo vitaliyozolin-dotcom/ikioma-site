@@ -14,7 +14,7 @@ test("renders the single verified project with a price for its house kit", () =>
   assert.match(html, /<html lang="ru">/);
   assert.match(plain, /<title>Домокомплект ВЕЛА от 1 725 000 ₽ \| ИКИОМА<\/title>/);
   assert.match(html, /rel="canonical" href="https:\/\/ikioma\.ru\/?"/);
-  assert.match(html, /data-release="vela-master-20261113"/);
+  assert.match(html, /data-release="vela-visuals-20261114"/);
   assert.equal((html.match(/<h1(?:\s|>)/g) || []).length, 1);
   for (const phrase of ["ВЕЛА", "115", "81,7", "22,2", "Спальни", "один санузел", "Ленинградская область"]) assert.ok(plain.includes(phrase), phrase);
   assert.doesNotMatch(plain, /5,2 млн|6,3 млн|7,2 млн|86,2 м²|23,1 м²|6 000 000|8 000 000|10 000 000|ипотека 6%/i);
@@ -23,8 +23,14 @@ test("renders the single verified project with a price for its house kit", () =>
 test("all page anchors and local assets resolve", async () => {
   const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
   for (const match of html.matchAll(/\bhref="#([^"]+)"/g)) assert.ok(ids.has(match[1]), "Missing anchor " + match[1]);
-  for (const id of ["house", "plan", "finance", "calculator-home", "mortgage", "expenses", "process", "faq", "contacts"]) assert.ok(ids.has(id));
+  for (const id of ["house", "plan", "finance", "calculator-home", "mortgage", "expenses", "process", "architecture", "questions", "faq", "real-budget", "contacts"]) assert.ok(ids.has(id));
   for (const match of html.matchAll(/(?:src|href)="(\/(?:assets|images|brand|vela)\/[^"?#]+)"/g)) await access(new URL("." + match[1], root));
+  for (const view of catalog.views) {
+    await access(new URL("." + view.src, root));
+    await access(new URL("." + view.small, root));
+  }
+  assert.match(plain, /3D-эскиз ВЕЛА/);
+  assert.match(plain, /Фотографии от 2 октября 2026 года/);
   for (const file of ["404.html", "robots.txt", "sitemap.xml", "favicon.ico", "favicon-32.png", "apple-touch-icon.png", "site.webmanifest", "vela/plan.pdf", "vela/og.jpg"]) await access(new URL(file, root));
 });
 
