@@ -70,20 +70,11 @@ export function mortgage(input: MortgageInput): MortgageResult | null {
   return { ...input, deposit, principal, payment, total: payment * months, interest: Math.max(0, payment * months - principal), schedule };
 }
 
-export type LivingInput = {
-  people: number; mode: string; temperature: number; power: number; powerTariff: number;
-  heatLow: number; heatHigh: number; heatTariff: number; waterMode: string; sewerMode: string;
-  water: number; waterTariff: number; sewerTariff: number; other: number;
-};
-export function living(input: LivingInput) {
-  const { people, temperature, power, powerTariff, heatLow, heatHigh, heatTariff, water, waterTariff, sewerTariff, other } = input;
-  if (![people, temperature, power, powerTariff, heatLow, heatHigh, heatTariff, water, waterTariff, sewerTariff, other].every(Number.isFinite) ||
-      people < 1 || people > 20 || !Number.isInteger(people) || temperature < 10 || temperature > 35 || heatHigh < heatLow ||
-      [power, powerTariff, heatLow, heatHigh, heatTariff, water, waterTariff, sewerTariff, other].some(value => value < 0)) return null;
-  const electric = power * powerTariff;
-  const heat = [heatLow * heatTariff, heatHigh * heatTariff] as const;
-  const waterCost = people * water * waterTariff;
-  const sewerCost = people * water * sewerTariff;
-  const subtotal = electric + waterCost + sewerCost + other;
-  return { electric, heat, waterCost, sewerCost, other, totalLow: subtotal + heat[0], totalHigh: subtotal + heat[1] };
+export function monthlyExpenses(values: string[]): number | null {
+  const entered = values.map(value => value.trim()).filter(Boolean);
+  if (!entered.length) return null;
+  const amounts = entered.map(Number);
+  if (amounts.some(value => !Number.isSafeInteger(value) || value < 0)) return null;
+  const total = amounts.reduce((sum, value) => sum + value, 0);
+  return Number.isSafeInteger(total) ? total : null;
 }

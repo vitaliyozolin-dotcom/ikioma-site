@@ -16,27 +16,9 @@ const rooms = [
   { id: "terrace", title: "Терраса", short: "Терраса", area: "22,2", x: 678, y: 300, path: "M606.93 131.85H748.66V481.93H606.93Z", description: "Площадка на открытом воздухе для стола и кресел. Площадь террасы указана отдельно от внутренних помещений." },
 ] as const;
 
-function Furniture() {
-  return <g className="vl-furniture" aria-hidden="true" fill="#c3ab90" stroke="#7a6857" strokeWidth="1">
-    {[ [65, 150], [212, 148], [65, 330] ].map(([x,y]) => <g key={x + "-" + y} transform={`translate(${x} ${y})`}>
-      <rect width="59" height="65" rx="3" /><rect x="5" y="5" width="23" height="15" rx="3" fill="#fff9ed" /><rect x="31" y="5" width="23" height="15" rx="3" fill="#fff9ed" />
-      <path d="M0 25h59" /><rect x="65" y="1" width="14" height="18" rx="1" />
-    </g>)}
-    <path d="M419 145h112v18h-94v59h-18z" /><path d="M452 145v18m23-18v18m25-18v18m-81 28h18" />
-    <rect x="474" y="264" width="57" height="36" rx="16" fill="#d6c1a5" />
-    <rect x="487" y="250" width="15" height="10" rx="3" /><rect x="507" y="250" width="15" height="10" rx="3" />
-    <rect x="487" y="304" width="15" height="10" rx="3" /><rect x="507" y="304" width="15" height="10" rx="3" />
-    <rect x="553" y="184" width="32" height="56" rx="5" fill="#d8ccbb" /><path d="M558 189h22v46h-22zM558 212h22" fill="none" />
-    <rect x="241" y="430" width="32" height="42" rx="3" fill="#f7f3eb" /><circle cx="304" cy="456" r="8" fill="#f7f3eb" />
-    <rect x="443" y="369" width="76" height="18" rx="2" /><path d="M465 369v18m23-18v18" />
-    <rect x="651" y="335" width="46" height="64" rx="14" /><rect x="636" y="354" width="11" height="24" rx="3" /><rect x="701" y="354" width="11" height="24" rx="3" />
-  </g>;
-}
-
 export default function VelaPlan() {
   const [selected, setSelected] = useState<string>(rooms[0].id);
   const [hover, setHover] = useState<string | null>(null);
-  const [furniture, setFurniture] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [zoom, setZoom] = useState(100);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -54,12 +36,11 @@ export default function VelaPlan() {
         {rooms.map(item => <path key={item.id} data-room={item.id} className={room.id === item.id ? "is-active" : ""} d={item.path}
           onPointerEnter={event => { if (event.pointerType === "mouse") setHover(item.id); }}
           onPointerLeave={() => setHover(null)} onClick={() => { setSelected(item.id); setHover(null); }} />)}
-        {furniture && <Furniture />}
-        {!furniture && <g className="vl-plan-labels" aria-hidden="true">
+        <g className="vl-plan-labels" aria-hidden="true">
           {rooms.map(item => <text key={item.id} x={item.x} y={item.y} textAnchor="middle">
             <tspan>{item.short}</tspan><tspan x={item.x} dy="15">{item.area} м²</tspan>
           </text>)}
-        </g>}
+        </g>
       </svg>
     </div>;
   }
@@ -72,14 +53,10 @@ export default function VelaPlan() {
     <div className="vl-plan-card">
       <div className="vl-plan-content">
         <div className="vl-plan-toolbar">
-          <div className="vl-segment" aria-label="Вид планировки">
-            <button type="button" aria-pressed={!furniture} onClick={() => setFurniture(false)}>План</button>
-            <button type="button" aria-pressed={furniture} onClick={() => setFurniture(true)}>С мебелью</button>
-          </div>
           <button type="button" className="vl-text-button" onClick={() => { setHover(null); setZoom(100); setExpanded(true); }}>Увеличить <span aria-hidden="true">+</span></button>
+          <a className="vl-plan-pdf" href="/vela/plan.pdf" download>Скачать планировку PDF</a>
         </div>
         <div className="vl-plan-sheet">{drawing(false)}</div>
-        <div className="vl-plan-download"><a href="/vela/plan.pdf" download>Скачать планировку PDF</a>{furniture && <span>Вариант расстановки мебели</span>}</div>
       </div>
       <div className="vl-room-panel">
         <div className="vl-room-details" aria-live={hover ? "off" : "polite"}><p>{room.title}</p><strong>{room.area} <small>м²</small></strong><span>{room.description}</span></div>

@@ -95,20 +95,15 @@
 #plan { padding-top: clamp(37px, 6vw, 91px); }
 .vl-plan-card { display: grid; grid-template-columns: minmax(0, 2.25fr) minmax(234px, 1fr); border: 1px solid var(--vl-line); background: var(--vl-white); }
 .vl-plan-content { min-width: 0; display: flex; flex-direction: column; padding: clamp(14px, 2.5vw, 35px); }
-.vl-plan-toolbar, .vl-plan-download { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 6px; }
-.vl-segment { display: inline-flex; background: #eeeee4; border: 1px solid #d8dbd0; padding: 3px; border-radius: 2px; }
-.vl-segment button { min-height: 38px; padding: 6px 13px; border: 0; background: transparent; color: var(--vl-muted); font-size: 13px; font-weight: 760; }
-.vl-segment button[aria-pressed="true"] { background: var(--vl-ink); color: #fffdf4; }
+.vl-plan-toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
 .vl-plan-sheet { flex: 1; display: grid; align-items: center; margin-block: 27px; }
 .vl-drawing { position: relative; min-width: 0; }
 .vl-drawing img { width: 100%; height: auto; }
 .vl-drawing-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
 .vl-drawing-overlay path[data-room] { cursor: pointer; fill: #ab4d23; fill-opacity: 0; transition: fill-opacity .22s ease; }
 .vl-drawing-overlay path[data-room].is-active { fill-opacity: .27; }
-.vl-plan-labels, .vl-furniture { pointer-events: none; }
-.vl-plan-labels { fill: #27342a; font: 670 12px "Manrope Variable", sans-serif; }
-.vl-plan-download { color: var(--vl-muted); font-size: 12px; }
-.vl-plan-download a { min-height: 36px; display: inline-flex; align-items: center; text-decoration: underline; text-underline-offset: 3px; }
+.vl-plan-labels { pointer-events: none; fill: #27342a; font: 670 12px "Manrope Variable", sans-serif; }
+.vl-plan-pdf { min-height: 44px; display: inline-flex; align-items: center; color: var(--vl-muted); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
 .vl-room-panel { padding: 20px 22px 14px; background: #e5ebe8; border-left: 1px solid var(--vl-line); }
 .vl-room-details { min-height: 142px; padding: 4px 0 17px; }
 .vl-room-details p { font-size: 14px; font-weight: 820; }
@@ -186,7 +181,7 @@
 .vl-notice { padding: 12px 14px; border: 1px solid #c1b69d; background: #fbf1dc; font-size: 13px; margin-bottom: 16px !important; }
 .vl-notice button { background: none; border: 0; color: inherit; text-decoration: underline; min-height: 29px; }
 
-.vl-photos { display: grid; grid-template-columns: 1.18fr .82fr; gap: 15px; }
+.vl-photos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px 15px; }
 .vl-photos figure { min-width: 0; }
 .vl-image-trigger { position: relative; border: 0; padding: 0; width: 100%; display: block; overflow: hidden; background: #dbdace; }
 .vl-image-trigger img { transition: transform .35s ease; }
@@ -203,10 +198,14 @@
 .vl-viewer { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(260px, 1fr); align-items: start; gap: clamp(18px, 3vw, 44px); }
 .vl-viewer-main { min-width: 0; }
 .vl-viewer-main img { width: 100%; height: auto; aspect-ratio: 1.52; object-fit: cover; }
+.vl-viewer-main [data-portrait] { background: #19201d; }
+.vl-viewer-main [data-portrait] img { object-fit: contain; }
+.vl-viewer-main [data-portrait]:hover img { transform: none; }
 .vl-viewer-main figcaption { margin-top: 9px; font-size: 12px; }
-.vl-view-select { display: grid; gap: 9px; }
-.vl-view-tab { display: grid; grid-template-columns: 94px minmax(0, 1fr); align-items: center; gap: 12px; min-height: 66px; border: 1px solid #65716a; background: #29312d; color: #f6f0e8; padding: 6px; text-align: left; font-weight: 720; font-size: 13px; }
-.vl-view-tab img { width: 94px; height: 55px; object-fit: cover; }
+.vl-view-select { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.vl-view-tab { display: flex; flex-direction: column; align-items: stretch; gap: 6px; border: 1px solid #65716a; background: #29312d; color: #f6f0e8; padding: 5px; text-align: left; font-weight: 720; font-size: 13px; }
+.vl-view-tab img { width: 100%; height: auto; aspect-ratio: 1.65; object-fit: cover; }
+.vl-view-tab span { padding: 0 3px 4px; overflow-wrap: anywhere; }
 .vl-view-tab:hover { background: #37413b; }
 .vl-view-tab[aria-pressed="true"] { border-color: #dc996b; background: #3c382f; }
 .vl-page .vl-viewer-side > p { margin-top: 15px; max-width: 42ch; font-size: 13px; }
@@ -245,6 +244,14 @@
 .vl-cost-lines div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding-block: 9px; border-top: 1px solid var(--vl-line); }
 .vl-cost-lines dd { margin: 0; text-align: right; font-weight: 780; }
 .vl-finance-result .vl-btn { margin-top: 13px; }
+.vl-monthly-budget { display: grid; grid-template-columns: minmax(0, 1fr) minmax(215px, .45fr); border: 1px solid var(--vl-line); background: var(--vl-white); }
+.vl-monthly-inputs, .vl-monthly-result { padding: clamp(17px, 3vw, 31px); }
+.vl-monthly-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-content: center; }
+.vl-monthly-result { background: #e3eae5; border-left: 1px solid var(--vl-line); align-content: center; min-width: 0; }
+.vl-page .vl-monthly-result > p:first-child { font-weight: 780; margin-bottom: 7px; }
+.vl-monthly-example { grid-column: 1 / -1; width: fit-content; font-size: 13px; color: var(--vl-muted); }
+.vl-monthly-example summary { font-weight: 700; padding-block: 8px; }
+.vl-page .vl-monthly-example p { max-width: 61ch; }
 .vl-debt-chart { margin: 10px 0 0; }
 .vl-debt-chart svg { width: 100%; max-height: 178px; display: block; }
 .vl-chart-axis, .vl-debt-chart figcaption { display: flex; justify-content: space-between; gap: 12px; color: var(--vl-muted); font-size: 11px; }
@@ -365,13 +372,15 @@
   .vl-mobile-quote { display: flex; position: fixed; z-index: 4; bottom: 0; left: 0; right: 0; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px calc(8px + env(safe-area-inset-bottom)); color: #fffdf5; background: var(--vl-ink); }
   .vl-mobile-quote small, .vl-mobile-quote b { display: block; }
   .vl-mobile-quote .vl-btn { min-height: 42px; }
-  .vl-photos { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-  .vl-photos img { height: auto; }
+  .vl-photos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 10px; }
+  .vl-photos .vl-enlarge { width: 34px; height: 34px; bottom: 6px; right: 6px; }
   .vl-viewer { grid-template-columns: minmax(0, 1fr); }
   .vl-view-select { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
-  .vl-view-tab { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 4px; font-size: 12px; }
-  .vl-view-tab img { width: 100%; height: auto; aspect-ratio: 1.65; }
-  .vl-view-tab span { padding: 0 3px 4px; overflow-wrap: anywhere; }
+  .vl-view-tab { padding: 4px; font-size: 12px; }
+  .vl-monthly-budget, .vl-monthly-inputs { grid-template-columns: minmax(0, 1fr); }
+  .vl-monthly-inputs .vl-field { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 38%); align-items: center; gap: 10px; }
+  .vl-monthly-inputs .vl-field label { margin: 0; }
+  .vl-monthly-result { border-left: 0; border-top: 1px solid var(--vl-line); }
   .vl-finance-summary dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; }
   .vl-timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
   .vl-timeline li { padding-left: 30px; }

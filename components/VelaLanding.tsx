@@ -127,7 +127,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
     setLead(kind);
   }
 
-  return <div className="vl-page" data-release="vela-visuals-20261115" onClick={event => {
+  return <div className="vl-page" data-release="vela-review-20261116" onClick={event => {
     if (event.target instanceof Element && event.target.closest("a[href^='tel:'], a[href^='mailto:']")) track("contact_click");
   }}>
     <a href="#main" className="vl-skip">К содержанию</a>
@@ -164,7 +164,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
         </div>
       </section>
 
-      <ArchitectureGallery items={catalog.views} open={openGallery} />
+      <ArchitectureGallery items={catalog.views.filter(item => item.src !== catalog.heroImage)} open={openGallery} />
       <section className="vl-wrap vl-story" id="house" aria-labelledby="vl-story-title">
         <div><h2 id="vl-story-title">Место для семьи <em>и для себя</em></h2></div>
         <div><p>В Г-образной кухне-гостиной можно разнести обеденную зону и мягкую группу. Три спальни выходят в отдельный холл. В доме один санузел и отдельное техническое помещение у прихожей.</p>

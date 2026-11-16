@@ -37,11 +37,11 @@ export function ArchitectureGallery({ items, open }: { items: VelaView[]; open: 
     <div className="vl-section vl-wrap">
       <div className="vl-section-heading">
         <h2 id="vl-architecture-title">Фасад, терраса <em>и интерьер</em></h2>
-        <p>Визуализации вариантов отделки ВЕЛА. Материалы, мебель и благоустройство можно подобрать под себя.</p>
+        <p>Варианты отделки и меблировки ВЕЛА. Цвета и материалы можно подобрать под себя.</p>
       </div>
       <div className="vl-viewer">
         <figure className="vl-viewer-main">
-          <button type="button" className="vl-image-trigger" aria-label={"Увеличить: " + view.caption} onClick={event => open(items, active, event.currentTarget)}>
+          <button type="button" className="vl-image-trigger" data-portrait={view.height && view.width && view.height > view.width ? true : undefined} aria-label={"Увеличить: " + view.caption} onClick={event => open(items, active, event.currentTarget)}>
             <VelaMedia view={view} sizes="(max-width: 700px) 100vw, (max-width: 1300px) 68vw, 900px" />
             <span className="vl-enlarge" aria-hidden="true"><FrameIcon expand /></span>
           </button>
@@ -50,7 +50,7 @@ export function ArchitectureGallery({ items, open }: { items: VelaView[]; open: 
         <div className="vl-viewer-side">
           <div className="vl-view-select" role="group" aria-label="Ракурсы ВЕЛА">
             {items.map((item, index) => <button type="button" key={item.src} className="vl-view-tab" aria-pressed={active === index}
-              onClick={() => setActive(index)}><VelaMedia view={{ ...item, alt: "" }} sizes="105px" /><span>{item.label}</span></button>)}
+              onClick={() => setActive(index)}><VelaMedia view={{ ...item, alt: "" }} sizes="(max-width: 700px) 31vw, 215px" /><span>{item.label}</span></button>)}
           </div>
           <p aria-live="polite">{view.note}</p>
         </div>
@@ -121,14 +121,14 @@ export function GalleryDialog({ gallery, setGallery }: {
 
 export function ConstructionPhotos({ items, open, action }: { items: VelaView[]; open: OpenGallery; action: ReactNode }) {
   if (!items.length) return null;
-  return <section className="vl-section vl-wrap vl-project-proof" aria-labelledby="vl-construction-title">
+  return <section className="vl-section vl-wrap vl-project-proof" id="construction" aria-labelledby="vl-construction-title">
     <div className="vl-section-heading">
       <div><p className="vl-kicker">Объект ИКИОМА</p><h2 id="vl-construction-title">Стройка <em>в Келози</em></h2></div>
-      <div><p>Фотографии от 2 октября 2026 года. Вид со стороны участка и терраса на этапе монтажа.</p>{action}</div>
+      <div><p>Фотографии объекта ИКИОМА на разных этапах. Фасад, терраса и работы внутри дома.</p>{action}</div>
     </div>
     <div className="vl-photos">{items.map((item, index) => <figure key={item.src}>
       <button type="button" className="vl-image-trigger" aria-label={"Увеличить: " + item.caption} onClick={event => open(items, index, event.currentTarget)}>
-        <VelaMedia view={item} sizes="(max-width: 700px) 100vw, 52vw" /><span className="vl-enlarge" aria-hidden="true"><FrameIcon expand /></span>
+        <VelaMedia view={item} sizes="(max-width: 700px) 48vw, 32vw" /><span className="vl-enlarge" aria-hidden="true"><FrameIcon expand /></span>
       </button>
       <figcaption>{item.caption}</figcaption>
     </figure>)}</div>

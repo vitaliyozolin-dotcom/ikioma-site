@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { catalog, living, money, mortgage, type Estimate, type LivingInput, type MortgageResult } from "./vela-calculations";
+import { useState } from "react";
+import { catalog, money, monthlyExpenses, mortgage, type Estimate, type MortgageResult } from "./vela-calculations";
 
 type FieldProps = { id: string; label: string; value: string; set: (value: string) => void; min?: number; max?: number; step?: number; placeholder?: string; slider?: boolean; sliderStep?: number };
 function Field({ id, label, value, set, min = 0, max, step = 1, placeholder, slider, sliderStep }: FieldProps) {
@@ -10,10 +10,6 @@ function Field({ id, label, value, set, min = 0, max, step = 1, placeholder, sli
     <input id={id} type="number" inputMode={step < 1 ? "decimal" : "numeric"} value={value} min={min} max={max} step={step} placeholder={placeholder} onChange={event => set(event.target.value)} />
     {slider && <input className="vl-range" type="range" aria-label={label + ", ползунок"} value={value || min} min={min} max={max} step={sliderStep ?? step} onChange={event => set(event.target.value)} />}
   </div>;
-}
-
-function Choice({ id, label, children, value, set }: { id: string; label: string; children: ReactNode; value: string; set: (value: string) => void }) {
-  return <div className="vl-field"><label htmlFor={id}>{label}</label><select id={id} value={value} onChange={event => set(event.target.value)}>{children}</select></div>;
 }
 
 function DebtChart({ result }: { result: MortgageResult }) {
@@ -31,13 +27,7 @@ function DebtChart({ result }: { result: MortgageResult }) {
   </figure>;
 }
 
-const livingDefaults = {
-  people: "3", temperature: "21", power: "", powerTariff: "", heatLow: "", heatHigh: "", heatTariff: "",
-  water: "", waterTariff: "", sewerTariff: "", other: "", current: "",
-};
-const heatModes: Record<string, { energy: string; tariff: string }> = {
-  electric: { energy: "кВт·ч", tariff: "₽/кВт·ч" }, gas: { energy: "м³", tariff: "₽/м³" }, solid: { energy: "кг", tariff: "₽/кг" },
-};
+const expenseFields = [["energy", "Отопление и свет"], ["water", "Вода и канализация"], ["other", "Прочие расходы"]] as const;
 
 export default function VelaFinance({ quote, onLead, onMortgage, track }: {
   quote: Estimate;
@@ -50,35 +40,17 @@ export default function VelaFinance({ quote, onLead, onMortgage, track }: {
   const [years, setYears] = useState("20");
   const [rate, setRate] = useState("");
   const [financeUsed, setFinanceUsed] = useState(false);
-  const [operating, setOperating] = useState(livingDefaults);
-  const [heatMode, setHeatMode] = useState("electric");
-  const [waterMode, setWaterMode] = useState("network");
-  const [sewerMode, setSewerMode] = useState("network");
-  const unit = heatModes[heatMode];
+  const [operating, setOperating] = useState({ energy: "", water: "", other: "" });
   const scenario = budget !== "" && down !== "" && years !== "" && rate !== ""
     ? mortgage({ budget: Number(budget), down: Number(down), years: Number(years), rate: Number(rate) })
     : null;
-  const requiredOperating: (keyof typeof livingDefaults)[] = ["people", "temperature", "power", "powerTariff", "heatLow", "heatHigh", "heatTariff"];
-  if (waterMode === "network" || sewerMode === "network") requiredOperating.push("water");
-  if (waterMode === "network") requiredOperating.push("waterTariff");
-  if (sewerMode === "network") requiredOperating.push("sewerTariff");
-  const input: LivingInput = {
-    people: Number(operating.people), temperature: Number(operating.temperature), mode: heatMode,
-    power: Number(operating.power), powerTariff: Number(operating.powerTariff), heatLow: Number(operating.heatLow),
-    heatHigh: Number(operating.heatHigh), heatTariff: Number(operating.heatTariff), waterMode, sewerMode,
-    water: Number(operating.water), waterTariff: waterMode === "network" ? Number(operating.waterTariff) : 0,
-    sewerTariff: sewerMode === "network" ? Number(operating.sewerTariff) : 0, other: Number(operating.other),
-  };
-  const expenses = requiredOperating.every(key => operating[key] !== "") ? living(input) : null;
-  const range = (a: number, b: number) => Math.round(a) === Math.round(b) ? money(a) : `${money(a)} – ${money(b)}`;
+  const amounts = Object.values(operating);
+  const expenses = monthlyExpenses(amounts);
+  const invalidExpenses = expenses === null && amounts.some(Boolean);
 
   function updateMortgage(set: (value: string) => void, value: string) {
     set(value);
     if (!financeUsed) { track("mortgage_calculator_open"); setFinanceUsed(true); }
-  }
-
-  function operatingField(key: keyof typeof livingDefaults, label: string, options: Partial<FieldProps> = {}) {
-    return <Field id={"vl-living-" + key} label={label} value={operating[key]} set={value => setOperating(previous => ({ ...previous, [key]: value }))} {...options} />;
   }
 
   return <>
@@ -110,36 +82,15 @@ export default function VelaFinance({ quote, onLead, onMortgage, track }: {
       </div>
     </section>
     <section className="vl-section vl-wrap" id="expenses" aria-labelledby="vl-expenses-title">
-      <div className="vl-section-heading"><div><p className="vl-kicker">Содержание дома</p><h2 id="vl-expenses-title">Месячный <em>бюджет</em></h2></div>
-        <p>Подставьте своё потребление и тарифы. Для отопления можно сравнить два месяца с разным расходом энергии.</p></div>
-      <div className="vl-finance-grid">
-        <div className="vl-finance-form">
-          <div className="vl-form-fields">
-            {operatingField("people", "Проживающих", { min: 1, max: 20 })}
-            {operatingField("temperature", "Температура в доме, °C", { min: 10, max: 35, step: 0.5 })}
-            <Choice id="vl-heating" label="Отопление" value={heatMode} set={setHeatMode}><option value="electric">Электричество</option><option value="gas">Газ</option><option value="solid">Твёрдое топливо</option></Choice>
-            {operatingField("heatTariff", "Тариф отопления, " + unit.tariff, { step: .01 })}
-            {operatingField("heatLow", "Мягкий месяц, " + unit.energy, { step: .1 })}
-            {operatingField("heatHigh", "Холодный месяц, " + unit.energy, { step: .1 })}
-            {operatingField("power", "Электричество без отопления, кВт·ч/мес.", { step: .1 })}
-            {operatingField("powerTariff", "Тариф электричества, ₽/кВт·ч", { step: .01 })}
-            <Choice id="vl-water" label="Водоснабжение" value={waterMode} set={setWaterMode}><option value="network">Центральное</option><option value="local">Скважина или колодец</option></Choice>
-            <Choice id="vl-sewer" label="Канализация" value={sewerMode} set={setSewerMode}><option value="network">Центральная</option><option value="local">Септик или локальная станция</option></Choice>
-            {(waterMode === "network" || sewerMode === "network") && operatingField("water", "Вода на человека, м³/мес.", { step: .1 })}
-            {waterMode === "network" && operatingField("waterTariff", "Тариф воды, ₽/м³", { step: .01 })}
-            {sewerMode === "network" && operatingField("sewerTariff", "Тариф канализации, ₽/м³", { step: .01 })}
-            {operatingField("other", "Обслуживание и другие расходы, ₽/мес.", { placeholder: "При необходимости" })}
-            {operatingField("current", "Ваши расходы сейчас, ₽/мес.", { placeholder: "Для сравнения" })}
-          </div>
-          <p className="vl-note">Температура описывает выбранный сценарий. Укажите расход отопления, который ей соответствует. Для скважины и септика укажите обслуживание в других расходах, а электроэнергию насоса — в общем потреблении.</p>
+      <div className="vl-section-heading"><h2 id="vl-expenses-title">Месячный <em>бюджет</em></h2><p>Введите платежи за один месяц в рублях. Для зимы и лета можно посчитать отдельно.</p></div>
+      <div className="vl-monthly-budget">
+        <div className="vl-monthly-inputs">
+          {expenseFields.map(([key, label]) => <Field key={key} id={"vl-monthly-" + key} label={label + ", ₽"} value={operating[key]} placeholder="0" set={value => setOperating(current => ({ ...current, [key]: value }))} />)}
+          <details className="vl-monthly-example"><summary>Пример расчёта</summary><p>Условные суммы. Отопление и свет 4 000 ₽, вода и канализация 1 000 ₽, прочие расходы 500 ₽. Итого 5 500 ₽.</p></details>
         </div>
-        <div className="vl-finance-result" aria-live="polite">
-          <p>Содержание в месяц</p><strong className="vl-display-value">{expenses ? range(expenses.totalLow, expenses.totalHigh) : "—"}</strong>
-          {expenses ? <dl className="vl-cost-lines">
-            <div><dt>Отопление</dt><dd>{range(...expenses.heat)}</dd></div><div><dt>Электричество без отопления</dt><dd>{money(expenses.electric)}</dd></div>
-            <div><dt>Вода</dt><dd>{waterMode === "network" ? money(expenses.waterCost) : "В обслуживании"}</dd></div><div><dt>Канализация</dt><dd>{sewerMode === "network" ? money(expenses.sewerCost) : "В обслуживании"}</dd></div><div><dt>Другие расходы</dt><dd>{money(expenses.other)}</dd></div>
-            {operating.current !== "" && Number(operating.current) >= 0 && <div><dt>Ваши расходы сейчас</dt><dd>{money(Number(operating.current))}</dd></div>}
-          </dl> : <p className="vl-note">Введите расходы энергии и тарифы. Для центральных сетей также укажите расход воды и стоимость по тарифу.</p>}
+        <div className="vl-monthly-result" aria-live="polite">
+          <p>Содержание в месяц</p>
+          {expenses !== null ? <strong className="vl-display-value">{money(expenses)}</strong> : <p className="vl-note">{invalidExpenses ? "Укажите целые суммы от нуля." : "Введите сумму хотя бы в одну строку."}</p>}
         </div>
       </div>
     </section>
@@ -150,8 +101,8 @@ export default function VelaFinance({ quote, onLead, onMortgage, track }: {
         <div><dt>Выбрано с индивидуальным расчётом</dt><dd>{quote.pending.length ? quote.pending.map(item => item.title).join(", ") : "Пока без таких работ"}</dd></div>
         <div><dt>Первоначальный взнос</dt><dd>{scenario ? money(scenario.deposit) : "Укажите бюджет и ставку"}</dd></div>
         <div><dt>Ипотечный платёж в месяц</dt><dd>{scenario ? money(scenario.payment) : "—"}</dd></div>
-        <div><dt>Содержание дома в месяц</dt><dd>{expenses ? range(expenses.totalLow, expenses.totalHigh) : "—"}</dd></div>
-        <div><dt>Общий бюджет в месяц</dt><dd>{scenario && expenses ? range(scenario.payment + expenses.totalLow, scenario.payment + expenses.totalHigh) : "После обоих расчётов"}</dd></div>
+        <div><dt>Содержание дома в месяц</dt><dd>{expenses !== null ? money(expenses) : "—"}</dd></div>
+        <div><dt>Общий бюджет в месяц</dt><dd>{scenario && expenses !== null ? money(scenario.payment + expenses) : "После обоих расчётов"}</dd></div>
       </dl>
       <button type="button" className="vl-btn vl-btn-primary" onClick={() => { onMortgage(scenario); onLead("estimate"); }}>Получить расчёт для участка</button>
     </section>
