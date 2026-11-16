@@ -1,4 +1,4 @@
-export const LEGAL_DATE = "1 ноября 2026 года";
+export const LEGAL_DATE = "13 ноября 2026 года";
 export const operator = {
   name: 'ООО «Промтехнологии СПб»',
   fullName: 'Общество с ограниченной ответственностью «Промтехнологии СПб»',
@@ -6,7 +6,7 @@ export const operator = {
   kpp: "780701001",
   ogrn: "1227800029016",
   address: "198517, г. Санкт-Петербург, г. Петергоф, Ропшинское шоссе, д. 8, лит. Х, пом. Х1043",
-  email: "proteh.spb@mail.ru",
+  email: "info@proteh.spb.ru",
   phone: "+7 (966) 844-90-00",
   phoneHref: "+79668449000",
 } as const;

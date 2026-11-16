@@ -1,4 +1,20 @@
 /* Shared legal pages and unobtrusive, readable customer-facing links. */
+.v-legal-page {
+  --v-ink: #171d1c;
+  --v-muted: #4d5651;
+  --v-line: #d5d3ca;
+  --v-accent: #a94421;
+  color: var(--v-ink);
+  background: #f4f0e9;
+  min-height: 100vh;
+}
+.v-legal-page .v-shell { width: min(1280px, calc(100% - 2 * clamp(18px, 5vw, 48px))); margin-inline: auto; }
+.v-legal-header .v-brand { display: inline-flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.v-legal-header .v-brand img { width: 33px; height: 38px; object-fit: contain; }
+.v-legal-header .v-brand strong { display: block; font-size: 19px; line-height: 1.25; letter-spacing: .055em; }
+.v-legal-header .v-brand small { display: block; margin-top: 5px; font-size: 9px; letter-spacing: .055em; color: var(--v-muted); }
+.v-legal-header .v-text-link { display: inline-flex; align-items: center; color: var(--v-accent); font-size: 14px; font-weight: 750; min-height: 44px; }
+.v-legal-header .v-text-link:hover { text-decoration: underline; text-underline-offset: 5px; }
 .v-legal-footer{display:grid;grid-template-columns:1fr auto;gap:20px 32px;padding-top:28px;margin-top:28px;border-top:1px solid var(--v-line);font-size:14px;line-height:1.6}
 .v-legal-footer strong{font-size:15px;font-weight:650}
 .v-legal-footer p{margin:6px 0 0;color:var(--v-muted);font-size:13px}

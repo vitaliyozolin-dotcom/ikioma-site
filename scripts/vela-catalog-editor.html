@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Каталог ВЕЛА | ИКИОМА</title>
+<style>
+:root{color:#24332a;background:#f7f4ee;font:15px/1.5 system-ui}body{margin:0}main{max-width:860px;margin:auto;padding:32px 18px}h1{font-size:42px;margin:0}h2{margin-top:30px}fieldset{margin:0 0 12px;padding:12px;border:1px solid #bec8b9}legend{font-weight:700}label{display:grid;gap:5px;margin-bottom:10px}input,textarea,button{font:inherit;padding:8px;border:1px solid #abb9a9;border-radius:2px}input[type=checkbox]{width:max-content}input:focus,button:focus,textarea:focus{outline:2px solid #a44526}button{cursor:pointer;background:#24332a;color:#fff;padding:10px 14px}button[type=button]{margin-bottom:9px}output{display:block;margin-block:12px}textarea{resize:vertical}
+</style>
+<main>
+<h1>Каталог ВЕЛА</h1>
+<p>Откройте файл <code>public/vela/catalog.json</code> из репозитория сайта. Заполните новую версию и дату, скачайте обновлённый каталог и замените им этот файл в ветке для проверки. Сборка проверит формат. Опубликованные расчёты сохраняют исходные цены.</p>
+<label>Текущий каталог <input id="source" type="file" accept="application/json,.json"></label>
+<form id="form" hidden></form><output id="status" role="status"></output>
+</main>
+<script>
+const form = document.querySelector('#form');
+const status = document.querySelector('#status');
+const date = () => new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow'}).format(new Date());
+let data, initialVersion;
+
+function field(parent, label, obj, key, {type='text', required=false}={}) {
+  const node = document.createElement('label');
+  node.append(label);
+  const input = document.createElement(type === 'textarea' ? 'textarea' : 'input');
+  if (type !== 'textarea') input.type = type;
+  if (type === 'number') input.min = '1';
+  input.required = required;
+  if (type === 'checkbox') input.checked = Boolean(obj[key]);
+  else input.value = obj[key] ?? '';
+  input.addEventListener('input', () => {
+    if (type === 'checkbox') obj[key] = input.checked;
+    else if (type === 'number') obj[key] = input.value === '' ? null : Number(input.value);
+    else obj[key] = input.value.trim() || null;
+  });
+  node.append(input);
+  parent.append(node);
+}
+
+function group(name) {
+  const node = document.createElement('fieldset');
+  const legend = document.createElement('legend');
+  legend.textContent = name;
+  node.append(legend);
+  form.append(node);
+  return node;
+}
+function heading(title) {
+  const h = document.createElement('h2'); h.textContent = title; form.append(h);
+}
+function addRow(container, label, list, empty) {
+  const button = document.createElement('button');
+  button.type = 'button'; button.textContent = label;
+  button.addEventListener('click', () => { list.push(empty()); render(); });
+  container.append(button);
+}
+function removeRow(container, list, index) {
+  const button = document.createElement('button');
+  button.type = 'button'; button.textContent = 'Убрать из каталога';
+  button.addEventListener('click', () => { list.splice(index,1); render(); });
+  container.append(button);
+}
+
+function render() {
+  form.replaceChildren();
+  const meta = group('Публикация');
+  field(meta,'Версия в формате ГГГГ-ММ-ДД.Номер',data,'version',{required:true});
+  field(meta,'Цены действуют с',data,'validFrom',{type:'date',required:true});
+  field(meta,'Опубликовать в этой редакции',data,'published',{type:'checkbox'});
+
+  heading('Первый экран и фотографии');
+  const copy = group('ВЕЛА');
+  field(copy,'Заголовок',data,'headline',{required:true});
+  field(copy,'Описание',data,'intro',{type:'textarea',required:true});
+  field(copy,'Файл изображения из public/vela',data,'heroImage',{required:true});
+  field(copy,'Описание изображения',data,'heroAlt',{required:true});
+  field(copy,'Подпись изображения',data,'heroCaption',{required:true});
+  data.photos.forEach((photo,index) => {
+    const item = group('Фотография ' + (index+1));
+    field(item,'Путь от корня сайта',photo,'src',{required:true});
+    field(item,'Описание',photo,'alt',{required:true});
+    field(item,'Подпись объекта',photo,'caption',{required:true});
+    removeRow(item,data.photos,index);
+  });
+  addRow(form,'Добавить фотографию',data.photos,()=>({src:'/vela/',alt:'',caption:''}));
+  data.views.forEach((view,index) => {
+    const item = group('Ракурс галереи ' + (index+1));
+    field(item,'Путь от корня сайта',view,'src',{required:true});
+    field(item,'Файл шириной 760 px',view,'small');
+    field(item,'Заголовок',view,'label',{required:true});
+    field(item,'Описание изображения',view,'alt',{required:true});
+    field(item,'Подпись',view,'caption',{required:true});
+    field(item,'Комментарий',view,'note',{type:'textarea',required:true});
+    field(item,'Ширина оригинала, px',view,'width',{type:'number',required:true});
+    field(item,'Высота оригинала, px',view,'height',{type:'number',required:true});
+    removeRow(item,data.views,index);
+  });
+  addRow(form,'Добавить ракурс',data.views,()=>({src:'/vela/',small:'',label:'',alt:'',caption:'',note:'',width:0,height:0}));
+
+  heading('Цены и услуги');
+  const base = group('Домокомплект');
+  field(base,'Стартовая цена, ₽',data.base,'price',{type:'number',required:true});
+  field(base,'Описание состава',data.base,'description',{type:'textarea',required:true});
+  for (const category of data.groups) {
+    const section = group(category.title);
+    for (const row of category.services) {
+      const service = document.createElement('fieldset');
+      const title = document.createElement('legend');
+      title.textContent = row.title || 'Новая услуга'; service.append(title);
+      field(service,'Код услуги (латиница, дефисы)',row,'id',{required:true});
+      field(service,'Название',row,'title',{required:true});
+      field(service,'Стартовая цена, ₽. Пусто — индивидуальный расчёт',row,'price',{type:'number'});
+      field(service,'Описание',row,'description',{type:'textarea',required:true});
+      removeRow(service,category.services,category.services.indexOf(row));
+      section.append(service);
+    }
+    addRow(section,'Добавить услугу',category.services,()=>({id:'',title:'',price:null,description:''}));
+  }
+
+  heading('Подтверждённые условия');
+  const engineering = group('Характеристики и условия');
+  for (const [key,label] of Object.entries({ceilingHeight:'Потолки',ridgeHeight:'Высота по коньку',dimensions:'Габариты',roofType:'Кровля',technology:'Конструктив'})) {
+    field(engineering,label,data.engineering,key);
+  }
+  field(engineering,'Гарантия',data,'warranty',{type:'textarea'});
+  field(engineering,'Предложение или акция',data,'promotion',{type:'textarea'});
+  field(engineering,'Источник ипотечных условий',data.mortgage,'source',{type:'url'});
+  field(engineering,'Минимальный срок, лет',data.mortgage,'minYears',{type:'number',required:true});
+  field(engineering,'Максимальный срок, лет',data.mortgage,'maxYears',{type:'number',required:true});
+  field(engineering,'Верхняя граница сценарной ставки, %',data.mortgage,'maxRate',{type:'number',required:true});
+  data.specification.forEach((row,index) => {
+    const spec = group('Состав домокомплекта');
+    field(spec,'Название',row,'title',{required:true}); field(spec,'Описание',row,'description',{type:'textarea',required:true});
+    removeRow(spec,data.specification,index);
+  });
+  addRow(form,'Добавить позицию спецификации',data.specification,()=>({title:'',description:''}));
+  const save = document.createElement('button');
+  save.textContent = 'Скачать каталог'; save.type = 'submit'; form.append(save);
+}
+document.querySelector('#source').addEventListener('change', async event => {
+  try {
+    data = JSON.parse(await event.target.files[0].text());
+    if (data.project !== 'ВЕЛА' || !data.base || !data.groups || !data.mortgage) throw new Error();
+    initialVersion = data.version;
+    const today = date();
+    data.version = today + '.' + (data.version.startsWith(today+'.') ? Number(data.version.split('.')[1])+1 : 1);
+    data.validFrom = today;
+    form.hidden = false; render(); status.textContent = '';
+  } catch { form.hidden = true; status.textContent = 'Выберите действующий каталог ВЕЛА.'; }
+});
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  const ids = data.groups.flatMap(group=>group.services.map(row=>row.id));
+  if (!/^\d{4}-\d{2}-\d{2}\.\d{1,5}$/.test(data.version) || data.version === initialVersion || ids.some(id=>!/^[a-z][a-z0-9-]{1,39}$/.test(id)) || new Set(ids).size !== ids.length) {
+    status.textContent = 'Проверьте новую версию и уникальные коды услуг.'; return;
+  }
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)+'\n'],{type:'application/json'}));
+  Object.assign(document.createElement('a'),{href:url,download:'catalog.json'}).click();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+  status.textContent = 'Каталог скачан.';
+});
+</script>
