@@ -1,1 +1,1 @@
-export const CONSENT_VERSION = "pd-20261101-v1";
+export const CONSENT_VERSION = "pd-20261113-v2";
