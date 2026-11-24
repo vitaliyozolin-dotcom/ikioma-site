@@ -7,6 +7,8 @@ import "./vela-legal.css";
 import "./vela-master.css";
 import { catalog, money } from "@/components/vela-calculations";
 
+const metrikaScript = "(function(m,e,t,r,i,k,a){\nm[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};\nm[i].l=1*new Date();\nfor(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}\nk=e.createElement(t);a=e.getElementsByTagName(t)[0];k.async=1;k.src=r;a.parentNode.insertBefore(k,a);\n})(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=114376193','ym');\nym(114376193,'init',{ssr:true,webvisor:true,clickmap:true,ecommerce:\"dataLayer\",referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://ikioma.ru"),
   title: `Домокомплект ВЕЛА от ${money(catalog.base.price)} | ИКИОМА`,
@@ -35,5 +37,10 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="ru"><body>{children}</body></html>;
+  return <html lang="ru"><head>
+    <script id="yandex-metrika" dangerouslySetInnerHTML={{ __html: metrikaScript }} />
+  </head><body>
+    <noscript><div><img src="https://mc.yandex.ru/watch/114376193" style={{ position: "absolute", left: "-9999px" }} alt="" /></div></noscript>
+    {children}
+  </body></html>;
 }

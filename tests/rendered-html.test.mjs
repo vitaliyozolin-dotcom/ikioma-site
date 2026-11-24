@@ -95,3 +95,15 @@ test("marketing and the v2 receipt are wired to the existing lead receiver", asy
   for (const name of ["ikioma:goal", "lead_success", "service_select", "quote_pdf", "mortgage_calculator_open", "contact_click", "catalog_changed"]) assert.ok(js.includes(name), name);
   assert.match(js, /https:\/\/stroios-188-225-38-55\.sslip\.io\/api\/public\/leads/);
 });
+
+test("loads Yandex Metrika 114376193 near the start of every exported page", async () => {
+  const pages = ["index.html", "404.html", ...["na-svoem-uchastke", "semejnaya-ipoteka", "zemlya-i-dom", "privacy", "consent", "requisites", "contacts", "calculation-terms"].map(route => route + "/index.html")];
+  for (const page of pages) {
+    const document = await load(page);
+    assert.equal((document.match(/id="yandex-metrika"/g) || []).length, 1, page);
+    assert.ok(document.indexOf('id="yandex-metrika"') < document.indexOf("<main"), page);
+    assert.ok(document.includes("https://mc.yandex.ru/metrika/tag.js?id=114376193"), page);
+    assert.ok(document.includes("https://mc.yandex.ru/watch/114376193"), page);
+    for (const option of ["ssr:true", "webvisor:true", "clickmap:true", 'ecommerce:"dataLayer"', "accurateTrackBounce:true", "trackLinks:true"]) assert.ok(document.includes(option), page + " " + option);
+  }
+});
