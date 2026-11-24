@@ -21,6 +21,7 @@ export default function VelaPlan() {
   const [hover, setHover] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [zoom, setZoom] = useState(100);
+  const [furnished, setFurnished] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const room = rooms.find(item => item.id === (hover ?? selected)) ?? rooms[0];
 
@@ -31,12 +32,19 @@ export default function VelaPlan() {
 
   function drawing(isExpanded: boolean) {
     return <div className="vl-drawing" style={isExpanded ? { width: zoom + "%" } : undefined}>
-      <img src="/vela/plan.svg" alt="Утверждённая планировка ВЕЛА" width="709" height="364" loading="lazy" />
+      <img src={furnished ? "/vela/plan-furnished.webp" : "/vela/plan.svg"} alt={furnished ? "Планировка ВЕЛА с мебелью" : "Планировка ВЕЛА без мебели"} width="709" height="364" loading="lazy" />
       <svg viewBox="40 125 708.662 363.78" className="vl-drawing-overlay" aria-label="Выбор помещения на плане">
         {rooms.map(item => <path key={item.id} data-room={item.id} className={room.id === item.id ? "is-active" : ""} d={item.path}
           onPointerEnter={event => { if (event.pointerType === "mouse") setHover(item.id); }}
           onPointerLeave={() => setHover(null)} onClick={() => { setSelected(item.id); setHover(null); }} />)}
       </svg>
+    </div>;
+  }
+
+  function planOptions() {
+    return <div className="vl-plan-options" role="group" aria-label="Вариант планировки">
+      <button type="button" aria-pressed={!furnished} onClick={() => setFurnished(false)}>Без мебели</button>
+      <button type="button" aria-pressed={furnished} onClick={() => setFurnished(true)}>С мебелью</button>
     </div>;
   }
 
@@ -48,9 +56,10 @@ export default function VelaPlan() {
     <p className="vl-plan-flex">Планировку можно адаптировать: изменения стен, проёмов и инженерии сначала проверяет проектировщик. Возможность, стоимость и сроки согласуем до начала работ.</p>
     <div className="vl-plan-card">
       <div className="vl-plan-content">
+        {planOptions()}
         <div className="vl-plan-toolbar">
           <button type="button" className="vl-text-button" onClick={() => { setHover(null); setZoom(100); setExpanded(true); }}>Увеличить <span aria-hidden="true">+</span></button>
-          <a className="vl-plan-pdf" href="/vela/plan.pdf" download>Скачать планировку PDF</a>
+          <a className="vl-plan-pdf" href={furnished ? "/vela/plan-furnished.webp" : "/vela/plan.pdf"} download>{furnished ? "Скачать планировку с мебелью" : "Скачать планировку PDF"}</a>
         </div>
         <div className="vl-plan-sheet">{drawing(false)}</div>
       </div>
@@ -61,6 +70,7 @@ export default function VelaPlan() {
     </div>
     <dialog ref={dialog} className="vl-dialog vl-plan-dialog" aria-labelledby="plan-dialog-title" onClose={() => { setExpanded(false); setHover(null); }}>
       {expanded && <><div className="vl-dialog-heading"><h2 id="plan-dialog-title">Планировка ВЕЛА</h2><button type="button" className="vl-icon-button" aria-label="Закрыть планировку" onClick={() => setExpanded(false)}>×</button></div>
+        {planOptions()}
         <div className="vl-plan-zoom"><label htmlFor="vela-plan-zoom">Масштаб <strong>{zoom}%</strong></label><input id="vela-plan-zoom" type="range" min="100" max="250" step="5" value={zoom} onChange={event => setZoom(Number(event.target.value))} /></div>
         <div className="vl-plan-pan">{drawing(true)}</div><p className="vl-plan-dialog-detail">{room.title} · {room.area} м²</p></>}
     </dialog>

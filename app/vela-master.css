@@ -114,6 +114,10 @@
 #plan { padding-top: clamp(37px, 6vw, 91px); }
 .vl-plan-card { display: grid; grid-template-columns: minmax(0, 2.25fr) minmax(234px, 1fr); border: 1px solid var(--vl-line); background: var(--vl-white); }
 .vl-plan-content { min-width: 0; display: flex; flex-direction: column; padding: clamp(14px, 2.5vw, 35px); }
+.vl-plan-options { display: flex; gap: 0; width: fit-content; border: 1px solid var(--vl-line); margin-bottom: 16px; }
+.vl-plan-options button { min-height: 44px; padding: 10px 18px; border: 0; border-radius: 0; background: transparent; color: var(--vl-muted); font: inherit; font-size: 13px; cursor: pointer; }
+.vl-plan-options button[aria-pressed="true"] { background: var(--vl-ink, #26352b); color: #fff; }
+.vl-plan-options button:focus-visible { outline: 2px solid var(--vl-orange); outline-offset: 2px; }
 .vl-plan-toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
 .vl-plan-sheet { flex: 1; display: grid; align-items: center; margin-block: 27px; }
 .vl-drawing { position: relative; min-width: 0; }

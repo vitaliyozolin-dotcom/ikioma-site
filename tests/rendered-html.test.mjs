@@ -39,7 +39,7 @@ test("all page anchors and local assets resolve", async () => {
   for (const file of ["404.html", "robots.txt", "sitemap.xml", "favicon.ico", "favicon-32.png", "apple-touch-icon.png", "site.webmanifest", "vela/plan.pdf", "vela/og.jpg"]) await access(new URL(file, root));
 });
 
-test("shows four selected design views, a clear plan and household expense choices", () => {
+test("shows four selected design views, a clear plan and household expense choices", async () => {
   const architecture = plain.match(/<section[^>]*id="architecture"[\s\S]*?<\/section>/)?.[0];
   assert.ok(architecture);
   const captions = ["Терраса", "Кухня-гостиная", "Спальня", "Санузел"];
@@ -47,7 +47,10 @@ test("shows four selected design views, a clear plan and household expense choic
   for (const label of captions) assert.ok(architecture.includes(label), label);
   assert.doesNotMatch(architecture, /graphite-facade|painted-rear|entry-timber/);
   assert.doesNotMatch(plain, /Пример сметы по объекту ИКИОМА|4 782 107/);
-  assert.doesNotMatch(plain, /С мебелью|class="vl-furniture"/);
+  assert.match(plain, /aria-label="Вариант планировки"/);
+  assert.match(plain, /aria-pressed="true">Без мебели/);
+  assert.match(plain, /aria-pressed="false">С мебелью/);
+  await access(new URL("vela/plan-furnished.webp", root));
   assert.match(plain, /href="\/vela\/plan\.pdf"/);
   const expenses = plain.match(/<section[^>]*id="expenses"[\s\S]*?<\/section>/)?.[0];
   assert.ok(expenses);
