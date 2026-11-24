@@ -219,7 +219,7 @@
 .vl-architecture-band .vl-section-heading > p, .vl-viewer-main figcaption, .vl-viewer-side > p { color: #d2d8d1; }
 .vl-viewer { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(260px, 1fr); align-items: start; gap: clamp(18px, 3vw, 44px); }
 .vl-viewer-main { min-width: 0; }
-.vl-viewer-main img { width: 100%; height: auto; aspect-ratio: 1.52; object-fit: cover; }
+.vl-viewer-main img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
 .vl-viewer-main [data-portrait] { background: #19201d; }
 .vl-viewer-main [data-portrait] img { object-fit: contain; }
 .vl-viewer-main [data-portrait]:hover img { transform: none; }

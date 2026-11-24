@@ -138,7 +138,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
     setLead(kind);
   }
 
-  return <div className="vl-page" data-release="vela-family-20261124" onClick={event => {
+  return <div className="vl-page" data-release="vela-living-20261125" onClick={event => {
     if (event.target instanceof Element && event.target.closest("a[href^='tel:'], a[href^='mailto:']")) track("contact_click");
   }}>
     <a href="#main" className="vl-skip">К содержанию</a>

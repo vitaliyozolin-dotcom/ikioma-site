@@ -46,7 +46,10 @@ export function ArchitectureGallery({ items, open }: { items: VelaView[]; open: 
   }
   useEffect(() => {
     const observer = new IntersectionObserver(entries => {
-      if (entries.some(entry => entry.isIntersecting)) { items.forEach(item => void preload(item)); observer.disconnect(); }
+      if (entries.some(entry => entry.isIntersecting)) {
+        if (items[1]) void preload(items[1]);
+        observer.disconnect();
+      }
     }, { rootMargin: "300px" });
     if (section.current) observer.observe(section.current);
     return () => observer.disconnect();

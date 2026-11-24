@@ -14,7 +14,7 @@ test("renders the single verified project with a price for its house kit", () =>
   assert.match(html, /<html lang="ru">/);
   assert.match(plain, /<title>Домокомплект ВЕЛА от 1 725 000 ₽ \| ИКИОМА<\/title>/);
   assert.match(html, /rel="canonical" href="https:\/\/ikioma\.ru\/?"/);
-  assert.match(html, /data-release="vela-family-20261124"/);
+  assert.match(html, /data-release="vela-living-20261125"/);
   assert.equal((html.match(/<h1(?:\s|>)/g) || []).length, 1);
   for (const phrase of ["ВЕЛА", "115", "81,7", "22,2", "Спальни", "Ленинградская область"]) assert.ok(plain.includes(phrase), phrase);
   assert.doesNotMatch(plain, /5,2 млн|6,3 млн|7,2 млн|86,2 м²|23,1 м²|6 000 000|8 000 000|10 000 000|ипотека 6%/i);
@@ -27,7 +27,7 @@ test("all page anchors and local assets resolve", async () => {
   for (const match of html.matchAll(/(?:src|href)="(\/(?:assets|images|brand|vela)\/[^"?#]+)"/g)) await access(new URL("." + match[1], root));
   for (const view of catalog.views) {
     await access(new URL("." + view.src, root));
-    await access(new URL("." + view.small, root));
+    for (const variant of [view.small, view.display, view.thumb]) if (variant) await access(new URL("." + variant, root));
   }
   for (const photo of catalog.photos) {
     await access(new URL("." + photo.src, root));
@@ -39,10 +39,11 @@ test("all page anchors and local assets resolve", async () => {
   for (const file of ["404.html", "robots.txt", "sitemap.xml", "favicon.ico", "favicon-32.png", "apple-touch-icon.png", "site.webmanifest", "vela/plan.pdf", "vela/og.jpg"]) await access(new URL(file, root));
 });
 
-test("shows four selected design views, a clear plan and household expense choices", async () => {
+test("shows the latest approved family scenes, a clear plan and household expense choices", async () => {
   const architecture = plain.match(/<section[^>]*id="architecture"[\s\S]*?<\/section>/)?.[0];
   assert.ok(architecture);
-  const captions = ["Терраса", "Кухня-гостиная", "Спальня", "Санузел"];
+  assert.match(architecture, /src="\/vela\/vela-family-dinner-display\.webp"/);
+  const captions = ["Кухня-гостиная", "Завтрак", "Мультфильм", "Рисование", "Терраса", "Спальня", "Санузел"];
   assert.equal((architecture.match(/class="vl-view-tab"/g) || []).length, captions.length);
   for (const label of captions) assert.ok(architecture.includes(label), label);
   assert.doesNotMatch(architecture, /graphite-facade|painted-rear|entry-timber/);

@@ -69,6 +69,54 @@
       "thumb": "/vela/graphite-facade-thumb.webp"
     },
     {
+      "src": "/vela/vela-family-dinner.webp",
+      "small": "/vela/vela-family-dinner-760.webp",
+      "label": "Кухня-гостиная",
+      "caption": "Семейный ужин",
+      "alt": "Мама и двое детей за столом между кухней и диваном",
+      "note": "Обеденный стол за диваном, кухня вдоль стены и лесное панно за телевизором.",
+      "width": 1448,
+      "height": 1086,
+      "display": "/vela/vela-family-dinner-display.webp",
+      "thumb": "/vela/vela-family-dinner-thumb.webp"
+    },
+    {
+      "src": "/vela/vela-family-breakfast.webp",
+      "small": "/vela/vela-family-breakfast-760.webp",
+      "label": "Завтрак",
+      "caption": "Готовят завтрак",
+      "alt": "Мама и сын украшают блинчики ягодами у кухонной столешницы",
+      "note": "Вид со стороны кухни. Фасады доходят до потолка, за диваном видна обеденная зона.",
+      "width": 1448,
+      "height": 1086,
+      "display": "/vela/vela-family-breakfast-display.webp",
+      "thumb": "/vela/vela-family-breakfast-thumb.webp"
+    },
+    {
+      "src": "/vela/vela-family-movie.webp",
+      "small": "/vela/vela-family-movie-760.webp",
+      "label": "Мультфильм",
+      "caption": "Мультфильм после ужина",
+      "alt": "Двое детей с попкорном смотрят мультфильм на диване",
+      "note": "Ракурс со стороны гостиной. Диван обращён к телевизору на стене с лесным панно.",
+      "width": 1448,
+      "height": 1086,
+      "display": "/vela/vela-family-movie-display.webp",
+      "thumb": "/vela/vela-family-movie-thumb.webp"
+    },
+    {
+      "src": "/vela/vela-family-drawing.webp",
+      "small": "/vela/vela-family-drawing-760.webp",
+      "label": "Рисование",
+      "caption": "Рисуют за обеденным столом",
+      "alt": "Дети рисуют карандашами за деревянным обеденным столом",
+      "note": "За столом можно пообедать, порисовать или заняться уроками.",
+      "width": 1448,
+      "height": 1086,
+      "display": "/vela/vela-family-drawing-display.webp",
+      "thumb": "/vela/vela-family-drawing-thumb.webp"
+    },
+    {
       "src": "/vela/family-terrace.webp",
       "small": "/vela/family-terrace-760.webp",
       "label": "Терраса",
@@ -79,18 +127,6 @@
       "height": 1086,
       "display": "/vela/family-terrace-display.webp",
       "thumb": "/vela/family-terrace-thumb.webp"
-    },
-    {
-      "src": "/vela/family-living.webp",
-      "small": "/vela/family-living-760.webp",
-      "label": "Кухня-гостиная",
-      "caption": "Семейный день в кухне-гостиной",
-      "alt": "Ребёнок рисует за обеденным столом, родители и дети проводят время в кухне-гостиной ВЕЛА",
-      "note": "В кухне-гостиной 22,2 м² есть место для обеденного стола и дивана у окон на террасу.",
-      "width": 1448,
-      "height": 1086,
-      "display": "/vela/family-living-display.webp",
-      "thumb": "/vela/family-living-thumb.webp"
     },
     {
       "src": "/vela/bedroom-forest.webp",
