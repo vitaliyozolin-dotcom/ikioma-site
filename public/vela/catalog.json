@@ -131,7 +131,7 @@
     {
       "src": "/vela/bedroom-forest.webp",
       "small": "/vela/bedroom-forest-760.webp",
-      "label": "Спальня",
+      "label": "Тёмная спальня",
       "caption": "Спальня с тёмным потолком и лесной фреской",
       "alt": "Спальня с панно во всю стену, тёмным наклонным потолком и окном рядом с кроватью",
       "note": "Тёмный потолок, лесная фреска и свет у изголовья.",
@@ -139,6 +139,18 @@
       "height": 1086,
       "display": "/vela/bedroom-forest-display.webp",
       "thumb": "/vela/bedroom-forest-thumb.webp"
+    },
+    {
+      "src": "/vela/bedroom-light.webp",
+      "small": "/vela/bedroom-light-760.webp",
+      "label": "Светлая спальня",
+      "caption": "Спальня в светлых тонах",
+      "alt": "Светлая спальня ВЕЛА с льняными шторами, дубовой мебелью и фотообоями с берёзовым лесом",
+      "note": "Тёплые светлые стены, лён и дуб. Графитовый потолок подчёркивает скат.",
+      "width": 1448,
+      "height": 1086,
+      "display": "/vela/bedroom-light-display.webp",
+      "thumb": "/vela/bedroom-light-thumb.webp"
     },
     {
       "src": "/vela/bath-warm.webp",

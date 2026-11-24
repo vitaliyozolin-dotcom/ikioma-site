@@ -14,7 +14,7 @@ test("renders the single verified project with a price for its house kit", () =>
   assert.match(html, /<html lang="ru">/);
   assert.match(plain, /<title>Домокомплект ВЕЛА от 1 725 000 ₽ \| ИКИОМА<\/title>/);
   assert.match(html, /rel="canonical" href="https:\/\/ikioma\.ru\/?"/);
-  assert.match(html, /data-release="vela-living-20261125"/);
+  assert.match(html, /data-release="vela-bedroom-20261125"/);
   assert.equal((html.match(/<h1(?:\s|>)/g) || []).length, 1);
   for (const phrase of ["ВЕЛА", "115", "81,7", "22,2", "Спальни", "Ленинградская область"]) assert.ok(plain.includes(phrase), phrase);
   assert.doesNotMatch(plain, /5,2 млн|6,3 млн|7,2 млн|86,2 м²|23,1 м²|6 000 000|8 000 000|10 000 000|ипотека 6%/i);
@@ -43,7 +43,7 @@ test("shows the latest approved family scenes, a clear plan and household expens
   const architecture = plain.match(/<section[^>]*id="architecture"[\s\S]*?<\/section>/)?.[0];
   assert.ok(architecture);
   assert.match(architecture, /src="\/vela\/vela-family-dinner-display\.webp"/);
-  const captions = ["Кухня-гостиная", "Завтрак", "Мультфильм", "Рисование", "Терраса", "Спальня", "Санузел"];
+  const captions = ["Кухня-гостиная", "Завтрак", "Мультфильм", "Рисование", "Терраса", "Тёмная спальня", "Светлая спальня", "Санузел"];
   assert.equal((architecture.match(/class="vl-view-tab"/g) || []).length, captions.length);
   for (const label of captions) assert.ok(architecture.includes(label), label);
   assert.doesNotMatch(architecture, /graphite-facade|painted-rear|entry-timber/);
