@@ -117,11 +117,10 @@
 .vl-plan-toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
 .vl-plan-sheet { flex: 1; display: grid; align-items: center; margin-block: 27px; }
 .vl-drawing { position: relative; min-width: 0; }
-.vl-drawing img { width: 100%; height: auto; }
+.vl-drawing img { display: block; width: 100%; height: auto; }
 .vl-drawing-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
 .vl-drawing-overlay path[data-room] { cursor: pointer; fill: #ab4d23; fill-opacity: 0; transition: fill-opacity .22s ease; }
-.vl-drawing-overlay path[data-room].is-active { fill-opacity: .27; }
-.vl-plan-labels { pointer-events: none; fill: #27342a; font: 670 12px "Manrope Variable", sans-serif; }
+.vl-drawing-overlay path[data-room].is-active { fill-opacity: .15; }
 .vl-plan-pdf { min-height: 44px; display: inline-flex; align-items: center; color: var(--vl-muted); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
 .vl-room-panel { padding: 20px 22px 14px; background: #e5ebe8; border-left: 1px solid var(--vl-line); }
 .vl-room-details { min-height: 142px; padding: 4px 0 17px; }
@@ -364,7 +363,6 @@
   .vl-room-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 9px; }
   .vl-room-list button { min-height: 45px; }
   .vl-plan-sheet { margin-block: 14px; }
-  .vl-plan-labels { display: none; }
   .vl-kit-price { border-left: 0; border-top: 1px solid #7e8c7c; padding: 14px 0 0; }
   .vl-quote { position: static; }
   .vl-mobile-quote { display: flex; position: fixed; z-index: 4; bottom: 0; left: 0; right: 0; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px calc(8px + env(safe-area-inset-bottom)); color: #fffdf5; background: var(--vl-ink); }

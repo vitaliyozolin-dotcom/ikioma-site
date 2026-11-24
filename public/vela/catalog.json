@@ -69,28 +69,28 @@
       "thumb": "/vela/graphite-facade-thumb.webp"
     },
     {
-      "src": "/vela/timber-terrace.webp",
-      "small": "/vela/timber-terrace-760.webp",
+      "src": "/vela/family-terrace.webp",
+      "small": "/vela/family-terrace-760.webp",
       "label": "Терраса",
-      "caption": "Терраса под общей кровлей",
-      "alt": "Деревянная терраса под двускатной кровлей, с двумя опорами по краю, входной дверью и окнами",
-      "note": "На террасе 22,2 м² можно разместить кресла или обеденный стол.",
+      "caption": "Завтрак на крытой террасе",
+      "alt": "Семья за столом на деревянной террасе ВЕЛА",
+      "note": "Под общей крышей помещается стол на четверых, а вход в дом остаётся свободным.",
       "width": 1448,
       "height": 1086,
-      "display": "/vela/timber-terrace-display.webp",
-      "thumb": "/vela/timber-terrace-thumb.webp"
+      "display": "/vela/family-terrace-display.webp",
+      "thumb": "/vela/family-terrace-thumb.webp"
     },
     {
-      "src": "/vela/living-forest.webp",
-      "small": "/vela/living-forest-760.webp",
+      "src": "/vela/family-living.webp",
+      "small": "/vela/family-living-760.webp",
       "label": "Кухня-гостиная",
-      "caption": "Кухня-гостиная с лесным панно",
-      "alt": "Кухня слева, обеденный стол и гостиная с диваном у окон на террасу",
-      "note": "Вариант меблировки кухни-гостиной 22,2 м² с деревянной отделкой и мягким светом.",
+      "caption": "Семейный день в кухне-гостиной",
+      "alt": "Ребёнок рисует за обеденным столом, родители и дети проводят время в кухне-гостиной ВЕЛА",
+      "note": "В кухне-гостиной 22,2 м² есть место для обеденного стола и дивана у окон на террасу.",
       "width": 1448,
       "height": 1086,
-      "display": "/vela/living-forest-display.webp",
-      "thumb": "/vela/living-forest-thumb.webp"
+      "display": "/vela/family-living-display.webp",
+      "thumb": "/vela/family-living-thumb.webp"
     },
     {
       "src": "/vela/bedroom-forest.webp",

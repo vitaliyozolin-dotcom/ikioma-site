@@ -61,8 +61,8 @@ export function ArchitectureGallery({ items, open }: { items: VelaView[]; open: 
   return <section ref={section} className="vl-architecture-band" id="architecture" aria-labelledby="vl-architecture-title">
     <div className="vl-section vl-wrap">
       <div className="vl-section-heading">
-        <h2 id="vl-architecture-title">Терраса <em>и интерьер ВЕЛА</em></h2>
-        <p>Визуализации террасы и комнат. Цвета и материалы отделки можно выбрать.</p>
+        <h2 id="vl-architecture-title">Как живётся <em>в ВЕЛА</em></h2>
+        <p>Визуализации семейной жизни в доме и варианты отделки комнат.</p>
       </div>
       <div className="vl-viewer">
         <figure className="vl-viewer-main">

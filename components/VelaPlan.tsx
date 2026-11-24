@@ -1,19 +1,19 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element -- vector source is shared with the cover */
+/* eslint-disable @next/next/no-img-element -- the plan is a vector export of the approved drawing */
 
 import { useEffect, useRef, useState } from "react";
 
 const rooms = [
-  { id: "living", title: "Кухня-гостиная", short: "Кухня-гостиная", area: "22,2", x: 504, y: 190, path: "M406.57 133.22H598.71V354.54H333.57V259.24H406.57Z", description: "Г-образная комната для кухни, обеденного стола и зоны отдыха." },
-  { id: "bed-1", title: "Спальня 1", short: "Спальня", area: "11,8", x: 120, y: 190, path: "M48.22 133.22H194.68V259.24H227.75V303.46H48.22Z", description: "Отдельная спальня с входом из холла." },
-  { id: "bed-2", title: "Спальня 2", short: "Спальня", area: "10,8", x: 300, y: 190, path: "M199.17 133.22H402.08V252.39H199.17Z", description: "Комнату можно использовать как спальню или кабинет." },
-  { id: "bed-3", title: "Спальня 3", short: "Спальня", area: "13,7", x: 138, y: 418, path: "M48.22 310.32H227.75V480.56H48.22Z", description: "Самая большая из трёх спален, с входом из холла." },
-  { id: "hall", title: "Холл", short: "Холл", area: "4,1", x: 280, y: 300, path: "M232.24 259.24H329.09V354.54H232.24Z", description: "Связывает спальни, санузел и общую зону." },
-  { id: "bath", title: "Санузел", short: "Санузел", area: "5,2", x: 280, y: 418, path: "M232.24 361.39H329.09V480.56H232.24Z", description: "Один санузел с входом из холла." },
-  { id: "utility", title: "Техническое помещение", short: "Техпомещение", area: "5,0", x: 380, y: 418, path: "M333.57 361.39H428.06V480.56H333.57Z", description: "Отдельное место для инженерного оборудования. Состав оборудования согласуется в смете." },
-  { id: "entry", title: "Прихожая", short: "Прихожая", area: "8,9", x: 516, y: 418, path: "M432.55 361.39H598.71V480.56H432.55Z", description: "Входная зона с местом для обуви и верхней одежды." },
-  { id: "terrace", title: "Терраса", short: "Терраса", area: "22,2", x: 678, y: 300, path: "M606.93 131.85H748.66V481.93H606.93Z", description: "Площадка на открытом воздухе для стола и кресел. Площадь террасы указана отдельно от внутренних помещений." },
+  { id: "living", title: "Кухня-гостиная", area: "22,2", path: "M406.57 133.22H598.71V354.54H333.57V259.24H406.57Z", description: "Г-образная комната для кухни, обеденного стола и зоны отдыха." },
+  { id: "bed-1", title: "Спальня 1", area: "11,8", path: "M48.22 133.22H194.68V259.24H227.75V303.46H48.22Z", description: "Отдельная спальня с входом из холла." },
+  { id: "bed-2", title: "Спальня 2", area: "10,8", path: "M199.17 133.22H402.08V252.39H199.17Z", description: "Комнату можно использовать как спальню или кабинет." },
+  { id: "bed-3", title: "Спальня 3", area: "13,7", path: "M48.22 310.32H227.75V480.56H48.22Z", description: "Самая большая из трёх спален, с входом из холла." },
+  { id: "hall", title: "Холл", area: "4,1", path: "M232.24 259.24H329.09V354.54H232.24Z", description: "Связывает спальни, санузел и общую зону." },
+  { id: "bath", title: "Санузел", area: "5,2", path: "M232.24 361.39H329.09V480.56H232.24Z", description: "Один санузел с входом из холла." },
+  { id: "utility", title: "Техническое помещение", area: "5", path: "M333.57 361.39H428.06V480.56H333.57Z", description: "Отдельное место для инженерного оборудования. Состав оборудования согласуется в смете." },
+  { id: "entry", title: "Прихожая", area: "8,9", path: "M432.55 361.39H598.71V480.56H432.55Z", description: "Входная зона с местом для обуви и верхней одежды." },
+  { id: "terrace", title: "Терраса", area: "22,2", path: "M606.93 131.85H748.66V481.93H606.93Z", description: "Площадка на открытом воздухе для стола и кресел. Площадь террасы указана отдельно от внутренних помещений." },
 ] as const;
 
 export default function VelaPlan() {
@@ -36,11 +36,6 @@ export default function VelaPlan() {
         {rooms.map(item => <path key={item.id} data-room={item.id} className={room.id === item.id ? "is-active" : ""} d={item.path}
           onPointerEnter={event => { if (event.pointerType === "mouse") setHover(item.id); }}
           onPointerLeave={() => setHover(null)} onClick={() => { setSelected(item.id); setHover(null); }} />)}
-        <g className="vl-plan-labels" aria-hidden="true">
-          {rooms.map(item => <text key={item.id} x={item.x} y={item.y} textAnchor="middle">
-            <tspan>{item.short}</tspan><tspan x={item.x} dy="15">{item.area} м²</tspan>
-          </text>)}
-        </g>
       </svg>
     </div>;
   }
@@ -48,7 +43,7 @@ export default function VelaPlan() {
   return <section className="vl-section vl-wrap" id="plan" aria-labelledby="plan-title">
     <div className="vl-section-heading">
       <div><p className="vl-kicker">Планировка</p><h2 id="plan-title">Все комнаты <em>на одном этаже</em></h2></div>
-      <p>Спальни отделены от общей зоны холлом, а одну из комнат можно использовать как кабинет или гостевую. Выберите помещение, чтобы посмотреть его площадь.</p>
+      <p>Холл отделяет спальни от общей зоны. В кухне-гостиной можно собираться всей семьёй, а летом накрывать стол на крытой террасе.</p>
     </div>
     <p className="vl-plan-flex">Планировку можно адаптировать: изменения стен, проёмов и инженерии сначала проверяет проектировщик. Возможность, стоимость и сроки согласуем до начала работ.</p>
     <div className="vl-plan-card">

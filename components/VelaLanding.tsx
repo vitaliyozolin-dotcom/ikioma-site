@@ -138,7 +138,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
     setLead(kind);
   }
 
-  return <div className="vl-page" data-release="vela-main-domain-20261124" onClick={event => {
+  return <div className="vl-page" data-release="vela-family-20261124" onClick={event => {
     if (event.target instanceof Element && event.target.closest("a[href^='tel:'], a[href^='mailto:']")) track("contact_click");
   }}>
     <a href="#main" className="vl-skip">К содержанию</a>
@@ -157,7 +157,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
           <div className="vl-hero-grid">
             <div className="vl-hero-copy">
               <h1 id="vela-title">ВЕЛА</h1>
-              <p className="vl-hero-headline">{scenario === "base" ? "Одноэтажный СИП-дом" : variant.headline}</p>
+              <p className="vl-hero-headline">{scenario === "base" ? "Одноэтажный СИП-дом для семьи" : variant.headline}</p>
 
               <div className="vl-hero-price"><strong><span className="vl-hero-price-prefix">от</span>{" "}{money(catalog.base.price)}</strong><small>Стоимость домокомплекта. Строительные работы — отдельно.</small></div><p className="vl-hero-intro">Три спальни, кухня-гостиная и терраса</p><p className="vl-hero-region">Строим в Санкт-Петербурге и Ленинградской области</p>
               <div className="vl-actions"><a href={variant.link} className="vl-btn vl-btn-primary">{variant.label}<Arrow /></a><a href="#plan" className="vl-btn vl-btn-outline">Смотреть планировку</a></div>

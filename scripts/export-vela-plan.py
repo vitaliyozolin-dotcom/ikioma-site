@@ -7,7 +7,13 @@ import fitz
 root = Path(__file__).resolve().parents[1]
 out = root / 'public' / 'vela'
 with fitz.open(sys.argv[1] if len(sys.argv) > 1 else out / 'plan.pdf') as document:
-    drawings = document[0].get_drawings()
+    page = document[0]
+    drawings = page.get_drawings()
+    # Use the PDF's original artwork and outline its fonts for the web.
+    plan = page.get_svg_image(text_as_path=True)
+    plan = plan[plan.index('>') + 1:]
+    plan = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="40 125 708.662 363.78">' + plan
+    (out / 'plan.svg').write_text(plan, encoding='utf-8')
 
 def number(value):
     return f'{value:.5f}'.rstrip('0').rstrip('.')
@@ -43,39 +49,11 @@ def path_data(drawing):
         result.append('Z')
     return ' '.join(result)
 
-floors = ['living', 'entry', 'bed-3', 'bed-1', 'bath', 'utility', 'hall', 'bed-2', 'terrace']
-paths = []
-walls = []
 inside = [
     d for d in drawings
     if d['rect'].y0 >= 124 and d['rect'].y1 <= 489 and d['rect'].x0 >= 39 and d['rect'].x1 <= 749
 ]
 assert len(inside) > 70 and len(inside[0]['items']) == 6
-for index, drawing in enumerate(inside):
-    color = hex_color(drawing['fill']) if drawing['fill'] else 'none'
-    outline = (
-        f' stroke="{hex_color(drawing["color"])}" stroke-width="{number(drawing["width"])}"'
-        if drawing['color'] else ''
-    )
-    d = path_data(drawing)
-    paths.append(f'<path fill="{color}"{outline} d="{d}"/>')
-    if color == '#282c27' and index >= len(floors):
-        walls.append(drawing['rect'])
-
-def texture(d, rotate, alpha):
-    return f'<path fill="url(#{rotate})" opacity="{alpha}" d="{path_data(d)}"/>'
-
-patterns = (
-    '<defs><pattern id="wood" width="24" height="7" patternUnits="userSpaceOnUse">'
-    '<path d="M0 0H24 M8 0v3.5 M0 3.5H24 M17 3.5v3.5" fill="none" stroke="#a68e74" stroke-width=".24"/>'
-    '</pattern><pattern id="tile" width="9" height="9" patternUnits="userSpaceOnUse">'
-    '<path d="M0 9V0H9" fill="none" stroke="#a6a99a" stroke-width=".22"/>'
-    '</pattern></defs>'
-)
-for index, floor in enumerate(inside[:8]):
-    paths.insert(9 + index, texture(floor, 'tile' if floors[index] in ('bath', 'utility') else 'wood', '.65'))
-svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 125 708.662 363.78">' + patterns + ''.join(paths) + '</svg>'
-(out / 'plan.svg').write_text(svg, encoding='utf-8')
 
 # The cover is an axonometric plan diagram. Shadow depth and extrusion are
 # graphic conventions, independent of architectural dimensions and elevations.
