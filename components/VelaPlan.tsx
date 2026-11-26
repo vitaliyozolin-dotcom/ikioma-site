@@ -48,7 +48,7 @@ export default function VelaPlan() {
     </div>;
   }
 
-  return <section className="vl-section vl-wrap" id="plan" aria-labelledby="plan-title">
+  return <section className="vl-section vl-wrap" id="plan" tabIndex={-1} aria-labelledby="plan-title">
     <div className="vl-section-heading">
       <div><p className="vl-kicker">Планировка</p><h2 id="plan-title">Все комнаты <em>на одном этаже</em></h2></div>
       <p>Холл отделяет спальни от общей зоны. В кухне-гостиной можно собираться всей семьёй, а летом накрывать стол на крытой террасе.</p>

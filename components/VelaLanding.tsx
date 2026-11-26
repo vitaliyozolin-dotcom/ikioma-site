@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element -- local media are already optimized for static deployment */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { ArchitectureGallery, ConstructionPhotos, FrameIcon, GalleryDialog, VelaMedia, type GalleryState, type OpenGallery } from "./VelaGallery";
 import VelaPlan from "./VelaPlan";
 import VelaBuilder, { type SavedQuote } from "./VelaBuilder";
@@ -89,6 +89,18 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
     return () => window.removeEventListener("hashchange", followHash);
   }, []);
 
+  function showPlan(event: MouseEvent<HTMLAnchorElement>) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const section = document.getElementById("plan");
+    if (!section) return;
+
+    event.preventDefault();
+    const hash = event.currentTarget.hash;
+    if (window.location.hash !== hash) window.history.pushState(null, "", hash);
+    section.focus({ preventScroll: true });
+    section.scrollIntoView({ block: "start", behavior: "instant" });
+  }
+
   function selectCalculator(mode: CalculatorMode, focusPanel = false) {
     setCalcMode(mode);
     const target = calculatorModes.find(item => item.id === mode)!;
@@ -138,7 +150,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
     setLead(kind);
   }
 
-  return <div className="vl-page" data-release="vela-bedroom-20261125" onClick={event => {
+  return <div className="vl-page" data-release="vela-plan-link-20261126" onClick={event => {
     if (event.target instanceof Element && event.target.closest("a[href^='tel:'], a[href^='mailto:']")) track("contact_click");
   }}>
     <a href="#main" className="vl-skip">К содержанию</a>
@@ -160,7 +172,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
               <p className="vl-hero-headline">{scenario === "base" ? "Одноэтажный СИП-дом для семьи" : variant.headline}</p>
 
               <div className="vl-hero-price"><strong><span className="vl-hero-price-prefix">от</span>{" "}{money(catalog.base.price)}</strong><small>Стоимость домокомплекта. Строительные работы — отдельно.</small></div><p className="vl-hero-intro">Три спальни, кухня-гостиная и терраса</p><p className="vl-hero-region">Строим в Санкт-Петербурге и Ленинградской области</p>
-              <div className="vl-actions"><a href={variant.link} className="vl-btn vl-btn-primary">{variant.label}<Arrow /></a><a href="#plan" className="vl-btn vl-btn-outline">Смотреть планировку</a></div>
+              <div className="vl-actions"><a href={variant.link} className="vl-btn vl-btn-primary">{variant.label}<Arrow /></a><a href="#plan" className="vl-btn vl-btn-outline" onClick={showPlan}>Смотреть планировку</a></div>
             </div>
             <figure className="vl-cover">
               <a href="#architecture" aria-label="Смотреть галерею ВЕЛА">

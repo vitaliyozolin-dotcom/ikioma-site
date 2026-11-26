@@ -14,7 +14,7 @@ test("renders the single verified project with a price for its house kit", () =>
   assert.match(html, /<html lang="ru">/);
   assert.match(plain, /<title>Домокомплект ВЕЛА от 1 725 000 ₽ \| ИКИОМА<\/title>/);
   assert.match(html, /rel="canonical" href="https:\/\/ikioma\.ru\/?"/);
-  assert.match(html, /data-release="vela-bedroom-20261125"/);
+  assert.match(html, /data-release="vela-plan-link-20261126"/);
   assert.equal((html.match(/<h1(?:\s|>)/g) || []).length, 1);
   for (const phrase of ["ВЕЛА", "115", "81,7", "22,2", "Спальни", "Ленинградская область"]) assert.ok(plain.includes(phrase), phrase);
   assert.doesNotMatch(plain, /5,2 млн|6,3 млн|7,2 млн|86,2 м²|23,1 м²|6 000 000|8 000 000|10 000 000|ипотека 6%/i);
