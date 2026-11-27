@@ -43,7 +43,7 @@
 .vl-section-heading > p { color: var(--vl-muted); max-width: 40ch; padding-bottom: 4px; }
 .vl-page .vl-kicker { font-size: 11px; line-height: 1.4; letter-spacing: .14em; font-weight: 800; text-transform: uppercase; margin-bottom: 19px; color: #555b53; }
 .vl-page :is(.vl-kit-band, .vl-contact-band, .vl-quote) .vl-kicker { color: #c1c9bb; }
-.vl-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 9px; max-width: 439px; }
+.vl-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 9px; max-width: 439px; margin-top: clamp(16px, 2vw, 24px); }
 .vl-actions .vl-btn { min-height: 49px; padding-inline: 10px; gap: 7px; }
 .vl-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 13px;
@@ -408,12 +408,11 @@
 .vl-section { padding-block: clamp(40px, 5vw, 76px); }
 .vl-architecture-band .vl-section { padding-block: clamp(40px, 5vw, 76px); }
 .vl-hero-region { font-size: 15px; color: #526052; max-width: 360px; }
-.vl-plan-flex { max-width: 800px; margin: 0 0 25px; color: #526052; line-height: 1.6; }
+.vl-page .vl-plan-flex { max-width: 800px; margin: 0 0 clamp(20px, 2.5vw, 32px); color: #526052; line-height: 1.6; }
 .vl-chart-axis { padding: 0 5% 0 18%; white-space: nowrap; }
 
 .vl-calculator {
   background: #e9ede6;
-  scroll-margin-top: 65px;
   --vl-calc-border: #ccd2c7;
   font-variant-numeric: lining-nums tabular-nums;
 }

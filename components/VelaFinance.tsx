@@ -22,7 +22,7 @@ function DebtChart({ result }: { result: MortgageResult }) {
     </svg>
     <div className="vl-chart-axis"><span>0 лет</span><span>{Math.round(result.years / 2)} лет</span><span>{result.years} лет</span></div>
     <figcaption><span>Остаток долга</span><span>Уплаченные проценты</span></figcaption>
-    <details><summary>График по годам в таблице</summary><div className="vl-schedule"><table><thead><tr><th scope="col">Год</th><th scope="col">Долг</th><th scope="col">Проценты</th></tr></thead><tbody>{result.schedule.map(point => <tr key={point.year}><th scope="row">{point.year}</th><td>{money(point.balance)}</td><td>{money(point.interest)}</td></tr>)}</tbody></table></div></details>
+    <details><summary>График по годам в таблице</summary><div className="vl-schedule"><table><thead><tr><th scope="col">Год</th><th scope="col">Долг</th><th scope="col">Проценты</th></tr></thead><tbody>{result.schedule.map(point => <tr key={point.year}><th scope="row">{point.year}</th><td>{money(point.balance)}</td><td>{money(point.interest)}</td></tr>)}</tbody></table></div></details>
   </figure>;
 }
 
@@ -52,29 +52,29 @@ export default function VelaFinance({ mode, quote, onLead, onMortgage, track }: 
 
   function requestExpenses() {
     onMortgage(null);
-    onLead("estimate", `Оценка содержания ВЕЛА: жильцов — ${residents}; проживание — ${residence}; своя скважина и септик. Нужны расходы зимой и летом, обслуживание отдельно.`);
+    onLead("estimate", `Оценка содержания ВЕЛА: жильцов — ${residents}; проживание — ${residence}; своя скважина и септик. Нужны расходы зимой и летом, обслуживание отдельно.`);
   }
 
   return <>
     <section hidden={mode !== "mortgage"} id="mortgage" aria-labelledby="vl-mortgage-title">
       <div className="vl-calc-panel-heading">
-        <h3 id="vl-mortgage-title">Какой будет платёж в месяц?</h3>
-        <p>Возьмите сумму из комплектации или введите полный бюджет строительства.</p>
+        <h3 id="vl-mortgage-title">Какой будет платёж в месяц?</h3>
+        <p>Возьмите сумму из комплектации или введите полный бюджет строительства.</p>
       </div>
       <div className="vl-finance-grid">
         <div className="vl-finance-form">
           <div className="vl-budget-input">
             <Field id="vl-budget" label="Бюджет строительства, ₽" value={budget} set={value => updateMortgage(setBudget, value)} min={1} max={100_000_000} placeholder="Ваш бюджет" />
             {customBudget === null
-              ? <p className="vl-budget-source">Из расчёта стоимости ВЕЛА. Учтены позиции с ценой.</p>
-              : <button type="button" className="vl-text-button" onClick={() => setBudget(null)}>Вернуть сумму из расчёта · {money(quote.total)}</button>}
+              ? <p className="vl-budget-source">Из расчёта стоимости ВЕЛА. Учтены позиции с ценой.</p>
+              : <button type="button" className="vl-text-button" onClick={() => setBudget(null)}>Вернуть сумму из расчёта · {money(quote.total)}</button>}
           </div>
           <div className="vl-form-fields">
             <Field id="vl-down" label="Первоначальный взнос, %" value={down} set={value => updateMortgage(setDown, value)} max={100} step={0.1} />
             <Field id="vl-years" label="Срок кредита, лет" value={years} set={value => updateMortgage(setYears, value)} min={catalog.mortgage.minYears} max={catalog.mortgage.maxYears} />
             <Field id="vl-rate" label="Годовая ставка, %" value={rate} set={value => updateMortgage(setRate, value)} max={catalog.mortgage.maxRate} step={0.1} />
           </div>
-          <p className="vl-note">Начальная ставка в калькуляторе — 6% для сценария семейной ипотеки. Условия подтверждает банк. Страховки и комиссии рассчитываются отдельно.</p>
+          <p className="vl-note">Начальная ставка в калькуляторе — 6% для сценария семейной ипотеки. Условия подтверждает банк. Страховки и комиссии рассчитываются отдельно.</p>
           {catalog.mortgage.source && <p><a href={catalog.mortgage.source}>Источник условий финансирования</a></p>}
         </div>
         <div className="vl-finance-result">
@@ -87,11 +87,11 @@ export default function VelaFinance({ mode, quote, onLead, onMortgage, track }: 
               <div><dt>Бюджет</dt><dd>{money(scenario.budget)}</dd></div>
               <div><dt>Первоначальный взнос</dt><dd>{money(scenario.deposit)}</dd></div>
               <div><dt>Сумма кредита</dt><dd>{money(scenario.principal)}</dd></div>
-              <div><dt>Всего платежей по кредиту</dt><dd>{money(scenario.total)}</dd></div>
-              <div><dt>Переплата по процентам</dt><dd>{money(scenario.interest)}</dd></div>
+              <div><dt>Всего платежей по кредиту</dt><dd>{money(scenario.total)}</dd></div>
+              <div><dt>Переплата по процентам</dt><dd>{money(scenario.interest)}</dd></div>
             </dl>
             <DebtChart result={scenario} />
-          </> : <p className="vl-note">Введите бюджет, взнос, срок и ставку в пределах полей.</p>}
+          </> : <p className="vl-note">Введите бюджет, взнос, срок и ставку в пределах полей.</p>}
           <button type="button" className="vl-btn vl-btn-primary" onClick={() => { onMortgage(scenario); onLead("mortgage"); }}>Обсудить финансирование</button>
         </div>
       </div>
@@ -99,7 +99,7 @@ export default function VelaFinance({ mode, quote, onLead, onMortgage, track }: 
     <section hidden={mode !== "expenses"} id="expenses" aria-labelledby="vl-expenses-title">
       <div className="vl-calc-panel-heading">
         <h3 id="vl-expenses-title">Сколько будет стоить содержание?</h3>
-        <p>Укажите, сколько человек будет жить в доме и как часто. Подготовим оценку на зиму и лето.</p>
+        <p>Укажите, сколько человек будет жить в доме и как часто. Подготовим оценку на зиму и лето.</p>
       </div>
       <div className="vl-finance-grid">
         <div className="vl-finance-form vl-living-form">
@@ -107,23 +107,23 @@ export default function VelaFinance({ mode, quote, onLead, onMortgage, track }: 
             <div className="vl-field">
               <label htmlFor="vl-residents">Сколько человек будет жить?</label>
               <select id="vl-residents" value={residents} onChange={event => setResidents(event.target.value)}>
-                {["1", "2", "3", "4", "5", "6 и больше"].map(count => <option key={count}>{count}</option>)}
+                {["1", "2", "3", "4", "5", "6 и больше"].map(count => <option key={count}>{count}</option>)}
               </select>
             </div>
             <div className="vl-field">
               <label htmlFor="vl-residence">Режим проживания</label>
               <select id="vl-residence" value={residence} onChange={event => setResidence(event.target.value)}>
-                {["Постоянно", "По выходным", "Только летом"].map(option => <option key={option}>{option}</option>)}
+                {["Постоянно", "По выходным", "Только летом"].map(option => <option key={option}>{option}</option>)}
               </select>
             </div>
           </div>
-          <p className="vl-note">Для оценки уточним тариф на электричество, систему отопления и оборудование.</p>
+          <p className="vl-note">Для оценки уточним тариф на электричество, систему отопления и оборудование.</p>
         </div>
         <div className="vl-finance-result vl-living-result">
-          <p className="vl-result-label">Что войдёт в оценку</p>
+          <p className="vl-result-label">Что войдёт в оценку</p>
           <dl>
-            <div><dt>Электричество зимой и летом</dt><dd>Отопление, горячая вода, освещение и техника.</dd></div>
-            <div><dt>Обслуживание оборудования</dt><dd>Скважина, септик и фильтры с учётом периодичности работ.</dd></div>
+            <div><dt>Электричество зимой и летом</dt><dd>Отопление, горячая вода, освещение и техника.</dd></div>
+            <div><dt>Обслуживание оборудования</dt><dd>Скважина, септик и фильтры с учётом периодичности работ.</dd></div>
           </dl>
           <button type="button" className="vl-btn vl-btn-primary" onClick={requestExpenses}>Получить оценку расходов</button>
         </div>

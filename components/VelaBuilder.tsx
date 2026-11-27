@@ -62,7 +62,7 @@ export default function VelaBuilder({ selection, setSelection, quote, restore, o
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       setHistory(next);
-      setStatus("Расчёт сохранён в этом браузере.");
+      setStatus("Расчёт сохранён в этом браузере.");
       track("calculator_complete", { selected: selection.length });
     } catch { setStatus("Браузер не разрешил сохранить расчёт. Можно скачать его в PDF."); }
   }
@@ -74,7 +74,7 @@ export default function VelaBuilder({ selection, setSelection, quote, restore, o
     url.searchParams.set("cv", quote.version);
     setShareLink(url.href);
     try { await navigator.clipboard.writeText(url.href); setStatus("Ссылка скопирована."); }
-    catch { setStatus("Скопируйте ссылку из поля ниже."); }
+    catch { setStatus("Скопируйте ссылку из поля ниже."); }
   }
 
   async function pdf() {
@@ -95,13 +95,13 @@ export default function VelaBuilder({ selection, setSelection, quote, restore, o
       <span id="calculator-home" className="vl-anchor" aria-hidden="true" />
       <div className="vl-calc-panel-heading">
         <h3 id="vl-builder-title">Что нужно для строительства?</h3>
-        <p>Отметьте работы. Стоимость выбранных позиций появится в вашем расчёте.</p>
+        <p>Отметьте работы. Стоимость выбранных позиций появится в вашем расчёте.</p>
       </div>
-      {historic && <div className="vl-notice" role="status">Показан расчёт по ценам от {quote.validFrom.split("-").reverse().join(".")}. <button type="button" onClick={() => setSelection(selection)}>Пересчитать по текущим ценам</button></div>}
+      {historic && <div className="vl-notice" role="status">Показан расчёт по ценам от {quote.validFrom.split("-").reverse().join(".")}. <button type="button" onClick={() => setSelection(selection)}>Пересчитать по текущим ценам</button></div>}
       <div className="vl-builder-grid">
         <div className="vl-options">
-          <div className="vl-option-base"><div><p>Входит в расчёт</p><strong>{catalog.base.title}</strong></div><b>от {money(historic ? quote.known[0].price : catalog.base.price)}</b></div>
-          <details className="vl-kit-details"><summary>Что входит в домокомплект</summary><p>{catalog.base.description}</p><dl>{catalog.specification.map(item => <div key={item.title}><dt>{item.title}</dt><dd>{item.description}</dd></div>)}</dl></details>
+          <div className="vl-option-base"><div><p>Входит в расчёт</p><strong>{catalog.base.title}</strong></div><b>от {money(historic ? quote.known[0].price : catalog.base.price)}</b></div>
+          <details className="vl-kit-details"><summary>Что входит в домокомплект</summary><p>{catalog.base.description}</p><dl>{catalog.specification.map(item => <div key={item.title}><dt>{item.title}</dt><dd>{item.description}</dd></div>)}</dl></details>
           {catalog.groups.map((group, index) => <details className="vl-option-group" open={index < 2} key={group.id}>
             <summary><div><strong>{group.title}</strong><span>{group.description}</span></div><span className="vl-group-count">{group.services.filter(item => selection.includes(item.id)).length || ""}</span></summary>
             <div className="vl-service-list">{group.services.map(service => {
@@ -115,10 +115,10 @@ export default function VelaBuilder({ selection, setSelection, quote, restore, o
         </div>
         <aside className="vl-quote" ref={summary} id="vela-quote" aria-labelledby="vl-quote-title">
           <p id="vl-quote-title" className="vl-kicker">Ваш расчёт</p>
-          <div aria-live="polite" aria-atomic="true"><span className="vl-quote-prefix">от</span><strong className="vl-quote-total">{money(quote.total)}</strong><p className="vl-quote-caption">Домокомплект и выбранные работы с ценой</p></div>
+          <div aria-live="polite" aria-atomic="true"><span className="vl-quote-prefix">от</span><strong className="vl-quote-total">{money(quote.total)}</strong><p className="vl-quote-caption">Домокомплект и выбранные работы с ценой</p></div>
           <ul className="vl-quote-lines">{quote.known.map(row => <li key={row.id}><span>{row.title}</span><b>{money(row.price)}</b></li>)}</ul>
           {quote.pending.length > 0 && <details open className="vl-quote-details"><summary>Уточним стоимость <span>{quote.pending.length}</span></summary><ul>{quote.pending.map(item => <li key={item.id}>{item.title}</li>)}</ul></details>}
-          {quote.omitted.length > 0 && <details className="vl-quote-details"><summary>Не включены в расчёт <span>{quote.omitted.length}</span></summary><ul>{quote.omitted.map(item => <li key={item.id}>{item.title}</li>)}</ul></details>}
+          {quote.omitted.length > 0 && <details className="vl-quote-details"><summary>Не включены в расчёт <span>{quote.omitted.length}</span></summary><ul>{quote.omitted.map(item => <li key={item.id}>{item.title}</li>)}</ul></details>}
           <button type="button" className="vl-btn vl-btn-primary vl-full" onClick={() => { track("budget_configurator_lead"); onLead(); }}>Получить подробную смету</button>
           <button type="button" className="vl-quote-next" onClick={onFinance}>Посчитать ипотечный платёж</button>
           <div className="vl-quote-tools">
@@ -127,11 +127,11 @@ export default function VelaBuilder({ selection, setSelection, quote, restore, o
           <div className="vl-quote-history"><button type="button" onClick={() => { const saved = readHistory(); setHistory(saved); if (!saved.length) setStatus("Здесь появятся сохранённые расчёты."); }}>Мои расчёты</button>
             {history.length > 0 && <ul>{history.map(item => <li key={item.savedAt}><button type="button" onClick={() => { restore(item); setStatus("Открыт сохранённый расчёт."); setShareLink(""); }}>{new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Moscow" }).format(new Date(item.savedAt))} · {money(item.quote.total)}</button></li>)}</ul>}
           </div>
-          {shareLink && <input type="url" aria-label="Ссылка на расчёт" readOnly value={shareLink} onFocus={event => event.target.select()} />}
+          {shareLink && <input type="url" aria-label="Ссылка на расчёт" readOnly value={shareLink} onFocus={event => event.target.select()} />}
           {status && <p className="vl-quote-status" role="status">{status}</p>}
         </aside>
       </div>
     </div>
-    {inView && !summaryVisible && <div className="vl-mobile-quote"><span><small>По выбранным позициям</small><b>от {money(quote.total)}</b></span><a className="vl-btn vl-btn-primary" href="#vela-quote">Открыть расчёт</a></div>}
+    {inView && !summaryVisible && <div className="vl-mobile-quote"><span><small>По выбранным позициям</small><b>от {money(quote.total)}</b></span><a className="vl-btn vl-btn-primary" href="#vela-quote">Открыть расчёт</a></div>}
   </section>;
 }

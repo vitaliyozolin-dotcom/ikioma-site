@@ -16,38 +16,38 @@ import { catalog, estimate, money, selectionFor, type Estimate, type MortgageRes
 export type LandingScenario = "base" | "own-land" | "mortgage" | "land-home";
 const variants: Record<LandingScenario, { headline: string; link: string; label: string }> = {
   base: { headline: catalog.headline, link: "#finance", label: "Рассчитать стоимость" },
-  "own-land": { headline: "Дом на вашем участке", link: "#finance", label: "Рассчитать стоимость" },
-  mortgage: { headline: "Дом с расчётом ипотеки", link: "#mortgage", label: "Рассчитать ипотеку" },
-  "land-home": { headline: "Участок и свой дом", link: "#finance", label: "Рассчитать строительство" },
+  "own-land": { headline: "Дом на вашем участке", link: "#finance", label: "Рассчитать стоимость" },
+  mortgage: { headline: "Дом с расчётом ипотеки", link: "#mortgage", label: "Рассчитать ипотеку" },
+  "land-home": { headline: "Участок и свой дом", link: "#finance", label: "Рассчитать строительство" },
 };
 const nav = [["architecture", "Галерея"], ["plan", "Планировка"], ["finance", "Стоимость"], ["mortgage", "Ипотека"], ["process", "Как строим"]] as const;
 const calculatorModes = [
   { id: "construction", anchor: "finance", panel: "construction-calculator", label: "Стоимость дома" },
-  { id: "mortgage", anchor: "mortgage", panel: "mortgage", label: "Платёж по ипотеке" },
+  { id: "mortgage", anchor: "mortgage", panel: "mortgage", label: "Платёж по ипотеке" },
   { id: "expenses", anchor: "expenses", panel: "expenses", label: "Содержание дома" },
 ] as const;
 type CalculatorMode = typeof calculatorModes[number]["id"];
 const facts = [["115", "Площадь застройки", "м²"], ["81,7", "Площадь помещений", "м²"], ["22,2", "Площадь террасы", "м²"], ["3", "Спальни", ""]] as const;
 const stages = [
-  ["Заявка", "Уточняем, какой результат вы хотите получить."], ["Участок", "Смотрим подъезд, рельеф и коммуникации."],
-  ["Смета", "Согласуем состав работ и стоимость."], ["Договор и оплата", "Фиксируем комплектацию, этапы и порядок платежей."],
-  ["Производство", "Готовим домокомплект к отгрузке."], ["Доставка", "Согласуем дату, подъезд и разгрузку."],
-  ["Монтаж", "Собираем домокомплект на подготовленном основании."], ["Дополнительные работы", "Выполняем работы по согласованной комплектации."],
-  ["Приёмка", "Проверяем выполненные работы и подписываем документы."],
+  ["Заявка", "Уточняем, какой результат вы хотите получить."], ["Участок", "Смотрим подъезд, рельеф и коммуникации."],
+  ["Смета", "Согласуем состав работ и стоимость."], ["Договор и оплата", "Фиксируем комплектацию, этапы и порядок платежей."],
+  ["Производство", "Готовим домокомплект к отгрузке."], ["Доставка", "Согласуем дату, подъезд и разгрузку."],
+  ["Монтаж", "Собираем домокомплект на подготовленном основании."], ["Дополнительные работы", "Выполняем работы по согласованной комплектации."],
+  ["Приёмка", "Проверяем выполненные работы и подписываем документы."],
 ] as const;
 const faq = [
-  ["Что такое домокомплект?", "Это комплект для сборки дома ВЕЛА. Точный список деталей, материалов и документации фиксируем в спецификации к договору."],
-  ["Что входит в стартовую цену?", "По стартовой цене рассчитывается домокомплект. Фундамент, монтаж, кровля, окна, фасад, доставка и другие работы можно добавить при расчёте."],
-  ["Почему фундамент считают отдельно?", "Тип и объём основания зависят от грунта, рельефа участка и проекта. Стартовый ориентир доступен в калькуляторе."],
-  ["Сколько стоит монтаж?", "Монтаж домокомплекта считается отдельно. Его стартовую цену можно добавить в калькуляторе, а точный состав сверить в смете."],
-  ["Можно ли изменить планировку?", "ВЕЛА представлен в утверждённой планировке. Возможность изменения проёмов или перегородок можно обсудить с проектировщиком до договора."],
-  ["Как рассчитывается инженерия?", "Для электрики, воды, отопления, канализации и вентиляции нужны исходные данные участка и согласованный состав оборудования."],
-  ["Почему отделку рассчитывают индивидуально?", "Сумма зависит от площади работ, выбранных материалов, состояния основания и требований к отделке."],
-  ["Можно ли строить на моём участке?", "Да, если условия участка допускают строительство. До сметы проверяем подъезд, рельеф, коммуникации и применимые ограничения."],
-  ["Какие гарантии действуют?", "Гарантийные условия и порядок обращения указываются в договоре с учётом выбранного комплекта и состава работ."],
-  ["Как устроена оплата?", "Суммы, этапы и условия платежей указываются в договоре после согласования сметы и способа финансирования."],
-  ["Можно ли использовать ипотеку?", "Возможность финансирования зависит от банка, участка, договора и условий заёмщика. Для оценки платежа укажите свою ставку в калькуляторе."],
-  ["Что нужно для точной сметы?", "Район или адрес участка, сведения о подъезде и коммуникациях, нужные работы и пожелания по материалам."],
+  ["Что такое домокомплект?", "Это комплект для сборки дома ВЕЛА. Точный список деталей, материалов и документации фиксируем в спецификации к договору."],
+  ["Что входит в стартовую цену?", "По стартовой цене рассчитывается домокомплект. Фундамент, монтаж, кровля, окна, фасад, доставка и другие работы можно добавить при расчёте."],
+  ["Почему фундамент считают отдельно?", "Тип и объём основания зависят от грунта, рельефа участка и проекта. Стартовый ориентир доступен в калькуляторе."],
+  ["Сколько стоит монтаж?", "Монтаж домокомплекта считается отдельно. Его стартовую цену можно добавить в калькуляторе, а точный состав сверить в смете."],
+  ["Можно ли изменить планировку?", "ВЕЛА представлен в утверждённой планировке. Возможность изменения проёмов или перегородок можно обсудить с проектировщиком до договора."],
+  ["Как рассчитывается инженерия?", "Для электрики, воды, отопления, канализации и вентиляции нужны исходные данные участка и согласованный состав оборудования."],
+  ["Почему отделку рассчитывают индивидуально?", "Сумма зависит от площади работ, выбранных материалов, состояния основания и требований к отделке."],
+  ["Можно ли строить на моём участке?", "Да, если условия участка допускают строительство. До сметы проверяем подъезд, рельеф, коммуникации и применимые ограничения."],
+  ["Какие гарантии действуют?", "Гарантийные условия и порядок обращения указываются в договоре с учётом выбранного комплекта и состава работ."],
+  ["Как устроена оплата?", "Суммы, этапы и условия платежей указываются в договоре после согласования сметы и способа финансирования."],
+  ["Можно ли использовать ипотеку?", "Возможность финансирования зависит от банка, участка, договора и условий заёмщика. Для оценки платежа укажите свою ставку в калькуляторе."],
+  ["Что нужно для точной сметы?", "Район или адрес участка, сведения о подъезде и коммуникациях, нужные работы и пожелания по материалам."],
 ] as const;
 
 function Arrow({ diagonal = false }: { diagonal?: boolean }) {
@@ -89,16 +89,21 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
     return () => window.removeEventListener("hashchange", followHash);
   }, []);
 
-  function showPlan(event: MouseEvent<HTMLAnchorElement>) {
+  function navigateSection(event: MouseEvent<HTMLAnchorElement>) {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const section = document.getElementById("plan");
+    const hash = event.currentTarget.hash;
+    const mode = calculatorModes.find(item => "#" + item.anchor === hash);
+    const section = document.getElementById(mode ? "finance" : hash.slice(1));
     if (!section) return;
 
     event.preventDefault();
-    const hash = event.currentTarget.hash;
     if (window.location.hash !== hash) window.history.pushState(null, "", hash);
-    section.focus({ preventScroll: true });
-    section.scrollIntoView({ block: "start", behavior: "instant" });
+    if (mode) setCalcMode(mode.id);
+    setMenu(false);
+    requestAnimationFrame(() => {
+      section.focus({ preventScroll: true });
+      section.scrollIntoView({ block: "start", behavior: "instant" });
+    });
   }
 
   function selectCalculator(mode: CalculatorMode, focusPanel = false) {
@@ -107,7 +112,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
     window.history.replaceState(null, "", "#" + target.anchor);
     if (focusPanel) {
       requestAnimationFrame(() => {
-        document.getElementById("finance")?.scrollIntoView();
+        document.getElementById("finance")?.scrollIntoView({ behavior: "instant" });
         document.getElementById(`vela-mode-${mode}`)?.focus({ preventScroll: true });
       });
     }
@@ -125,7 +130,7 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
       const ids = params.get("vela");
       if (ids === null) return;
       const version = params.get("cv");
-      if (version && version !== catalog.version) setCatalogNotice("По ссылке открыты выбранные работы. Расчёт показан по текущим ценам.");
+      if (version && version !== catalog.version) setCatalogNotice("По ссылке открыты выбранные работы. Расчёт показан по текущим ценам.");
       setSelection(selectionFor(ids.split(",")));
     });
     return () => cancelAnimationFrame(frame);
@@ -150,18 +155,18 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
     setLead(kind);
   }
 
-  return <div className="vl-page" data-release="vela-plan-link-20261126" onClick={event => {
+  return <div className="vl-page" data-release="vela-polish-20261127" onClick={event => {
     if (event.target instanceof Element && event.target.closest("a[href^='tel:'], a[href^='mailto:']")) track("contact_click");
   }}>
-    <a href="#main" className="vl-skip">К содержанию</a>
+    <a href="#main" className="vl-skip">К содержанию</a>
     <header className="vl-header" id="top" onKeyDown={event => { if (event.key === "Escape" && menu) { setMenu(false); event.currentTarget.querySelector<HTMLButtonElement>(".vl-menu-button")?.focus(); } }}>
       <div className="vl-wrap vl-header-inner">
-        <a className="vl-brand" href="#top" aria-label="ИКИОМА, в начало страницы"><img src="/brand/ikioma-symbol.svg" alt="" width="29" height="31" /><span>ИКИОМА</span></a>
-        <nav className="vl-nav" aria-label="Навигация по проекту">{nav.map(([id, label]) => <a href={"#" + id} key={id}>{label}</a>)}</nav>
+        <a className="vl-brand" href="#top" aria-label="ИКИОМА, в начало страницы"><img src="/brand/ikioma-symbol.svg" alt="" width="29" height="31" /><span>ИКИОМА</span></a>
+        <nav className="vl-nav" aria-label="Навигация по проекту">{nav.map(([id, label]) => <a href={"#" + id} key={id} onClick={navigateSection}>{label}</a>)}</nav>
         <button type="button" className="vl-header-cta" onClick={() => openLead("consultation")}>Обсудить проект <Arrow diagonal /></button>
-        <button type="button" className="vl-menu-button" aria-expanded={menu} aria-controls="vl-mobile-nav" onClick={() => setMenu(!menu)}>{menu ? "Закрыть" : "Меню"}</button>
+        <button type="button" className="vl-menu-button" aria-expanded={menu} aria-controls="vl-mobile-nav" onClick={() => setMenu(open => !open)}>{menu ? "Закрыть" : "Меню"}</button>
       </div>
-      <nav className="vl-mobile-nav" id="vl-mobile-nav" aria-label="Навигация по проекту" hidden={!menu}>{[...nav, ["contacts", "Контакты"]].map(([id,label]) => <a href={"#" + id} key={id} onClick={() => setMenu(false)}>{label}<Arrow /></a>)}</nav>
+      <nav className="vl-mobile-nav" id="vl-mobile-nav" aria-label="Навигация по проекту" hidden={!menu}>{[...nav, ["contacts", "Контакты"]].map(([id,label]) => <a href={"#" + id} key={id} onClick={navigateSection}>{label}<Arrow /></a>)}</nav>
     </header>
     <main id="main" tabIndex={-1}>
       <section className="vl-hero" aria-labelledby="vela-title" data-section="hero">
@@ -171,8 +176,8 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
               <h1 id="vela-title">ВЕЛА</h1>
               <p className="vl-hero-headline">{scenario === "base" ? "Одноэтажный СИП-дом для семьи" : variant.headline}</p>
 
-              <div className="vl-hero-price"><strong><span className="vl-hero-price-prefix">от</span>{" "}{money(catalog.base.price)}</strong><small>Стоимость домокомплекта. Строительные работы — отдельно.</small></div><p className="vl-hero-intro">Три спальни, кухня-гостиная и терраса</p><p className="vl-hero-region">Строим в Санкт-Петербурге и Ленинградской области</p>
-              <div className="vl-actions"><a href={variant.link} className="vl-btn vl-btn-primary">{variant.label}<Arrow /></a><a href="#plan" className="vl-btn vl-btn-outline" onClick={showPlan}>Смотреть планировку</a></div>
+              <div className="vl-hero-price"><strong><span className="vl-hero-price-prefix">от</span>{" "}{money(catalog.base.price)}</strong><small>Стоимость домокомплекта. Строительные работы — отдельно.</small></div><p className="vl-hero-intro">Три спальни, кухня-гостиная и терраса</p><p className="vl-hero-region">Строим в Санкт-Петербурге и Ленинградской области</p>
+              <div className="vl-actions"><a href={variant.link} className="vl-btn vl-btn-primary" onClick={navigateSection}>{variant.label}<Arrow /></a><a href="#plan" className="vl-btn vl-btn-outline" onClick={navigateSection}>Смотреть планировку</a></div>
             </div>
             <figure className="vl-cover">
               <a href="#architecture" aria-label="Смотреть галерею ВЕЛА">
@@ -190,11 +195,11 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
       <span id="house" />
       <VelaPlan />
 
-      <section id="finance" className="vl-calculator" aria-labelledby="vl-calculator-title">
+      <section id="finance" tabIndex={-1} className="vl-calculator" aria-labelledby="vl-calculator-title">
         <div className="vl-wrap vl-section">
           <div className="vl-calculator-intro">
             <h2 id="vl-calculator-title">Сколько стоит ВЕЛА</h2>
-            <p>Начните с выбора работ. Сумма автоматически подставится в расчёт ипотеки.</p>
+            <p>Начните с выбора работ. Сумма автоматически подставится в расчёт ипотеки.</p>
           </div>
           <div className="vl-calc-shell">
             <div className="vl-calc-tabs" role="group" aria-label="Тип расчёта">
@@ -218,25 +223,25 @@ export default function VelaLanding({ scenario = "base" }: { scenario?: LandingS
         </div>
       </section>
       <ConstructionPhotos items={catalog.photos} open={openGallery} action={<button type="button" className="vl-text-button" onClick={() => openLead("visit")}>Запросить просмотр объекта <Arrow diagonal /></button>} />
-      <section className="vl-wrap vl-section" id="process" aria-labelledby="vl-process-title">
-        <div className="vl-section-heading"><div><p className="vl-kicker">От заявки до приёмки</p><h2 id="vl-process-title">Как проходит <em>строительство</em></h2></div><p>Состав работ, сроки и порядок оплаты согласуем для вашего участка и фиксируем в договоре.</p></div>
+      <section className="vl-wrap vl-section" id="process" tabIndex={-1} aria-labelledby="vl-process-title">
+        <div className="vl-section-heading"><div><p className="vl-kicker">От заявки до приёмки</p><h2 id="vl-process-title">Как проходит <em>строительство</em></h2></div><p>Состав работ, сроки и порядок оплаты согласуем для вашего участка и фиксируем в договоре.</p></div>
         <ol className="vl-timeline">{stages.map(([title,copy]) => <li key={title}><h3>{title}</h3><p>{copy}</p></li>)}</ol>
-        <div className="vl-trust"><div><h3>Гарантии и документы</h3><p>{catalog.warranty ?? "Условия гарантии, список работ и порядок приёмки указываются в договоре. Запросите их вместе с расчётом."}</p>{catalog.promotion && <p>{catalog.promotion}</p>}</div><div><h3>Регистрация дома</h3><p>До начала работ согласуем, какие документы подготовим и в чём сможем помочь с оформлением.</p></div></div>
+        <div className="vl-trust"><div><h3>Гарантии и документы</h3><p>{catalog.warranty ?? "Условия гарантии, список работ и порядок приёмки указываются в договоре. Запросите их вместе с расчётом."}</p>{catalog.promotion && <p>{catalog.promotion}</p>}</div><div><h3>Регистрация дома</h3><p>До начала работ согласуем, какие документы подготовим и в чём сможем помочь с оформлением.</p></div></div>
       </section>
       <section className="vl-faq-band" id="faq" aria-labelledby="vl-faq-title">
         <div className="vl-wrap vl-section vl-faq" id="questions">
-          <div><p className="vl-kicker">Перед решением</p><h2 id="vl-faq-title">Ответы <em>на вопросы</em></h2></div>
+          <div><p className="vl-kicker">Перед решением</p><h2 id="vl-faq-title">Ответы <em>на вопросы</em></h2></div>
           <div>{faq.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div>
         </div>
       </section>
-      <section className="vl-contact-band" id="contacts" aria-labelledby="vl-contact-title">
+      <section className="vl-contact-band" id="contacts" tabIndex={-1} aria-labelledby="vl-contact-title">
         <div className="vl-wrap vl-contact-inner">
-          <div><p className="vl-kicker">Обсудить ВЕЛА</p><h2 id="vl-contact-title">Рассчитаем дом <em>для вашего участка</em></h2><p>Расскажите, где планируете строить и какие работы нужны. Подготовим смету по выбранной комплектации.</p></div>
+          <div><p className="vl-kicker">Обсудить ВЕЛА</p><h2 id="vl-contact-title">Рассчитаем дом <em>для вашего участка</em></h2><p>Расскажите, где планируете строить и какие работы нужны. Подготовим смету по выбранной комплектации.</p></div>
           <div><button type="button" className="vl-btn vl-btn-primary" onClick={() => { setMortgageScenario(null); openLead("estimate"); }}>Получить расчёт для моего участка <Arrow diagonal /></button><a className="vl-contact-phone" href={"tel:" + operator.phoneHref}>{operator.phone}</a></div>
         </div>
       </section>
     </main>
-    <footer className="vl-footer"><div className="vl-wrap"><LegalFooter /><div className="vl-footer-tail"><a href="#top" className="vl-brand"><img src="/brand/ikioma-symbol.svg" alt="" width="23" height="24" /><span>ИКИОМА</span></a><span>Санкт-Петербург и Ленинградская область</span><a href="/contacts/">Контакты</a><a href="/calculation-terms/">Условия расчёта</a></div></div></footer>
+    <footer className="vl-footer"><div className="vl-wrap"><LegalFooter /><div className="vl-footer-tail"><a href="#top" className="vl-brand"><img src="/brand/ikioma-symbol.svg" alt="" width="23" height="24" /><span>ИКИОМА</span></a><span>Санкт-Петербург и Ленинградская область</span><a href="/contacts/">Контакты</a><a href="/calculation-terms/">Условия расчёта</a></div></div></footer>
     <GalleryDialog gallery={gallery} setGallery={setGallery} />
     <VelaLead context={leadContext} kind={lead} close={() => setLead(null)} selection={selection} quote={quote} land={land} setLand={setLand} mortgage={mortgageScenario} track={track} />
   </div>;

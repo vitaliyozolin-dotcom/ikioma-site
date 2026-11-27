@@ -61,11 +61,11 @@ export function ArchitectureGallery({ items, open }: { items: VelaView[]; open: 
   }
   if (!items.length) return null;
   const view = items[active];
-  return <section ref={section} className="vl-architecture-band" id="architecture" aria-labelledby="vl-architecture-title">
+  return <section ref={section} className="vl-architecture-band" id="architecture" tabIndex={-1} aria-labelledby="vl-architecture-title">
     <div className="vl-section vl-wrap">
       <div className="vl-section-heading">
-        <h2 id="vl-architecture-title">Как живётся <em>в ВЕЛА</em></h2>
-        <p>Визуализации семейной жизни в доме и варианты отделки комнат.</p>
+        <h2 id="vl-architecture-title">Как живётся <em>в ВЕЛА</em></h2>
+        <p>Семейная жизнь в доме и варианты отделки комнат</p>
       </div>
       <div className="vl-viewer">
         <figure className="vl-viewer-main">
@@ -126,7 +126,7 @@ export function GalleryDialog({ gallery, setGallery }: {
     }
   }}>
     {gallery && item && <>
-      <div className="vl-dialog-heading"><h2 id="vl-gallery-title">{item.label ?? "Стройка в Келози"}</h2><button type="button" className="vl-icon-button" aria-label="Закрыть галерею" onClick={dismiss}>×</button></div>
+      <div className="vl-dialog-heading"><h2 id="vl-gallery-title">{item.label ?? "Стройка в Келози"}</h2><button type="button" className="vl-icon-button" aria-label="Закрыть галерею" onClick={dismiss}>×</button></div>
       <figure onTouchStart={event => { const p = event.touches[0]; touch.current = { x: p.clientX, y: p.clientY }; }} onTouchEnd={event => {
         const start = touch.current;
         touch.current = null;
@@ -151,8 +151,8 @@ export function ConstructionPhotos({ items, open, action }: { items: VelaView[];
   if (!items.length) return null;
   return <section className="vl-section vl-wrap vl-project-proof" id="construction" aria-labelledby="vl-construction-title">
     <div className="vl-section-heading">
-      <div><p className="vl-kicker">Объект ИКИОМА</p><h2 id="vl-construction-title">Стройка <em>в Келози</em></h2></div>
-      <div><p>Фотографии объекта ИКИОМА на разных этапах. Фасад, терраса и работы внутри дома.</p>{action}</div>
+      <div><p className="vl-kicker">Объект ИКИОМА</p><h2 id="vl-construction-title">Стройка <em>в Келози</em></h2></div>
+      <div><p>Фотографии объекта ИКИОМА на разных этапах. Фасад, терраса и работы внутри дома.</p>{action}</div>
     </div>
     <div className="vl-photos">{items.map((item, index) => <figure key={item.src}>
       <button type="button" className="vl-image-trigger" aria-label={"Увеличить: " + item.caption} onClick={event => open(items, index, event.currentTarget)}>
